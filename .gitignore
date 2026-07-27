@@ -1,0 +1,8 @@
+/target/
+/.idea/
+*.iml
+*.log
+/lib/*.jar
+!.gitkeep
+/data/
+.env

@@ -1,0 +1,87 @@
+spring:
+  application:
+    name: ibkr-java-trading-system
+  datasource:
+    url: jdbc:h2:file:./data/ibkr-paper-trading
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  h2:
+    console:
+      enabled: false
+  main:
+    banner-mode: off
+
+server:
+  port: ${SERVER_PORT:8080}
+
+trading:
+  # Questa versione accetta esclusivamente PAPER.
+  mode: ${TRADING_MODE:PAPER}
+  live-trading-enabled: ${LIVE_TRADING_ENABLED:false}
+
+  # False per impostazione predefinita. Abilitare solo dopo aver configurato
+  # l'account paper esatto e verificato gli endpoint in sola generazione segnali.
+  order-submission-enabled: ${IBKR_PAPER_ORDERS_ENABLED:false}
+  paper-account-confirmation: ${PAPER_ACCOUNT_CONFIRMATION:}
+
+  ibkr:
+    host: ${IBKR_HOST:127.0.0.1}
+    # TWS Paper 7497; IB Gateway Paper 4002.
+    port: ${IBKR_PORT:7497}
+    client-id: ${IBKR_CLIENT_ID:21}
+    account-id: ${IBKR_PAPER_ACCOUNT_ID:}
+    auto-connect: ${IBKR_AUTO_CONNECT:true}
+    allow-custom-paper-port: ${IBKR_ALLOW_CUSTOM_PAPER_PORT:false}
+    connection-timeout: ${IBKR_CONNECTION_TIMEOUT:10s}
+    reconnect:
+      enabled: ${IBKR_RECONNECT_ENABLED:true}
+      delay: ${IBKR_RECONNECT_DELAY:5s}
+      max-attempts: ${IBKR_RECONNECT_MAX_ATTEMPTS:5}
+
+  market-data:
+    enabled: ${IBKR_MARKET_DATA_ENABLED:true}
+    # DELAYED è il default più semplice per iniziare.
+    # Con abbonamenti dati adeguati può essere impostato LIVE.
+    mode: ${IBKR_MARKET_DATA_MODE:DELAYED}
+    instruments:
+      - symbol: ${TRADING_SYMBOL_1:SPY}
+        security-type: STK
+        exchange: SMART
+        currency: USD
+        primary-exchange: ARCA
+
+  strategy:
+    enabled: ${STRATEGY_ENABLED:true}
+    # Calcola e salva segnali, ma non li invia automaticamente per default.
+    auto-execute-signals: ${AUTO_EXECUTE_SIGNALS:false}
+    fast-period: ${STRATEGY_FAST_PERIOD:5}
+    slow-period: ${STRATEGY_SLOW_PERIOD:20}
+    quantity: ${STRATEGY_QUANTITY:1}
+    signal-cooldown: ${STRATEGY_SIGNAL_COOLDOWN:1m}
+    take-profit-percent: ${STRATEGY_TAKE_PROFIT_PERCENT:2.0}
+    trailing-stop-percent: ${STRATEGY_TRAILING_STOP_PERCENT:1.0}
+
+  risk:
+    max-order-value: ${RISK_MAX_ORDER_VALUE:5000}
+    max-position-value: ${RISK_MAX_POSITION_VALUE:10000}
+    max-quantity-per-order: ${RISK_MAX_QUANTITY:10}
+    max-daily-orders: ${RISK_MAX_DAILY_ORDERS:20}
+    max-open-orders: ${RISK_MAX_OPEN_ORDERS:10}
+    max-daily-loss: ${RISK_MAX_DAILY_LOSS:250}
+    allow-short-selling: ${RISK_ALLOW_SHORT:false}
+
+  orders:
+    entry-time-in-force: ${ORDER_ENTRY_TIF:DAY}
+    protective-time-in-force: ${ORDER_PROTECTIVE_TIF:GTC}
+    outside-regular-trading-hours: ${ORDER_OUTSIDE_RTH:false}
+    inter-order-delay: ${ORDER_INTER_ORDER_DELAY:25ms}
+
+logging:
+  level:
+    root: INFO
+    it.andreademartini.trading: DEBUG

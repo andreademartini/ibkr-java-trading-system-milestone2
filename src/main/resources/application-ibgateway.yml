@@ -1,0 +1,3 @@
+trading:
+  ibkr:
+    port: ${IBKR_PORT:4002}

@@ -1,0 +1,114 @@
+@host = http://localhost:8080
+
+### Stato generale
+GET {{host}}/api/paper/status
+
+### Segnali recenti
+GET {{host}}/api/paper/signals
+
+### Segnale manuale solo registrato, senza ordine
+POST {{host}}/api/paper/signals
+Content-Type: application/json
+
+{
+  "symbol": "SPY",
+  "action": "BUY",
+  "price": 600.00,
+  "quantity": 1,
+  "reason": "test-manuale",
+  "execute": false
+}
+
+### Ordine MARKET paper
+POST {{host}}/api/paper/orders
+Content-Type: application/json
+
+{
+  "symbol": "SPY",
+  "side": "BUY",
+  "type": "MARKET",
+  "quantity": 1,
+  "reason": "test-market-paper"
+}
+
+### Ordine LIMIT paper
+POST {{host}}/api/paper/orders
+Content-Type: application/json
+
+{
+  "symbol": "SPY",
+  "side": "BUY",
+  "type": "LIMIT",
+  "quantity": 1,
+  "limitPrice": 590.00,
+  "reason": "test-limit-paper"
+}
+
+### Ordine STOP paper
+POST {{host}}/api/paper/orders
+Content-Type: application/json
+
+{
+  "symbol": "SPY",
+  "side": "SELL",
+  "type": "STOP",
+  "quantity": 1,
+  "stopPrice": 580.00,
+  "reason": "protective-stop-paper"
+}
+
+### Trailing stop percentuale paper
+POST {{host}}/api/paper/orders
+Content-Type: application/json
+
+{
+  "symbol": "SPY",
+  "side": "SELL",
+  "type": "TRAILING_STOP",
+  "quantity": 1,
+  "trailingPercent": 1.0,
+  "reason": "protective-trailing-paper"
+}
+
+### Bracket: entry + take profit + stop loss
+POST {{host}}/api/paper/orders
+Content-Type: application/json
+
+{
+  "symbol": "SPY",
+  "side": "BUY",
+  "type": "BRACKET",
+  "quantity": 1,
+  "takeProfitPrice": 612.00,
+  "stopPrice": 588.00,
+  "reason": "bracket-paper"
+}
+
+### Bracket: entry + take profit + trailing stop
+POST {{host}}/api/paper/orders
+Content-Type: application/json
+
+{
+  "symbol": "SPY",
+  "side": "BUY",
+  "type": "BRACKET_WITH_TRAILING_STOP",
+  "quantity": 1,
+  "takeProfitPrice": 612.00,
+  "trailingPercent": 1.0,
+  "reason": "bracket-trailing-paper"
+}
+
+### Ordini tracciati
+GET {{host}}/api/paper/orders
+
+### Posizioni
+GET {{host}}/api/paper/positions
+
+### Chiusura posizione
+POST {{host}}/api/paper/positions/SPY/close
+
+### Attiva kill switch
+POST {{host}}/api/paper/kill-switch/activate
+
+### Disattiva kill switch
+POST {{host}}/api/paper/kill-switch/deactivate
