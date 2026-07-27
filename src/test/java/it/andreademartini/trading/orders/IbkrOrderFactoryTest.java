@@ -1,6 +1,7 @@
 package it.andreademartini.trading.orders;
 
 import com.ib.client.EWrapper;
+import com.ib.client.OrderType;
 import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.ibkr.IbkrEWrapper;
 import it.andreademartini.trading.ibkr.OrderIdSequence;
@@ -55,6 +56,6 @@ class IbkrOrderFactoryTest {
         assertTrue(commands.get(2).order().transmit());
         assertEquals(100, commands.get(1).order().parentId());
         assertEquals(100, commands.get(2).order().parentId());
-        assertEquals("TRAIL", commands.get(2).order().orderType());
+        assertEquals(OrderType.TRAIL, commands.get(2).order().orderType());
     }
 }

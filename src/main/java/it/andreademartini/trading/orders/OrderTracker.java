@@ -3,6 +3,7 @@ package it.andreademartini.trading.orders;
 import com.ib.client.Contract;
 import com.ib.client.Order;
 import com.ib.client.OrderState;
+import com.ib.client.Types;
 import it.andreademartini.trading.ibkr.IbkrEWrapper;
 import it.andreademartini.trading.ibkr.IbkrError;
 import it.andreademartini.trading.ibkr.IbkrEventListener;
@@ -146,15 +147,17 @@ public class OrderTracker implements IbkrEventListener {
         }
 
         String symbol = normalize(contract.symbol());
-        OrderSide side = "SELL".equalsIgnoreCase(order.action())
+        OrderSide side = order.action() == Types.Action.SELL
                 ? OrderSide.SELL
                 : OrderSide.BUY;
         long quantity = IbkrNumber.toBigDecimal(order.totalQuantity()).longValue();
-        String rawType = order.orderType() == null ? "" : order.orderType();
+        String rawType = order.orderType() == null
+                ? ""
+                : order.orderType().getApiString();
         PaperOrderType type = mapType(rawType);
         String status = orderState.status() == null
                 ? "OPEN_ORDER"
-                : orderState.status();
+                : orderState.status().toString();
 
         orders.put(orderId, new TrackedOrder(
                 orderId,

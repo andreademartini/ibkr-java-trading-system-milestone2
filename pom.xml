@@ -44,15 +44,14 @@
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
-
-        <!--
-          Scaricare TwsApi.jar dal sito ufficiale IBKR e installarlo nel repository
-          Maven locale tramite scripts/install-ibkr-api.ps1 o .sh.
-        -->
         <dependency>
             <groupId>com.interactivebrokers</groupId>
             <artifactId>tws-api</artifactId>
             <version>${ibkr-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
         </dependency>
 
         <dependency>
