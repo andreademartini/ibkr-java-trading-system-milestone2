@@ -225,6 +225,41 @@ dei dati dipende anche dalle autorizzazioni e sottoscrizioni dell'account.
 
 ---
 
+### Fonte dati gratuita alternativa
+
+Per ricevere prezzi senza usare i market data di Interactive Brokers puoi usare
+Alpha Vantage. Serve una API key gratuita e i dati dell'endpoint gratuito sono
+adatti a test e segnali dimostrativi, non a esecuzione intraday a bassa latenza.
+
+```powershell
+$env:MARKET_DATA_PROVIDER="ALPHA_VANTAGE"
+$env:ALPHA_VANTAGE_API_KEY="LA_TUA_API_KEY"
+$env:IBKR_AUTO_CONNECT="false"
+
+mvn spring-boot:run
+```
+
+Con `ALPHA_VANTAGE`, `LAST` e `CLOSE` vengono aggiornati via polling HTTP; `BID`
+e `ASK` restano a zero perche' l'endpoint gratuito `GLOBAL_QUOTE` non li espone.
+Gli ordini paper restano comunque legati a IBKR e richiedono TWS/IB Gateway.
+
+La dashboard locale e' disponibile su:
+
+```text
+http://localhost:8080/
+```
+
+Per imparare il flusso senza connessioni esterne puoi lasciare:
+
+```powershell
+$env:MARKET_DATA_PROVIDER="MANUAL"
+$env:IBKR_AUTO_CONNECT="false"
+$env:IBKR_PAPER_ORDERS_ENABLED="false"
+$env:AUTO_EXECUTE_SIGNALS="false"
+```
+
+---
+
 ## 6. Configurare l'account paper e abilitare gli ordini
 
 In PowerShell, usando **l'account paper mostrato in TWS**:
@@ -506,6 +541,7 @@ Questa milestone non include ancora:
 - scanner di mercato;
 - calendario di borsa;
 - controllo del tick minimo tramite `ContractDetails`;
+- bid/ask reali dal provider gratuito Alpha Vantage;
 - riconciliazione completa dopo riavvio;
 - attesa asincrona della cancellazione prima della chiusura;
 - gestione multi-account;

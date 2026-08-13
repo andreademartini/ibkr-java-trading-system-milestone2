@@ -237,7 +237,13 @@ public class TradingSystemProperties {
         private boolean enabled = true;
 
         @NotNull
+        private MarketDataProvider provider = MarketDataProvider.IBKR;
+
+        @NotNull
         private MarketDataMode mode = MarketDataMode.DELAYED;
+
+        @Valid
+        private final AlphaVantageProperties alphaVantage = new AlphaVantageProperties();
 
         @Valid
         private List<InstrumentProperties> instruments = new ArrayList<>();
@@ -254,6 +260,14 @@ public class TradingSystemProperties {
             this.enabled = enabled;
         }
 
+        public MarketDataProvider getProvider() {
+            return provider;
+        }
+
+        public void setProvider(MarketDataProvider provider) {
+            this.provider = provider;
+        }
+
         public MarketDataMode getMode() {
             return mode;
         }
@@ -262,12 +276,51 @@ public class TradingSystemProperties {
             this.mode = mode;
         }
 
+        public AlphaVantageProperties getAlphaVantage() {
+            return alphaVantage;
+        }
+
         public List<InstrumentProperties> getInstruments() {
             return instruments;
         }
 
         public void setInstruments(List<InstrumentProperties> instruments) {
             this.instruments = instruments == null ? new ArrayList<>() : instruments;
+        }
+    }
+
+    public static class AlphaVantageProperties {
+
+        private String apiKey = "";
+
+        @NotNull
+        private Duration pollingInterval = Duration.ofMinutes(1);
+
+        @NotBlank
+        private String baseUrl = "https://www.alphavantage.co/query";
+
+        public String getApiKey() {
+            return apiKey;
+        }
+
+        public void setApiKey(String apiKey) {
+            this.apiKey = apiKey;
+        }
+
+        public Duration getPollingInterval() {
+            return pollingInterval;
+        }
+
+        public void setPollingInterval(Duration pollingInterval) {
+            this.pollingInterval = pollingInterval;
+        }
+
+        public String getBaseUrl() {
+            return baseUrl;
+        }
+
+        public void setBaseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
         }
     }
 
@@ -330,6 +383,9 @@ public class TradingSystemProperties {
 
     public static class StrategyProperties {
 
+        @NotNull
+        private StrategyType type = StrategyType.MOVING_AVERAGE_CROSSOVER;
+
         /**
          * Se true calcola segnali; non implica l'invio automatico.
          */
@@ -358,6 +414,14 @@ public class TradingSystemProperties {
 
         @DecimalMin("0.01")
         private double trailingStopPercent = 1.0;
+
+        public StrategyType getType() {
+            return type;
+        }
+
+        public void setType(StrategyType type) {
+            this.type = type;
+        }
 
         public boolean isEnabled() {
             return enabled;

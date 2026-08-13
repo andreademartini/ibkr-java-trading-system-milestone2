@@ -69,6 +69,7 @@ public class PaperTradingController {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("mode", properties.getMode());
         result.put("connectionState", connectionService.getState());
+        result.put("marketDataProvider", properties.getMarketData().getProvider());
         result.put("paperAccountVerified", accountVerifier.isVerified());
         result.put("orderSubmissionEnabled", properties.isOrderSubmissionEnabled());
         result.put("autoExecuteSignals",

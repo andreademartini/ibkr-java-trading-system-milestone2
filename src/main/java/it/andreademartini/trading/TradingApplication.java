@@ -43,6 +43,7 @@ public class TradingApplication {
 
                 if (!properties.getIbkr().isAutoConnect()) {
                     log.warn("Connessione automatica IBKR disabilitata");
+                    coordinator.start();
                     return;
                 }
 
@@ -51,6 +52,7 @@ public class TradingApplication {
                     coordinator.start();
                 } catch (IbkrConnectionException exception) {
                     log.error("Connessione iniziale a IBKR non riuscita: {}", exception.getMessage());
+                    coordinator.start();
                 }
             }
         };

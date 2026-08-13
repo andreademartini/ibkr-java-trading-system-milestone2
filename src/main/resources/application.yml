@@ -35,7 +35,7 @@ trading:
     port: ${IBKR_PORT:7497}
     client-id: ${IBKR_CLIENT_ID:21}
     account-id: ${IBKR_PAPER_ACCOUNT_ID:}
-    auto-connect: ${IBKR_AUTO_CONNECT:true}
+    auto-connect: ${IBKR_AUTO_CONNECT:false}
     allow-custom-paper-port: ${IBKR_ALLOW_CUSTOM_PAPER_PORT:false}
     connection-timeout: ${IBKR_CONNECTION_TIMEOUT:10s}
     reconnect:
@@ -45,9 +45,14 @@ trading:
 
   market-data:
     enabled: ${IBKR_MARKET_DATA_ENABLED:true}
+    provider: ${MARKET_DATA_PROVIDER:MANUAL}
     # DELAYED è il default più semplice per iniziare.
     # Con abbonamenti dati adeguati può essere impostato LIVE.
     mode: ${IBKR_MARKET_DATA_MODE:DELAYED}
+    alpha-vantage:
+      api-key: ${ALPHA_VANTAGE_API_KEY:}
+      polling-interval: ${ALPHA_VANTAGE_POLLING_INTERVAL:1m}
+      base-url: ${ALPHA_VANTAGE_BASE_URL:https://www.alphavantage.co/query}
     instruments:
       - symbol: ${TRADING_SYMBOL_1:SPY}
         security-type: STK

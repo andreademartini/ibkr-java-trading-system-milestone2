@@ -1,5 +1,6 @@
 package it.andreademartini.trading.strategy;
 
+import it.andreademartini.trading.config.StrategyType;
 import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.marketdata.MarketPriceEvent;
 import it.andreademartini.trading.marketdata.MarketPriceType;
@@ -14,15 +15,18 @@ public class StrategyEngine {
     private static final Logger log = LoggerFactory.getLogger(StrategyEngine.class);
 
     private final TradingSystemProperties properties;
-    private final TradingStrategy strategy;
     private final SignalService signalService;
+    private final Object strategyLock = new Object();
+
+    private TradingStrategy strategy;
+    private StrategyType activeStrategyType;
 
     public StrategyEngine(
             TradingSystemProperties properties,
             SignalService signalService) {
         this.properties = properties;
         this.signalService = signalService;
-        this.strategy = new MovingAverageCrossoverStrategy(properties.getStrategy());
+        reset();
     }
 
     @EventListener
@@ -35,7 +39,7 @@ public class StrategyEngine {
             return;
         }
 
-        strategy.onPrice(event.symbol(), event.price(), event.occurredAt())
+        currentStrategy().onPrice(event.symbol(), event.price(), event.occurredAt())
                 .ifPresent(signal -> {
                     try {
                         signalService.publish(
@@ -49,5 +53,31 @@ public class StrategyEngine {
                                 exception);
                     }
                 });
+    }
+
+    public void reset() {
+        synchronized (strategyLock) {
+            activeStrategyType = properties.getStrategy().getType();
+            strategy = createStrategy(activeStrategyType);
+        }
+    }
+
+    private TradingStrategy currentStrategy() {
+        synchronized (strategyLock) {
+            StrategyType configuredType = properties.getStrategy().getType();
+            if (strategy == null || activeStrategyType != configuredType) {
+                activeStrategyType = configuredType;
+                strategy = createStrategy(configuredType);
+            }
+            return strategy;
+        }
+    }
+
+    private TradingStrategy createStrategy(StrategyType type) {
+        return switch (type) {
+            case MANUAL_ONLY -> new ManualOnlyStrategy();
+            case MOVING_AVERAGE_CROSSOVER ->
+                    new MovingAverageCrossoverStrategy(properties.getStrategy());
+        };
     }
 }
