@@ -33,8 +33,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @RestController
 @RequestMapping("/api/workbench")
@@ -43,26 +41,26 @@ public class TradingWorkbenchController {
     private final TradingSystemProperties properties;
     private final MarketDataService marketDataService;
     private final HistoricalDataService historicalDataService;
+    private final ActionProfileService actionProfileService;
     private final StrategyEngine strategyEngine;
     private final SignalService signalService;
     private final KillSwitchService killSwitchService;
-    private final CopyOnWriteArrayList<ActionProfileConfig> actionProfiles =
-            new CopyOnWriteArrayList<>();
 
     public TradingWorkbenchController(
             TradingSystemProperties properties,
             MarketDataService marketDataService,
             HistoricalDataService historicalDataService,
+            ActionProfileService actionProfileService,
             StrategyEngine strategyEngine,
             SignalService signalService,
             KillSwitchService killSwitchService) {
         this.properties = properties;
         this.marketDataService = marketDataService;
         this.historicalDataService = historicalDataService;
+        this.actionProfileService = actionProfileService;
         this.strategyEngine = strategyEngine;
         this.signalService = signalService;
         this.killSwitchService = killSwitchService;
-        this.actionProfiles.add(defaultActionProfile());
     }
 
     @GetMapping("/config")
@@ -140,22 +138,13 @@ public class TradingWorkbenchController {
 
     @GetMapping("/action-profiles")
     public ActionProfilesResponse actionProfiles() {
-        return actionProfilesResponse();
+        return actionProfileService.response();
     }
 
     @PutMapping("/action-profiles")
     public ActionProfilesResponse updateActionProfiles(
             @RequestBody ActionProfilesRequest request) {
-        if (request.profiles() == null || request.profiles().isEmpty()) {
-            throw new IllegalArgumentException("Inserire almeno un profilo azione");
-        }
-
-        List<ActionProfileConfig> normalized = request.profiles().stream()
-                .map(this::normalizeActionProfile)
-                .toList();
-        actionProfiles.clear();
-        actionProfiles.addAll(normalized);
-        return actionProfilesResponse();
+        return actionProfileService.save(request);
     }
 
     @PostMapping("/actions/manual-signal")
@@ -580,73 +569,6 @@ public class TradingWorkbenchController {
                 killSwitchService.isActive());
     }
 
-    private ActionProfilesResponse actionProfilesResponse() {
-        return new ActionProfilesResponse(
-                Arrays.asList(MarketDataProvider.values()),
-                Arrays.asList(StrategyType.values()),
-                List.copyOf(actionProfiles));
-    }
-
-    private ActionProfileConfig defaultActionProfile() {
-        TradingSystemProperties.InstrumentProperties instrument =
-                properties.getMarketData().getInstruments().isEmpty()
-                        ? new TradingSystemProperties.InstrumentProperties()
-                        : properties.getMarketData().getInstruments().get(0);
-        TradingSystemProperties.StrategyProperties strategy = properties.getStrategy();
-        return new ActionProfileConfig(
-                UUID.randomUUID().toString(),
-                "SPY crossover",
-                instrument.getSymbol(),
-                properties.getMarketData().getProvider(),
-                strategy.getType(),
-                strategy.getFastPeriod(),
-                strategy.getSlowPeriod(),
-                strategy.getQuantity(),
-                10_000.0,
-                0.0,
-                0.0,
-                "DAILY",
-                "compact",
-                100);
-    }
-
-    private ActionProfileConfig normalizeActionProfile(ActionProfileConfig profile) {
-        String id = profile.id() == null || profile.id().isBlank()
-                ? UUID.randomUUID().toString()
-                : profile.id().trim();
-        String symbol = normalizeSymbol(profile.symbol());
-        int fastPeriod = profile.fastPeriod() == null
-                ? properties.getStrategy().getFastPeriod()
-                : profile.fastPeriod();
-        int slowPeriod = profile.slowPeriod() == null
-                ? properties.getStrategy().getSlowPeriod()
-                : profile.slowPeriod();
-        if (fastPeriod >= slowPeriod) {
-            throw new IllegalArgumentException(
-                    "Nel profilo " + symbol + " slowPeriod deve essere maggiore di fastPeriod");
-        }
-
-        return new ActionProfileConfig(
-                id,
-                blankToDefault(profile.name(), symbol + " strategy"),
-                symbol,
-                profile.provider() == null
-                        ? properties.getMarketData().getProvider()
-                        : profile.provider(),
-                profile.strategy() == null
-                        ? properties.getStrategy().getType()
-                        : profile.strategy(),
-                fastPeriod,
-                slowPeriod,
-                profile.quantity() == null ? properties.getStrategy().getQuantity() : profile.quantity(),
-                profile.initialCapital() == null ? 10_000.0 : profile.initialCapital(),
-                profile.commissionPerOrder() == null ? 0.0 : profile.commissionPerOrder(),
-                profile.slippagePercent() == null ? 0.0 : profile.slippagePercent(),
-                normalizeTimeframe(profile.timeframe()),
-                normalizeOutputSize(profile.outputSize()),
-                profile.maxPoints() == null ? 100 : Math.max(1, Math.min(5_000, profile.maxPoints())));
-    }
-
     private String source(String prefix, MarketDataProvider provider, StrategyType strategy) {
         MarketDataProvider resolvedProvider = provider == null
                 ? properties.getMarketData().getProvider()
@@ -736,33 +658,6 @@ public class TradingWorkbenchController {
             boolean execute,
             MarketDataProvider provider,
             StrategyType strategy) {
-    }
-
-    public record ActionProfilesRequest(
-            List<ActionProfileConfig> profiles) {
-    }
-
-    public record ActionProfilesResponse(
-            List<MarketDataProvider> providerOptions,
-            List<StrategyType> strategyOptions,
-            List<ActionProfileConfig> profiles) {
-    }
-
-    public record ActionProfileConfig(
-            String id,
-            String name,
-            String symbol,
-            MarketDataProvider provider,
-            StrategyType strategy,
-            Integer fastPeriod,
-            Integer slowPeriod,
-            Long quantity,
-            Double initialCapital,
-            Double commissionPerOrder,
-            Double slippagePercent,
-            String timeframe,
-            String outputSize,
-            Integer maxPoints) {
     }
 
     public record HistoricalDownloadRequest(

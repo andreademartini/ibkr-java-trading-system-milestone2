@@ -47,24 +47,36 @@
     <section class="grid action-grid">
         <section class="panel">
             <div class="panel-heading">
-                <h2>Profili azione</h2>
+                <h2>Azioni</h2>
                 <div class="button-row inline-row">
-                    <button id="add-profile-button" type="button">Nuovo</button>
+                    <button id="add-stock-button" type="button">Aggiungi</button>
                     <button id="save-profiles-button" type="button">Salva profili</button>
                 </div>
             </div>
-            <div id="profile-list" class="profile-list"></div>
+            <label class="stock-entry">
+                Simboli stock
+                <input id="bulk-symbols" autocomplete="off" placeholder="SPY, AAPL, MSFT">
+            </label>
+            <div id="stock-list" class="profile-list"></div>
+            <div class="panel-heading sub-heading">
+                <h2>Strategie stock</h2>
+                <button id="add-strategy-button" type="button">Nuova strategia</button>
+            </div>
+            <div id="strategy-list" class="profile-list strategy-list"></div>
         </section>
 
         <section class="panel">
             <div class="panel-heading">
-                <h2>Profilo selezionato</h2>
-                <button id="delete-profile-button" class="danger" type="button">Elimina</button>
+                <h2>Strategia selezionata</h2>
+                <div class="button-row inline-row">
+                    <button id="delete-stock-button" class="danger" type="button">Elimina stock</button>
+                    <button id="delete-strategy-button" class="danger" type="button">Elimina strategia</button>
+                </div>
             </div>
 
             <div class="form-grid compact">
                 <label>
-                    Nome profilo
+                    Nome strategia
                     <input id="profile-name" autocomplete="off">
                 </label>
                 <label>

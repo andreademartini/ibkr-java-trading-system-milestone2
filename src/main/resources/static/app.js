@@ -1,8 +1,10 @@
 const state = {
     config: null,
+    stocks: [],
     profiles: [],
     providerOptions: [],
     strategyOptions: [],
+    selectedStockId: null,
     selectedProfileId: null,
     status: null,
     signals: [],
@@ -64,9 +66,86 @@ function alphaVantageConfigured() {
         && state.config?.marketData?.alphaVantage?.apiKeyConfigured;
 }
 
+function selectedStock() {
+    return state.stocks.find((stock) => stock.id === state.selectedStockId)
+        || state.stocks[0];
+}
+
 function selectedProfile() {
-    return state.profiles.find((profile) => profile.id === state.selectedProfileId)
-        || state.profiles[0];
+    const stock = selectedStock();
+    if (!stock) {
+        return null;
+    }
+    return stock.strategies.find((profile) => profile.id === state.selectedProfileId)
+        || stock.strategies[0];
+}
+
+function flattenStocks(stocks) {
+    return stocks.flatMap((stock) =>
+        (stock.strategies || []).map((strategy) => ({
+            ...strategy,
+            symbol: stock.symbol
+        }))
+    );
+}
+
+function profileToStock(profile) {
+    return {
+        id: crypto.randomUUID(),
+        symbol: profile.symbol,
+        name: profile.symbol,
+        securityType: "STK",
+        exchange: "SMART",
+        currency: "USD",
+        primaryExchange: "ARCA",
+        strategies: [profile]
+    };
+}
+
+function stocksFromProfiles(profiles) {
+    const stocksBySymbol = new Map();
+    profiles.forEach((profile) => {
+        const symbol = (profile.symbol || "SPY").trim().toUpperCase();
+        if (!stocksBySymbol.has(symbol)) {
+            stocksBySymbol.set(symbol, profileToStock({ ...profile, symbol }));
+        } else {
+            stocksBySymbol.get(symbol).strategies.push({ ...profile, symbol });
+        }
+    });
+    return Array.from(stocksBySymbol.values());
+}
+
+function defaultStrategy(symbol, index = 1) {
+    return {
+        id: crypto.randomUUID(),
+        name: `${symbol} strategy ${index}`,
+        symbol,
+        provider: state.config?.marketData?.provider || "MANUAL",
+        strategy: "MOVING_AVERAGE_CROSSOVER",
+        fastPeriod: 5,
+        slowPeriod: 20,
+        quantity: 1,
+        initialCapital: 10000,
+        commissionPerOrder: 0,
+        slippagePercent: 0,
+        timeframe: "DAILY",
+        outputSize: "compact",
+        maxPoints: 100
+    };
+}
+
+function defaultStock(symbol) {
+    const normalized = symbol.trim().toUpperCase();
+    return {
+        id: crypto.randomUUID(),
+        symbol: normalized,
+        name: normalized,
+        securityType: "STK",
+        exchange: "SMART",
+        currency: "USD",
+        primaryExchange: "ARCA",
+        strategies: [defaultStrategy(normalized)]
+    };
 }
 
 function normalizeListResponse(value) {
@@ -119,13 +198,36 @@ function renderStatus() {
 }
 
 function renderProfiles() {
-    $("profile-list").innerHTML = state.profiles.map((profile) => `
-        <button class="profile-card ${profile.id === state.selectedProfileId ? "selected" : ""}"
+    $("stock-list").innerHTML = state.stocks.map((stock) => `
+        <button class="profile-card ${stock.id === state.selectedStockId ? "selected" : ""}"
+                type="button"
+                data-stock-id="${stock.id}">
+            <strong>${stock.symbol}</strong>
+            <span>${stock.name || stock.symbol}</span>
+            <small>${(stock.strategies || []).length} strategie salvate</small>
+        </button>
+    `).join("");
+
+    document.querySelectorAll("[data-stock-id]").forEach((button) => {
+        button.addEventListener("click", () => {
+            saveSelectedFormInMemory();
+            state.selectedStockId = button.dataset.stockId;
+            const stock = selectedStock();
+            state.selectedProfileId = stock?.strategies[0]?.id || null;
+            applyProfileToForm(selectedProfile());
+            renderProfiles();
+        });
+    });
+
+    const stock = selectedStock();
+    const strategies = stock?.strategies || [];
+    $("strategy-list").innerHTML = strategies.map((profile) => `
+        <button class="profile-card strategy-card ${profile.id === state.selectedProfileId ? "selected" : ""}"
                 type="button"
                 data-profile-id="${profile.id}">
             <strong>${profile.name}</strong>
-            <span>${profile.symbol} · ${profile.provider} · ${profile.strategy}</span>
-            <small>F${profile.fastPeriod} / S${profile.slowPeriod} · ${profile.timeframe}</small>
+            <span>${profile.provider} - ${profile.strategy}</span>
+            <small>F${profile.fastPeriod} / S${profile.slowPeriod} - ${profile.timeframe}</small>
         </button>
     `).join("");
 
@@ -185,11 +287,26 @@ function collectProfileFromForm() {
 
 function saveSelectedFormInMemory() {
     const profile = selectedProfile();
+    const stock = selectedStock();
     if (!profile) {
         return;
     }
     const updated = collectProfileFromForm();
-    state.profiles = state.profiles.map((item) => item.id === updated.id ? updated : item);
+    state.stocks = state.stocks.map((item) => {
+        if (item.id !== stock.id) {
+            return item;
+        }
+        return {
+            ...item,
+            symbol: updated.symbol,
+            name: updated.symbol,
+            strategies: item.strategies.map((strategy) =>
+                strategy.id === updated.id
+                    ? updated
+                    : { ...strategy, symbol: updated.symbol })
+        };
+    });
+    state.profiles = flattenStocks(state.stocks);
 }
 
 async function saveProfiles() {
@@ -201,49 +318,91 @@ async function saveProfiles() {
 async function persistProfiles() {
     const response = await api("/api/workbench/action-profiles", {
         method: "PUT",
-        body: JSON.stringify({ profiles: state.profiles })
+        body: JSON.stringify({ stocks: state.stocks })
     });
+    state.stocks = response.stocks || stocksFromProfiles(response.profiles || []);
     state.profiles = response.profiles;
-    state.selectedProfileId = selectedProfile()?.id || state.profiles[0]?.id;
+    state.selectedStockId = selectedStock()?.id || state.stocks[0]?.id || null;
+    state.selectedProfileId = selectedProfile()?.id || selectedStock()?.strategies[0]?.id || null;
     renderProfiles();
     applyProfileToForm(selectedProfile());
 }
 
-function addProfile() {
+function addStock() {
     saveSelectedFormInMemory();
-    const base = selectedProfile() || {
-        symbol: "SPY",
-        provider: state.config?.marketData?.provider || "MANUAL",
-        strategy: "MOVING_AVERAGE_CROSSOVER",
-        fastPeriod: 5,
-        slowPeriod: 20,
-        quantity: 1,
-        initialCapital: 10000,
-        commissionPerOrder: 0,
-        slippagePercent: 0,
-        timeframe: "DAILY",
-        outputSize: "compact",
-        maxPoints: 100
-    };
+    const values = $("bulk-symbols").value
+        .split(/[,\s;]+/)
+        .map((value) => value.trim().toUpperCase())
+        .filter(Boolean);
+    const symbols = values.length === 0 ? ["SPY"] : values;
+    const existing = new Set(state.stocks.map((stock) => stock.symbol));
+    const added = symbols
+        .filter((symbol) => !existing.has(symbol))
+        .map(defaultStock);
+    if (added.length === 0) {
+        toast("Stock gia' presenti", true);
+        return;
+    }
+    state.stocks = [...state.stocks, ...added];
+    state.profiles = flattenStocks(state.stocks);
+    const stock = added[added.length - 1];
+    state.selectedStockId = stock.id;
+    state.selectedProfileId = stock.strategies[0].id;
+    setValue("bulk-symbols", "");
+    renderProfiles();
+    applyProfileToForm(selectedProfile());
+}
+
+function addStrategy() {
+    saveSelectedFormInMemory();
+    let stock = selectedStock();
+    if (!stock) {
+        const created = defaultStock("SPY");
+        state.stocks = [created];
+        state.selectedStockId = created.id;
+        stock = created;
+    }
+    const base = selectedProfile() || defaultStrategy(stock.symbol);
     const profile = {
         ...base,
         id: crypto.randomUUID(),
-        name: `${base.symbol} strategy ${state.profiles.length + 1}`,
-        provider: state.config?.marketData?.provider || base.provider || "MANUAL"
+        symbol: stock.symbol,
+        name: `${stock.symbol} strategy ${stock.strategies.length + 1}`
     };
-    state.profiles = [...state.profiles, profile];
+    state.stocks = state.stocks.map((item) =>
+        item.id === stock.id
+            ? { ...item, strategies: [...item.strategies, profile] }
+            : item);
+    state.profiles = flattenStocks(state.stocks);
     state.selectedProfileId = profile.id;
     renderProfiles();
     applyProfileToForm(profile);
 }
 
-function deleteProfile() {
-    if (state.profiles.length <= 1) {
-        toast("Deve restare almeno un profilo", true);
+function deleteStock() {
+    if (state.stocks.length <= 1) {
+        toast("Deve restare almeno uno stock", true);
         return;
     }
-    state.profiles = state.profiles.filter((profile) => profile.id !== state.selectedProfileId);
-    state.selectedProfileId = state.profiles[0].id;
+    state.stocks = state.stocks.filter((stock) => stock.id !== state.selectedStockId);
+    state.selectedStockId = state.stocks[0].id;
+    state.selectedProfileId = state.stocks[0].strategies[0]?.id || null;
+    state.profiles = flattenStocks(state.stocks);
+    renderProfiles();
+    applyProfileToForm(selectedProfile());
+}
+
+function deleteStrategy() {
+    const stock = selectedStock();
+    if (!stock || stock.strategies.length <= 1) {
+        toast("Deve restare almeno una strategia per stock", true);
+        return;
+    }
+    const strategies = stock.strategies.filter((profile) => profile.id !== state.selectedProfileId);
+    state.stocks = state.stocks.map((item) =>
+        item.id === stock.id ? { ...item, strategies } : item);
+    state.selectedProfileId = strategies[0].id;
+    state.profiles = flattenStocks(state.stocks);
     renderProfiles();
     applyProfileToForm(selectedProfile());
 }
@@ -506,8 +665,15 @@ async function refreshAll() {
     state.config = config;
     state.providerOptions = profileResponse.providerOptions;
     state.strategyOptions = profileResponse.strategyOptions;
-    state.profiles = profileResponse.profiles;
-    state.selectedProfileId = state.selectedProfileId || state.profiles[0]?.id;
+    state.stocks = profileResponse.stocks || stocksFromProfiles(profileResponse.profiles || []);
+    state.profiles = flattenStocks(state.stocks);
+    state.selectedStockId = state.stocks.some((stock) => stock.id === state.selectedStockId)
+        ? state.selectedStockId
+        : state.stocks[0]?.id;
+    const stock = selectedStock();
+    state.selectedProfileId = stock?.strategies.some((profile) => profile.id === state.selectedProfileId)
+        ? state.selectedProfileId
+        : stock?.strategies[0]?.id;
     state.status = status;
     state.signals = normalizeListResponse(signals);
     state.orders = normalizeListResponse(orders);
@@ -672,9 +838,11 @@ function bind(id, handler) {
 
 function initEvents() {
     bind("refresh-button", refreshAll);
-    bind("add-profile-button", addProfile);
+    bind("add-stock-button", addStock);
+    bind("add-strategy-button", addStrategy);
     bind("save-profiles-button", saveProfiles);
-    bind("delete-profile-button", deleteProfile);
+    bind("delete-stock-button", deleteStock);
+    bind("delete-strategy-button", deleteStrategy);
     bind("download-history-button", downloadHistory);
     bind("update-history-button", refreshHistoryFromProvider);
     bind("download-simulate-button", downloadHistoryAndSimulate);

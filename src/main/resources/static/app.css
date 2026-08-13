@@ -426,6 +426,18 @@ tbody tr:hover {
     gap: 10px;
 }
 
+.stock-entry {
+    margin-bottom: 12px;
+}
+
+.sub-heading {
+    margin-top: 18px;
+}
+
+.strategy-list {
+    padding-top: 2px;
+}
+
 .profile-card {
     display: grid;
     width: 100%;
