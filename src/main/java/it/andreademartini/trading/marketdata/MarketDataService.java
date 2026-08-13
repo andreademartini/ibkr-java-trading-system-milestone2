@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
@@ -288,7 +289,7 @@ public class MarketDataService implements IbkrEventListener {
         }
 
         long intervalMillis = Math.max(
-                60_000,
+                Duration.ofHours(1).toMillis(),
                 properties.getMarketData().getAlphaVantage()
                         .getPollingInterval()
                         .toMillis());

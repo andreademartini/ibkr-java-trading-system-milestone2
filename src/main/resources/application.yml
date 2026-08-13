@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: ibkr-java-trading-system
   datasource:
@@ -51,7 +53,7 @@ trading:
     mode: ${IBKR_MARKET_DATA_MODE:DELAYED}
     alpha-vantage:
       api-key: ${ALPHA_VANTAGE_API_KEY:}
-      polling-interval: ${ALPHA_VANTAGE_POLLING_INTERVAL:1m}
+      polling-interval: ${ALPHA_VANTAGE_POLLING_INTERVAL:1h}
       base-url: ${ALPHA_VANTAGE_BASE_URL:https://www.alphavantage.co/query}
     instruments:
       - symbol: ${TRADING_SYMBOL_1:SPY}

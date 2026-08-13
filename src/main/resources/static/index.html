@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Azioni e strategie</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="topbar">
+    <div>
+        <h1>Azioni e strategie</h1>
+        <p id="last-refresh">In attesa dati</p>
+    </div>
+    <nav class="top-actions">
+        <a class="link-button active-link" href="/">Azioni</a>
+        <a class="link-button" href="/provider.html">Provider dati</a>
+        <a class="link-button" href="/api/paper/status" target="_blank">JSON status</a>
+        <button id="refresh-button" type="button">Aggiorna</button>
+    </nav>
+</header>
+
+<main class="shell">
+    <section class="status-strip" aria-label="Stato sistema">
+        <div class="metric">
+            <span>Modo</span>
+            <strong id="status-mode">-</strong>
+        </div>
+        <div class="metric">
+            <span>IBKR</span>
+            <strong id="status-connection">-</strong>
+        </div>
+        <div class="metric">
+            <span>Provider globale</span>
+            <strong id="status-provider">-</strong>
+        </div>
+        <div class="metric">
+            <span>Ordini</span>
+            <strong id="status-orders-enabled">-</strong>
+        </div>
+        <div class="metric">
+            <span>Kill switch</span>
+            <strong id="status-kill">-</strong>
+        </div>
+    </section>
+
+    <section class="grid action-grid">
+        <section class="panel">
+            <div class="panel-heading">
+                <h2>Profili azione</h2>
+                <div class="button-row inline-row">
+                    <button id="add-profile-button" type="button">Nuovo</button>
+                    <button id="save-profiles-button" type="button">Salva profili</button>
+                </div>
+            </div>
+            <div id="profile-list" class="profile-list"></div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-heading">
+                <h2>Profilo selezionato</h2>
+                <button id="delete-profile-button" class="danger" type="button">Elimina</button>
+            </div>
+
+            <div class="form-grid compact">
+                <label>
+                    Nome profilo
+                    <input id="profile-name" autocomplete="off">
+                </label>
+                <label>
+                    Simbolo
+                    <input id="profile-symbol" autocomplete="off">
+                </label>
+                <label>
+                    Provider azione
+                    <select id="profile-provider"></select>
+                </label>
+                <label>
+                    Strategia
+                    <select id="profile-strategy"></select>
+                </label>
+                <label>
+                    Media veloce
+                    <input id="profile-fast" type="number" min="2" step="1">
+                </label>
+                <label>
+                    Media lenta
+                    <input id="profile-slow" type="number" min="3" step="1">
+                </label>
+                <label>
+                    Quantita
+                    <input id="profile-quantity" type="number" min="1" step="1">
+                </label>
+                <label>
+                    Capitale iniziale
+                    <input id="profile-capital" type="number" min="1" step="100">
+                </label>
+                <label>
+                    Commissione
+                    <input id="profile-commission" type="number" min="0" step="0.01">
+                </label>
+                <label>
+                    Slippage %
+                    <input id="profile-slippage" type="number" min="0" step="0.01">
+                </label>
+                <label>
+                    Timeframe storico
+                    <select id="profile-timeframe">
+                        <option value="DAILY">Daily</option>
+                        <option value="1min">1 min</option>
+                        <option value="5min">5 min</option>
+                        <option value="15min">15 min</option>
+                        <option value="30min">30 min</option>
+                        <option value="60min">60 min</option>
+                    </select>
+                </label>
+                <label>
+                    Output storico
+                    <select id="profile-output-size">
+                        <option value="compact">Compact</option>
+                        <option value="full">Full</option>
+                    </select>
+                </label>
+                <label>
+                    Max barre
+                    <input id="profile-max-points" type="number" min="1" max="5000" step="1">
+                </label>
+                <label>
+                    Prezzo manuale
+                    <input id="manual-price-value" type="number" min="0.01" step="0.01">
+                </label>
+                <label>
+                    Azione segnale
+                    <select id="signal-action">
+                        <option value="BUY">BUY</option>
+                        <option value="SELL">SELL</option>
+                        <option value="HOLD">HOLD</option>
+                    </select>
+                </label>
+                <label>
+                    Prezzo segnale
+                    <input id="signal-price" type="number" min="0.01" step="0.01">
+                </label>
+                <label>
+                    Esegui ordine
+                    <select id="signal-execute">
+                        <option value="false">No</option>
+                        <option value="true">Si</option>
+                    </select>
+                </label>
+                <label>
+                    Reason
+                    <input id="signal-reason" autocomplete="off">
+                </label>
+            </div>
+
+            <label class="full-label">
+                Serie prezzi usata dalla simulazione
+                <textarea id="simulate-prices" rows="7"></textarea>
+            </label>
+
+            <div class="button-row">
+                <button id="download-history-button" type="button">Scarica storico</button>
+                <button id="update-history-button" type="button">Aggiorna storico</button>
+                <button id="download-simulate-button" type="button">Scarica e simula</button>
+                <button id="simulate-button" type="button">Simula serie</button>
+                <button id="publish-price-button" type="button">Pubblica prezzo</button>
+                <button id="publish-signal-button" type="button">Pubblica segnale</button>
+            </div>
+
+            <div class="button-row guard-row">
+                <button id="activate-kill-button" class="danger" type="button">Attiva kill switch</button>
+                <button id="deactivate-kill-button" type="button">Disattiva kill switch</button>
+            </div>
+        </section>
+    </section>
+
+    <section class="panel results-panel">
+        <div class="panel-heading">
+            <h2>Risultati</h2>
+            <div class="segmented" role="tablist">
+                <button class="segment active" type="button" data-result-tab="signals">Segnali</button>
+                <button class="segment" type="button" data-result-tab="market">Market data</button>
+                <button class="segment" type="button" data-result-tab="orders">Ordini</button>
+                <button class="segment" type="button" data-result-tab="positions">Posizioni</button>
+                <button class="segment" type="button" data-result-tab="history">Storico</button>
+                <button class="segment" type="button" data-result-tab="simulation">Simulazione</button>
+            </div>
+        </div>
+
+        <div class="result-tab active" id="result-signals">
+            <table>
+                <thead>
+                <tr>
+                    <th>Ora</th>
+                    <th>Symbol</th>
+                    <th>Azione</th>
+                    <th>Prezzo</th>
+                    <th>Qty</th>
+                    <th>Source</th>
+                    <th>Reason</th>
+                </tr>
+                </thead>
+                <tbody id="signals-body"></tbody>
+            </table>
+        </div>
+
+        <div class="result-tab" id="result-market">
+            <table>
+                <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Bid</th>
+                    <th>Ask</th>
+                    <th>Last</th>
+                    <th>Close</th>
+                    <th>High</th>
+                    <th>Low</th>
+                    <th>Aggiornato</th>
+                </tr>
+                </thead>
+                <tbody id="market-body"></tbody>
+            </table>
+        </div>
+
+        <div class="result-tab" id="result-orders">
+            <table>
+                <thead>
+                <tr>
+                    <th>Order id</th>
+                    <th>Symbol</th>
+                    <th>Side</th>
+                    <th>Qty</th>
+                    <th>Status</th>
+                    <th>Ruolo</th>
+                </tr>
+                </thead>
+                <tbody id="orders-body"></tbody>
+            </table>
+        </div>
+
+        <div class="result-tab" id="result-positions">
+            <table>
+                <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Symbol</th>
+                    <th>Qty</th>
+                    <th>Avg cost</th>
+                    <th>Aggiornato</th>
+                </tr>
+                </thead>
+                <tbody id="positions-body"></tbody>
+            </table>
+        </div>
+
+        <div class="result-tab" id="result-history">
+            <div id="history-summary" class="simulation-summary"></div>
+            <table>
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Data</th>
+                    <th>Open</th>
+                    <th>High</th>
+                    <th>Low</th>
+                    <th>Close</th>
+                    <th>Volume</th>
+                </tr>
+                </thead>
+                <tbody id="history-body"></tbody>
+            </table>
+        </div>
+
+        <div class="result-tab" id="result-simulation">
+            <div id="simulation-summary" class="simulation-summary"></div>
+            <div id="simulation-metrics" class="metric-grid"></div>
+            <div class="chart-grid">
+                <div>
+                    <h3>Serie storica e segnali</h3>
+                    <div id="price-chart" class="chart"></div>
+                </div>
+                <div>
+                    <h3>Andamento capitale</h3>
+                    <div id="equity-chart" class="chart"></div>
+                </div>
+            </div>
+            <table>
+                <thead>
+                <tr>
+                    <th>Ora</th>
+                    <th>Symbol</th>
+                    <th>Azione</th>
+                    <th>Prezzo</th>
+                    <th>Qty</th>
+                    <th>Reason</th>
+                </tr>
+                </thead>
+                <tbody id="simulation-body"></tbody>
+            </table>
+            <h3>Trade chiusi</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Side</th>
+                    <th>Entry</th>
+                    <th>Exit</th>
+                    <th>Qty</th>
+                    <th>Net PnL</th>
+                    <th>Return %</th>
+                </tr>
+                </thead>
+                <tbody id="trades-body"></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="/app.js"></script>
+</body>
+</html>

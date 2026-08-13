@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Provider dati</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="topbar">
+    <div>
+        <h1>Provider dati</h1>
+        <p id="last-refresh">In attesa dati</p>
+    </div>
+    <nav class="top-actions">
+        <a class="link-button" href="/">Azioni</a>
+        <a class="link-button active-link" href="/provider.html">Provider dati</a>
+        <a class="link-button" href="/api/paper/status" target="_blank">JSON status</a>
+        <button id="refresh-button" type="button">Aggiorna</button>
+    </nav>
+</header>
+
+<main class="shell">
+    <section class="status-strip" aria-label="Stato sistema">
+        <div class="metric">
+            <span>Modo</span>
+            <strong id="status-mode">-</strong>
+        </div>
+        <div class="metric">
+            <span>IBKR</span>
+            <strong id="status-connection">-</strong>
+        </div>
+        <div class="metric">
+            <span>Provider</span>
+            <strong id="status-provider">-</strong>
+        </div>
+        <div class="metric">
+            <span>Ordini</span>
+            <strong id="status-orders-enabled">-</strong>
+        </div>
+        <div class="metric">
+            <span>Kill switch</span>
+            <strong id="status-kill">-</strong>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <h2>Configurazione provider</h2>
+            <button id="save-config-button" type="button">Salva</button>
+        </div>
+
+        <div class="form-grid">
+            <label>
+                Provider dati globale
+                <select id="config-provider"></select>
+            </label>
+            <label>
+                Market data
+                <select id="config-market-enabled">
+                    <option value="true">Attivi</option>
+                    <option value="false">Disattivi</option>
+                </select>
+            </label>
+            <label>
+                Modalita IBKR
+                <select id="config-mode"></select>
+            </label>
+            <label>
+                Simbolo base
+                <input id="config-symbol" autocomplete="off">
+            </label>
+            <label>
+                Exchange
+                <input id="config-exchange" autocomplete="off">
+            </label>
+            <label>
+                Primary exchange
+                <input id="config-primary-exchange" autocomplete="off">
+            </label>
+            <label>
+                Valuta
+                <input id="config-currency" autocomplete="off">
+            </label>
+            <label>
+                Alpha Vantage key
+                <input id="config-alpha-key" type="password" autocomplete="off">
+            </label>
+            <label>
+                Polling Alpha sec
+                <input id="config-alpha-polling" type="number" min="3600" step="3600">
+            </label>
+        </div>
+
+        <div class="button-row">
+            <button id="restart-market-data-button" type="button">Salva e riavvia dati</button>
+        </div>
+    </section>
+
+    <section class="panel results-panel">
+        <div class="panel-heading">
+            <h2>Market data corrente</h2>
+        </div>
+        <table>
+            <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Bid</th>
+                <th>Ask</th>
+                <th>Last</th>
+                <th>Close</th>
+                <th>High</th>
+                <th>Low</th>
+                <th>Aggiornato</th>
+            </tr>
+            </thead>
+            <tbody id="market-body"></tbody>
+        </table>
+    </section>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="/provider.js"></script>
+</body>
+</html>

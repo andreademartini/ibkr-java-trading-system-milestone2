@@ -294,7 +294,7 @@ public class TradingSystemProperties {
         private String apiKey = "";
 
         @NotNull
-        private Duration pollingInterval = Duration.ofMinutes(1);
+        private Duration pollingInterval = Duration.ofHours(1);
 
         @NotBlank
         private String baseUrl = "https://www.alphavantage.co/query";
