@@ -2,7 +2,6 @@ const state = {
     config: null,
     stocks: [],
     profiles: [],
-    providerOptions: [],
     strategyOptions: [],
     selectedStockId: null,
     selectedProfileId: null,
@@ -61,11 +60,6 @@ function boolValue(id) {
     return $(id).value === "true";
 }
 
-function alphaVantageConfigured() {
-    return state.config?.marketData?.provider === "ALPHA_VANTAGE"
-        && state.config?.marketData?.alphaVantage?.apiKeyConfigured;
-}
-
 function selectedStock() {
     return state.stocks.find((stock) => stock.id === state.selectedStockId)
         || state.stocks[0];
@@ -120,8 +114,9 @@ function defaultStrategy(symbol, index = 1) {
         id: crypto.randomUUID(),
         name: `${symbol} strategy ${index}`,
         symbol,
-        provider: state.config?.marketData?.provider || "MANUAL",
+        provider: "IBKR",
         strategy: "MOVING_AVERAGE_CROSSOVER",
+        tradeDirection: "LONG_SHORT",
         fastPeriod: 5,
         slowPeriod: 20,
         quantity: 1,
@@ -204,7 +199,7 @@ function renderProfiles() {
                 data-stock-id="${stock.id}">
             <strong>${stock.symbol}</strong>
             <span>${stock.name || stock.symbol}</span>
-            <small>${(stock.strategies || []).length} strategie salvate</small>
+            <small>${stock.securityType || "STK"} ${stock.exchange || "SMART"}${stock.primaryExchange ? ` / ${stock.primaryExchange}` : ""} ${stock.currency || "USD"} - ${(stock.strategies || []).length} strategie</small>
         </button>
     `).join("");
 
@@ -226,8 +221,8 @@ function renderProfiles() {
                 type="button"
                 data-profile-id="${profile.id}">
             <strong>${profile.name}</strong>
-            <span>${profile.provider} - ${profile.strategy}</span>
-            <small>F${profile.fastPeriod} / S${profile.slowPeriod} - ${profile.timeframe}</small>
+            <span>${profile.strategy}</span>
+            <small>${tradeDirectionLabel(profile.tradeDirection)} - F${profile.fastPeriod} / S${profile.slowPeriod} - ${profile.timeframe}</small>
         </button>
     `).join("");
 
@@ -245,10 +240,15 @@ function applyProfileToForm(profile) {
     if (!profile) {
         return;
     }
+    const stock = selectedStock();
     setValue("profile-name", profile.name);
-    setValue("profile-symbol", profile.symbol);
-    setValue("profile-provider", profile.provider);
+    setValue("profile-symbol", stock?.symbol || profile.symbol);
+    setValue("stock-security-type", stock?.securityType || "STK");
+    setValue("stock-exchange", stock?.exchange || "SMART");
+    setValue("stock-primary-exchange", stock?.primaryExchange || "ARCA");
+    setValue("stock-currency", stock?.currency || "USD");
     setValue("profile-strategy", profile.strategy);
+    setValue("profile-trade-direction", profile.tradeDirection || "LONG_SHORT");
     setValue("profile-fast", profile.fastPeriod);
     setValue("profile-slow", profile.slowPeriod);
     setValue("profile-quantity", profile.quantity);
@@ -258,7 +258,6 @@ function applyProfileToForm(profile) {
     setValue("profile-timeframe", profile.timeframe);
     setValue("profile-output-size", profile.outputSize);
     setValue("profile-max-points", profile.maxPoints);
-    setValue("manual-price-value", "");
     setValue("signal-price", "");
     setValue("signal-action", "BUY");
     setValue("signal-execute", "false");
@@ -267,12 +266,14 @@ function applyProfileToForm(profile) {
 
 function collectProfileFromForm() {
     const current = selectedProfile();
+    const stock = collectStockFromForm();
     return {
         id: current?.id || crypto.randomUUID(),
         name: $("profile-name").value.trim() || "Nuovo profilo",
-        symbol: $("profile-symbol").value.trim().toUpperCase() || "SPY",
-        provider: $("profile-provider").value,
+        symbol: stock.symbol,
+        provider: "IBKR",
         strategy: $("profile-strategy").value,
+        tradeDirection: $("profile-trade-direction").value,
         fastPeriod: num("profile-fast"),
         slowPeriod: num("profile-slow"),
         quantity: num("profile-quantity"),
@@ -285,6 +286,24 @@ function collectProfileFromForm() {
     };
 }
 
+function collectStockFromForm() {
+    const current = selectedStock();
+    const symbol = $("profile-symbol").value.trim().toUpperCase() || current?.symbol || "SPY";
+    return {
+        id: current?.id || crypto.randomUUID(),
+        symbol,
+        name: symbol,
+        securityType: $("stock-security-type").value.trim().toUpperCase()
+            || current?.securityType
+            || "STK",
+        exchange: $("stock-exchange").value.trim().toUpperCase() || current?.exchange || "SMART",
+        currency: $("stock-currency").value.trim().toUpperCase() || current?.currency || "USD",
+        primaryExchange: $("stock-primary-exchange").value.trim().toUpperCase()
+            || current?.primaryExchange
+            || "ARCA"
+    };
+}
+
 function saveSelectedFormInMemory() {
     const profile = selectedProfile();
     const stock = selectedStock();
@@ -292,18 +311,23 @@ function saveSelectedFormInMemory() {
         return;
     }
     const updated = collectProfileFromForm();
+    const updatedStock = collectStockFromForm();
     state.stocks = state.stocks.map((item) => {
         if (item.id !== stock.id) {
             return item;
         }
         return {
             ...item,
-            symbol: updated.symbol,
-            name: updated.symbol,
+            symbol: updatedStock.symbol,
+            name: updatedStock.name,
+            securityType: updatedStock.securityType,
+            exchange: updatedStock.exchange,
+            currency: updatedStock.currency,
+            primaryExchange: updatedStock.primaryExchange,
             strategies: item.strategies.map((strategy) =>
                 strategy.id === updated.id
                     ? updated
-                    : { ...strategy, symbol: updated.symbol })
+                    : { ...strategy, symbol: updatedStock.symbol })
         };
     });
     state.profiles = flattenStocks(state.stocks);
@@ -476,7 +500,7 @@ function renderHistory() {
         $("history-body").innerHTML = emptyRow(7, "Nessuna barra storica");
         return;
     }
-    const source = state.history.source === "DATABASE" ? "database" : "Alpha Vantage";
+    const source = state.history.source === "DATABASE" ? "database" : "IBKR";
     const loadedAt = state.history.loadedAt ? ` - caricato ${formatDate(state.history.loadedAt)}` : "";
     const message = state.history.message ? ` - ${state.history.message}` : "";
     $("history-summary").textContent =
@@ -505,8 +529,9 @@ function renderSimulation() {
         return;
     }
     const simulation = state.simulation;
+    const executionModel = simulation.evaluationParameters?.executionModel || "";
     $("simulation-summary").textContent =
-        `${simulation.symbol} ${simulation.strategy} ${simulation.inputCount} prezzi, segnali ${simulation.signals.length}, trade ${simulation.trades.length}`;
+        `${simulation.symbol} ${simulation.strategy} ${simulation.inputCount} prezzi, segnali ${simulation.signals.length}, trade ${simulation.trades.length}${executionModel ? ` - ${executionModel}` : ""}`;
     renderSimulationMetrics(simulation);
     renderPriceChart(simulation);
     renderEquityChart(simulation);
@@ -552,6 +577,7 @@ function renderSimulationMetrics(simulation) {
         ["Avg trade", formatNumber(metrics.averageTrade)],
         ["Exposure", `${formatNumber(metrics.exposurePercent)}%`],
         ["Buy & hold", `${formatNumber(metrics.buyAndHoldReturnPercent)}%`],
+        ["Direzione", tradeDirectionLabel(parameters.tradeDirection)],
         ["Parametri", `F${parameters.fastPeriod} / S${parameters.slowPeriod} / Q${parameters.quantity}`]
     ];
     $("simulation-metrics").innerHTML = items.map(([label, value]) => `
@@ -663,7 +689,6 @@ async function refreshAll() {
         api("/api/paper/positions")
     ]);
     state.config = config;
-    state.providerOptions = profileResponse.providerOptions;
     state.strategyOptions = profileResponse.strategyOptions;
     state.stocks = profileResponse.stocks || stocksFromProfiles(profileResponse.profiles || []);
     state.profiles = flattenStocks(state.stocks);
@@ -678,7 +703,6 @@ async function refreshAll() {
     state.signals = normalizeListResponse(signals);
     state.orders = normalizeListResponse(orders);
     state.positions = normalizeListResponse(positions);
-    fillSelect($("profile-provider"), state.providerOptions);
     fillSelect($("profile-strategy"), state.strategyOptions);
     applyProfileToForm(selectedProfile());
     renderAll();
@@ -688,23 +712,6 @@ async function refreshStatusOnly() {
     state.status = await api("/api/paper/status");
     renderStatus();
     renderMarketData();
-}
-
-async function publishManualPrice() {
-    saveSelectedFormInMemory();
-    const profile = selectedProfile();
-    const price = num("manual-price-value");
-    const snapshot = await api("/api/workbench/market-data/manual-price", {
-        method: "POST",
-        body: JSON.stringify({
-            symbol: profile.symbol,
-            price,
-            provider: profile.provider,
-            strategy: profile.strategy
-        })
-    });
-    await refreshStatusOnly();
-    toast(`Prezzo ${snapshot.symbol} pubblicato`);
 }
 
 async function publishManualSignal() {
@@ -731,14 +738,13 @@ async function publishManualSignal() {
 
 async function downloadHistory(refresh = false) {
     saveSelectedFormInMemory();
-    let profile = selectedProfile();
-    const providerUpdated = await ensureHistoricalProvider(profile);
-    profile = selectedProfile();
+    await persistProfiles();
+    const profile = selectedProfile();
     state.history = await api("/api/workbench/historical/download", {
         method: "POST",
         body: JSON.stringify({
             symbol: profile.symbol,
-            provider: profile.provider,
+            provider: "IBKR",
             timeframe: profile.timeframe,
             outputSize: profile.outputSize,
             maxPoints: profile.maxPoints,
@@ -748,32 +754,14 @@ async function downloadHistory(refresh = false) {
     $("simulate-prices").value = state.history.closePrices.join(", ");
     setResultTab("history");
     renderHistory();
-    const prefix = providerUpdated ? "Profilo aggiornato ad ALPHA_VANTAGE. " : "";
-    const source = state.history.source === "DATABASE" ? "database" : "Alpha Vantage";
+    const source = state.history.source === "DATABASE" ? "database" : "IBKR";
     const action = refresh ? "Aggiornamento storico" : "Storico";
     const suffix = state.history.message ? `. ${state.history.message}` : "";
-    toast(`${prefix}${action}: ${state.history.bars.length} barre ${profile.symbol} da ${source}${suffix}`);
+    toast(`${action}: ${state.history.bars.length} barre ${profile.symbol} da ${source}${suffix}`);
 }
 
 async function refreshHistoryFromProvider() {
     await downloadHistory(true);
-}
-
-async function ensureHistoricalProvider(profile) {
-    if (profile.provider === "ALPHA_VANTAGE") {
-        return false;
-    }
-    if (!alphaVantageConfigured()) {
-        throw new Error(
-            "Per scaricare lo storico scegli ALPHA_VANTAGE nel Provider azione o configura Alpha Vantage nella pagina Provider dati"
-        );
-    }
-
-    const updated = { ...profile, provider: "ALPHA_VANTAGE" };
-    state.profiles = state.profiles.map((item) => item.id === updated.id ? updated : item);
-    setValue("profile-provider", "ALPHA_VANTAGE");
-    await persistProfiles();
-    return true;
 }
 
 async function simulateStrategy() {
@@ -785,6 +773,7 @@ async function simulateStrategy() {
             symbol: profile.symbol,
             provider: profile.provider,
             strategy: profile.strategy,
+            tradeDirection: profile.tradeDirection || "LONG_SHORT",
             prices: parsePrices(),
             fastPeriod: profile.fastPeriod,
             slowPeriod: profile.slowPeriod,
@@ -798,6 +787,14 @@ async function simulateStrategy() {
     setResultTab("simulation");
     renderSimulation();
     toast("Simulazione completata");
+}
+
+function tradeDirectionLabel(value) {
+    return {
+        LONG_ONLY: "Solo long",
+        SHORT_ONLY: "Solo short",
+        LONG_SHORT: "Long e short"
+    }[value || "LONG_SHORT"] || "Long e short";
 }
 
 async function downloadHistoryAndSimulate() {
@@ -847,7 +844,6 @@ function initEvents() {
     bind("update-history-button", refreshHistoryFromProvider);
     bind("download-simulate-button", downloadHistoryAndSimulate);
     bind("simulate-button", simulateStrategy);
-    bind("publish-price-button", publishManualPrice);
     bind("publish-signal-button", publishManualSignal);
     bind("activate-kill-button", activateKillSwitch);
     bind("deactivate-kill-button", deactivateKillSwitch);

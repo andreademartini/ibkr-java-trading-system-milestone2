@@ -1,8 +1,11 @@
 package it.andreademartini.trading.marketdata;
 
 import it.andreademartini.trading.config.MarketDataProvider;
+import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.persistence.HistoricalBarEntity;
 import it.andreademartini.trading.persistence.HistoricalBarRepository;
+import it.andreademartini.trading.persistence.TradingStockEntity;
+import it.andreademartini.trading.persistence.TradingStockRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,6 +13,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -18,13 +22,19 @@ import java.util.stream.Collectors;
 public class HistoricalDataService {
 
     private final HistoricalBarRepository repository;
-    private final AlphaVantageMarketDataClient alphaVantageClient;
+    private final IbkrHistoricalDataClient ibkrHistoricalDataClient;
+    private final TradingStockRepository stockRepository;
+    private final TradingSystemProperties properties;
 
     public HistoricalDataService(
             HistoricalBarRepository repository,
-            AlphaVantageMarketDataClient alphaVantageClient) {
+            IbkrHistoricalDataClient ibkrHistoricalDataClient,
+            TradingStockRepository stockRepository,
+            TradingSystemProperties properties) {
         this.repository = repository;
-        this.alphaVantageClient = alphaVantageClient;
+        this.ibkrHistoricalDataClient = ibkrHistoricalDataClient;
+        this.stockRepository = stockRepository;
+        this.properties = properties;
     }
 
     @Transactional
@@ -35,12 +45,8 @@ public class HistoricalDataService {
             String outputSize,
             int maxPoints,
             boolean refresh) {
-        if (provider != MarketDataProvider.ALPHA_VANTAGE) {
-            throw new IllegalArgumentException(
-                    "Download storico supportato solo con provider ALPHA_VANTAGE");
-        }
-
-        String providerName = provider.name();
+        MarketDataProvider resolvedProvider = MarketDataProvider.IBKR;
+        String providerName = resolvedProvider.name();
         StoredHistoricalSeries stored = loadStored(
                 providerName,
                 symbol,
@@ -48,7 +54,7 @@ public class HistoricalDataService {
                 maxPoints);
         if (!refresh && !stored.bars().isEmpty()) {
             return new HistoricalSeries(
-                    provider,
+                    resolvedProvider,
                     symbol,
                     timeframe,
                     outputSize,
@@ -59,8 +65,8 @@ public class HistoricalDataService {
         }
 
         try {
-            List<HistoricalBar> downloaded = alphaVantageClient.historical(
-                    symbol,
+            List<HistoricalBar> downloaded = ibkrHistoricalDataClient.historical(
+                    instrument(symbol),
                     timeframe,
                     outputSize,
                     maxPoints);
@@ -71,18 +77,18 @@ public class HistoricalDataService {
                     timeframe,
                     maxPoints);
             return new HistoricalSeries(
-                    provider,
+                    resolvedProvider,
                     symbol,
                     timeframe,
                     outputSize,
                     updated.bars(),
-                    "ALPHA_VANTAGE",
+                    "IBKR",
                     updated.loadedAt(),
                     null);
         } catch (RuntimeException exception) {
             if (!stored.bars().isEmpty()) {
                 return new HistoricalSeries(
-                        provider,
+                        resolvedProvider,
                         symbol,
                         timeframe,
                         outputSize,
@@ -93,6 +99,46 @@ public class HistoricalDataService {
             }
             throw exception;
         }
+    }
+
+    private TradingSystemProperties.InstrumentProperties instrument(String symbol) {
+        String normalized = symbol == null ? "" : symbol.trim().toUpperCase(Locale.ROOT);
+        return configuredStockInstruments().stream()
+                .filter(instrument -> normalized.equals(
+                        instrument.getSymbol().trim().toUpperCase(Locale.ROOT)))
+                .findFirst()
+                .or(() -> properties.getMarketData().getInstruments().stream()
+                        .filter(instrument -> normalized.equals(
+                                instrument.getSymbol().trim().toUpperCase(Locale.ROOT)))
+                        .findFirst())
+                .orElseGet(() -> {
+                    TradingSystemProperties.InstrumentProperties instrument =
+                            new TradingSystemProperties.InstrumentProperties();
+                    instrument.setSymbol(normalized);
+                    return instrument;
+                });
+    }
+
+    private List<TradingSystemProperties.InstrumentProperties> configuredStockInstruments() {
+        List<TradingStockEntity> stocks = stockRepository.findAllByOrderBySymbolAsc();
+        if (stocks == null || stocks.isEmpty()) {
+            return List.of();
+        }
+        return stocks.stream()
+                .map(this::instrumentFromStock)
+                .toList();
+    }
+
+    private TradingSystemProperties.InstrumentProperties instrumentFromStock(
+            TradingStockEntity stock) {
+        TradingSystemProperties.InstrumentProperties instrument =
+                new TradingSystemProperties.InstrumentProperties();
+        instrument.setSymbol(stock.getSymbol());
+        instrument.setSecurityType(stock.getSecurityType());
+        instrument.setExchange(stock.getExchange());
+        instrument.setCurrency(stock.getCurrency());
+        instrument.setPrimaryExchange(stock.getPrimaryExchange());
+        return instrument;
     }
 
     private StoredHistoricalSeries loadStored(
@@ -128,6 +174,10 @@ public class HistoricalDataService {
             String symbol,
             String timeframe,
             List<HistoricalBar> bars) {
+        if (bars.isEmpty()) {
+            return;
+        }
+
         Instant fetchedAt = Instant.now();
         List<String> labels = bars.stream()
                 .map(HistoricalBar::label)

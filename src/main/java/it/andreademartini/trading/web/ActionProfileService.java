@@ -6,6 +6,7 @@ import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.persistence.TradingStockEntity;
 import it.andreademartini.trading.persistence.TradingStockRepository;
 import it.andreademartini.trading.persistence.TradingStockStrategyEntity;
+import it.andreademartini.trading.strategy.TradeDirection;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -151,6 +152,7 @@ public class ActionProfileService {
                 profile.slippagePercent() == null
                         ? 0.0
                         : Math.max(0.0, profile.slippagePercent()),
+                direction(profile.tradeDirection()).name(),
                 normalizeTimeframe(profile.timeframe()),
                 normalizeOutputSize(profile.outputSize()),
                 profile.maxPoints() == null
@@ -195,7 +197,7 @@ public class ActionProfileService {
                 entity.getId(),
                 entity.getName(),
                 symbol,
-                MarketDataProvider.valueOf(entity.getProvider()),
+                MarketDataProvider.IBKR,
                 StrategyType.valueOf(entity.getStrategy()),
                 entity.getFastPeriod(),
                 entity.getSlowPeriod(),
@@ -203,6 +205,7 @@ public class ActionProfileService {
                 entity.getInitialCapital(),
                 entity.getCommissionPerOrder(),
                 entity.getSlippagePercent(),
+                direction(entity.getTradeDirection()),
                 entity.getTimeframe(),
                 entity.getOutputSize(),
                 entity.getMaxPoints());
@@ -245,13 +248,29 @@ public class ActionProfileService {
                 10_000.0,
                 0.0,
                 0.0,
+                TradeDirection.LONG_SHORT,
                 "DAILY",
                 "compact",
                 100);
     }
 
     private MarketDataProvider provider(MarketDataProvider provider) {
-        return provider == null ? properties.getMarketData().getProvider() : provider;
+        return MarketDataProvider.IBKR;
+    }
+
+    private TradeDirection direction(TradeDirection direction) {
+        return direction == null ? TradeDirection.LONG_SHORT : direction;
+    }
+
+    private TradeDirection direction(String value) {
+        if (value == null || value.isBlank()) {
+            return TradeDirection.LONG_SHORT;
+        }
+        try {
+            return TradeDirection.valueOf(value.trim().toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException exception) {
+            return TradeDirection.LONG_SHORT;
+        }
     }
 
     private String normalizeSymbol(String value) {

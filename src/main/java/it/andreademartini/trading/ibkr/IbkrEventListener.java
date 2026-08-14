@@ -1,6 +1,7 @@
 package it.andreademartini.trading.ibkr;
 
 import com.ib.client.Contract;
+import com.ib.client.Bar;
 import com.ib.client.Order;
 import com.ib.client.OrderState;
 
@@ -18,6 +19,12 @@ public interface IbkrEventListener {
     }
 
     default void onTickSize(int requestId, int field, Object size) {
+    }
+
+    default void onHistoricalData(int requestId, Bar bar) {
+    }
+
+    default void onHistoricalDataEnd(int requestId, String start, String end) {
     }
 
     default void onOrderStatus(IbkrOrderStatusUpdate update) {

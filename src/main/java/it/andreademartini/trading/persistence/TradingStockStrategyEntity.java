@@ -49,6 +49,9 @@ public class TradingStockStrategyEntity {
     @Column(nullable = false)
     private double slippagePercent;
 
+    @Column(length = 16)
+    private String tradeDirection = "LONG_SHORT";
+
     @Column(nullable = false, length = 16)
     private String timeframe;
 
@@ -81,6 +84,7 @@ public class TradingStockStrategyEntity {
             double initialCapital,
             double commissionPerOrder,
             double slippagePercent,
+            String tradeDirection,
             String timeframe,
             String outputSize,
             int maxPoints,
@@ -96,6 +100,9 @@ public class TradingStockStrategyEntity {
         this.initialCapital = initialCapital;
         this.commissionPerOrder = commissionPerOrder;
         this.slippagePercent = slippagePercent;
+        this.tradeDirection = tradeDirection == null || tradeDirection.isBlank()
+                ? "LONG_SHORT"
+                : tradeDirection;
         this.timeframe = timeframe;
         this.outputSize = outputSize;
         this.maxPoints = maxPoints;
@@ -146,6 +153,12 @@ public class TradingStockStrategyEntity {
 
     public double getSlippagePercent() {
         return slippagePercent;
+    }
+
+    public String getTradeDirection() {
+        return tradeDirection == null || tradeDirection.isBlank()
+                ? "LONG_SHORT"
+                : tradeDirection;
     }
 
     public String getTimeframe() {

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Configurazione</title>
+    <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="topbar">
+    <div>
+        <h1>Configurazione</h1>
+        <p id="last-refresh">In attesa dati</p>
+    </div>
+    <nav class="top-actions">
+        <a class="link-button" href="/">Azioni</a>
+        <a class="link-button" href="/provider.html">Connessione IBKR</a>
+        <a class="link-button active-link" href="/config.html">Configurazione</a>
+        <a class="link-button" href="/api/paper/status" target="_blank">JSON status</a>
+        <button id="refresh-button" type="button">Aggiorna</button>
+    </nav>
+</header>
+
+<main class="shell">
+    <section class="status-strip" aria-label="Stato sistema">
+        <div class="metric">
+            <span>Modo</span>
+            <strong id="status-mode">-</strong>
+        </div>
+        <div class="metric">
+            <span>IBKR</span>
+            <strong id="status-connection">-</strong>
+        </div>
+        <div class="metric">
+            <span>Fonte dati</span>
+            <strong id="status-provider">-</strong>
+        </div>
+        <div class="metric">
+            <span>Ordini</span>
+            <strong id="status-orders-enabled">-</strong>
+        </div>
+        <div class="metric">
+            <span>Kill switch</span>
+            <strong id="status-kill">-</strong>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <h2>Runtime applicazione</h2>
+            <button id="save-config-button" type="button">Salva configurazione</button>
+        </div>
+        <p class="config-note">
+            Questi valori corrispondono alle sezioni principali di application.yml e .env. Il salvataggio aggiorna la configurazione in memoria; per renderla permanente al prossimo avvio copia gli stessi valori in .env o application.yml.
+        </p>
+        <div class="form-grid">
+            <label>
+                Modalita trading
+                <select id="runtime-mode" disabled></select>
+                <span class="field-note">Questa milestone lavora solo in PAPER; BACKTEST e LIVE restano bloccati.</span>
+            </label>
+            <label>
+                Live trading
+                <select id="runtime-live" disabled>
+                    <option value="false">Bloccato</option>
+                    <option value="true">Attivo</option>
+                </select>
+                <span class="field-note">Deve restare false: evita connessioni e ordini su conto reale.</span>
+            </label>
+            <label>
+                Invio ordini paper
+                <select id="runtime-orders-enabled">
+                    <option value="false">Disattivato</option>
+                    <option value="true">Attivato</option>
+                </select>
+                <span class="field-note">Se attivo, i segnali autorizzati possono creare ordini paper verso IBKR.</span>
+            </label>
+            <label>
+                Conferma ordini paper
+                <input id="runtime-paper-confirmation" autocomplete="off">
+                <span class="field-note">Richiede la frase esatta indicata sotto prima di abilitare l'invio ordini.</span>
+            </label>
+        </div>
+        <div id="paper-confirmation-note" class="inline-status"></div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <h2>Dati di mercato</h2>
+            <button id="restart-market-data-button" type="button">Salva e riavvia market data</button>
+        </div>
+        <p class="config-note">
+            Qui imposti solo il comportamento globale dei dati. Simbolo, exchange, valuta e primary exchange restano nella pagina Azioni, dentro ogni stock.
+        </p>
+        <div class="form-grid">
+            <label>
+                Market data
+                <select id="market-enabled">
+                    <option value="true">Attivi</option>
+                    <option value="false">Disattivi</option>
+                </select>
+                <span class="field-note">Abilita o ferma la richiesta prezzi verso IBKR.</span>
+            </label>
+            <label>
+                Modalita dati IBKR
+                <select id="market-mode"></select>
+                <span class="field-note">LIVE richiede abbonamenti dati; DELAYED usa dati ritardati quando disponibili.</span>
+            </label>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <h2>Risk manager</h2>
+        </div>
+        <p class="config-note">
+            Questi limiti sono controlli di sicurezza prima dell'invio ordini paper. Servono a bloccare dimensioni, esposizione e perdita giornaliera oltre soglia.
+        </p>
+        <div class="form-grid">
+            <label>
+                Max valore ordine
+                <input id="risk-max-order-value" type="number" min="0.01" step="100">
+                <span class="field-note">Valore massimo consentito per un singolo ordine.</span>
+            </label>
+            <label>
+                Max valore posizione
+                <input id="risk-max-position-value" type="number" min="0.01" step="100">
+                <span class="field-note">Esposizione massima ammessa su una posizione.</span>
+            </label>
+            <label>
+                Max quantita ordine
+                <input id="risk-max-quantity" type="number" min="1" step="1">
+                <span class="field-note">Numero massimo di azioni per ordine.</span>
+            </label>
+            <label>
+                Max ordini giorno
+                <input id="risk-max-daily-orders" type="number" min="1" step="1">
+                <span class="field-note">Limite operativo giornaliero.</span>
+            </label>
+            <label>
+                Max ordini aperti
+                <input id="risk-max-open-orders" type="number" min="1" step="1">
+                <span class="field-note">Limite di ordini contemporaneamente aperti.</span>
+            </label>
+            <label>
+                Max perdita giorno
+                <input id="risk-max-daily-loss" type="number" min="0.01" step="10">
+                <span class="field-note">Soglia oltre la quale il risk manager blocca l'operativita'.</span>
+            </label>
+            <label>
+                Short selling
+                <select id="risk-allow-short">
+                    <option value="false">Bloccato</option>
+                    <option value="true">Consentito</option>
+                </select>
+                <span class="field-note">Consente vendite short solo se la strategia e il conto lo supportano.</span>
+            </label>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <h2>Ordini IBKR</h2>
+        </div>
+        <p class="config-note">
+            Sono parametri applicati agli ordini costruiti per IBKR: durata ordine, gestione fuori orario e pausa minima fra invii.
+        </p>
+        <div class="form-grid">
+            <label>
+                TIF entrata
+                <input id="orders-entry-tif" autocomplete="off">
+                <span class="field-note">Time in force per gli ordini di ingresso, ad esempio DAY.</span>
+            </label>
+            <label>
+                TIF protezioni
+                <input id="orders-protective-tif" autocomplete="off">
+                <span class="field-note">Time in force per stop, take profit e trailing stop, ad esempio GTC.</span>
+            </label>
+            <label>
+                Fuori orario
+                <select id="orders-outside-rth">
+                    <option value="false">No</option>
+                    <option value="true">Si</option>
+                </select>
+                <span class="field-note">Permette l'esecuzione fuori regular trading hours se IBKR lo consente.</span>
+            </label>
+            <label>
+                Pausa fra ordini ms
+                <input id="orders-delay" type="number" min="0" step="1">
+                <span class="field-note">Ritardo minimo fra invii consecutivi verso IBKR.</span>
+            </label>
+        </div>
+    </section>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="/config.js"></script>
+</body>
+</html>

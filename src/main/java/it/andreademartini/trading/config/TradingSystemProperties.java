@@ -117,6 +117,9 @@ public class TradingSystemProperties {
         @Min(0)
         private int clientId = 21;
 
+        @NotNull
+        private Duration historicalDataTimeout = Duration.ofSeconds(30);
+
         /**
          * Inserire esattamente l'account paper mostrato da TWS/IB Gateway.
          * L'applicazione non invia ordini finché managedAccounts non lo conferma.
@@ -158,6 +161,14 @@ public class TradingSystemProperties {
 
         public void setClientId(int clientId) {
             this.clientId = clientId;
+        }
+
+        public Duration getHistoricalDataTimeout() {
+            return historicalDataTimeout;
+        }
+
+        public void setHistoricalDataTimeout(Duration historicalDataTimeout) {
+            this.historicalDataTimeout = historicalDataTimeout;
         }
 
         public String getAccountId() {
@@ -243,9 +254,6 @@ public class TradingSystemProperties {
         private MarketDataMode mode = MarketDataMode.DELAYED;
 
         @Valid
-        private final AlphaVantageProperties alphaVantage = new AlphaVantageProperties();
-
-        @Valid
         private List<InstrumentProperties> instruments = new ArrayList<>();
 
         public MarketDataProperties() {
@@ -265,7 +273,7 @@ public class TradingSystemProperties {
         }
 
         public void setProvider(MarketDataProvider provider) {
-            this.provider = provider;
+            this.provider = MarketDataProvider.IBKR;
         }
 
         public MarketDataMode getMode() {
@@ -276,51 +284,12 @@ public class TradingSystemProperties {
             this.mode = mode;
         }
 
-        public AlphaVantageProperties getAlphaVantage() {
-            return alphaVantage;
-        }
-
         public List<InstrumentProperties> getInstruments() {
             return instruments;
         }
 
         public void setInstruments(List<InstrumentProperties> instruments) {
             this.instruments = instruments == null ? new ArrayList<>() : instruments;
-        }
-    }
-
-    public static class AlphaVantageProperties {
-
-        private String apiKey = "";
-
-        @NotNull
-        private Duration pollingInterval = Duration.ofHours(1);
-
-        @NotBlank
-        private String baseUrl = "https://www.alphavantage.co/query";
-
-        public String getApiKey() {
-            return apiKey;
-        }
-
-        public void setApiKey(String apiKey) {
-            this.apiKey = apiKey;
-        }
-
-        public Duration getPollingInterval() {
-            return pollingInterval;
-        }
-
-        public void setPollingInterval(Duration pollingInterval) {
-            this.pollingInterval = pollingInterval;
-        }
-
-        public String getBaseUrl() {
-            return baseUrl;
-        }
-
-        public void setBaseUrl(String baseUrl) {
-            this.baseUrl = baseUrl;
         }
     }
 

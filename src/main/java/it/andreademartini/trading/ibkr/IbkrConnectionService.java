@@ -112,6 +112,82 @@ public class IbkrConnectionService {
         awaitConnectionReady();
     }
 
+    public IbkrConnectionTestResult testConnection() {
+        safetyGuard.assertIbkrConnectionAllowed();
+
+        TradingSystemProperties.IbkrProperties ibkr = properties.getIbkr();
+        int testClientId = ibkr.getClientId() == Integer.MAX_VALUE
+                ? ibkr.getClientId() - 1
+                : ibkr.getClientId() + 1;
+        IbkrEWrapper probeHandler = new IbkrEWrapper();
+        probeHandler.prepareForConnection();
+        EReaderSignal signal = new EJavaSignal();
+        EClientSocket socket = new EClientSocket(probeHandler.createProxy(), signal);
+        AtomicReference<EReader> readerRef = new AtomicReference<>();
+        AtomicReference<Thread> processorRef = new AtomicReference<>();
+
+        try {
+            socket.eConnect(ibkr.getHost(), ibkr.getPort(), testClientId);
+            if (!socket.isConnected()) {
+                throw new IbkrConnectionException(
+                        "Socket non connesso. Controllare TWS/IB Gateway, API e porta");
+            }
+
+            EReader probeReader = new EReader(socket, signal);
+            readerRef.set(probeReader);
+            probeReader.start();
+            Thread processor = Thread.ofPlatform()
+                    .name("ibkr-connection-test")
+                    .daemon(true)
+                    .start(() -> {
+                        try {
+                            while (!Thread.currentThread().isInterrupted()
+                                    && socket.isConnected()) {
+                                signal.waitForSignal();
+                                probeReader.processMsgs();
+                            }
+                        } catch (Exception exception) {
+                            log.debug("Thread test connessione IBKR terminato: {}",
+                                    exception.getMessage());
+                        }
+                    });
+            processorRef.set(processor);
+
+            int nextValidId = probeHandler.awaitNextValidId(ibkr.getConnectionTimeout());
+            return new IbkrConnectionTestResult(
+                    true,
+                    ibkr.getHost(),
+                    ibkr.getPort(),
+                    testClientId,
+                    nextValidId,
+                    socket.serverVersion(),
+                    socket.getTwsConnectionTime(),
+                    "Connessione API IBKR riuscita");
+        } catch (Exception exception) {
+            return new IbkrConnectionTestResult(
+                    false,
+                    ibkr.getHost(),
+                    ibkr.getPort(),
+                    testClientId,
+                    null,
+                    socket.serverVersion(),
+                    socket.getTwsConnectionTime(),
+                    exception.getMessage());
+        } finally {
+            if (socket.isConnected()) {
+                socket.eDisconnect();
+            }
+            Thread processor = processorRef.get();
+            if (processor != null) {
+                processor.interrupt();
+            }
+            EReader reader = readerRef.get();
+            if (reader != null) {
+                reader.interrupt();
+            }
+        }
+    }
+
     private void awaitConnectionReady() {
         Duration timeout = properties.getIbkr().getConnectionTimeout();
 

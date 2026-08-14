@@ -1,6 +1,5 @@
 package it.andreademartini.trading.paper;
 
-import it.andreademartini.trading.config.MarketDataProvider;
 import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.ibkr.IbkrConnectionService;
 import it.andreademartini.trading.marketdata.MarketDataService;
@@ -45,11 +44,10 @@ public class PaperTradingCoordinator {
             log.warn("IBKR non connesso: posizioni, ordini aperti e account summary non richiesti");
         }
 
-        if (properties.getMarketData().getProvider() != MarketDataProvider.IBKR
-                || connectionService.isReady()) {
+        if (connectionService.isReady()) {
             marketDataService.start();
         } else {
-            log.warn("IBKR non connesso: market data IBKR non richiesti");
+            log.warn("IBKR non connesso: market data non richiesti");
         }
 
         log.info("Servizi paper avviati: account, posizioni, ordini aperti e market data");

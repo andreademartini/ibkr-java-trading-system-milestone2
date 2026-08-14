@@ -14,7 +14,8 @@
     </div>
     <nav class="top-actions">
         <a class="link-button active-link" href="/">Azioni</a>
-        <a class="link-button" href="/provider.html">Provider dati</a>
+        <a class="link-button" href="/provider.html">Connessione IBKR</a>
+        <a class="link-button" href="/config.html">Configurazione</a>
         <a class="link-button" href="/api/paper/status" target="_blank">JSON status</a>
         <button id="refresh-button" type="button">Aggiorna</button>
     </nav>
@@ -31,7 +32,7 @@
             <strong id="status-connection">-</strong>
         </div>
         <div class="metric">
-            <span>Provider globale</span>
+            <span>Fonte dati</span>
             <strong id="status-provider">-</strong>
         </div>
         <div class="metric">
@@ -67,7 +68,7 @@
 
         <section class="panel">
             <div class="panel-heading">
-                <h2>Strategia selezionata</h2>
+                <h2>Stock e dati mercato</h2>
                 <div class="button-row inline-row">
                     <button id="delete-stock-button" class="danger" type="button">Elimina stock</button>
                     <button id="delete-strategy-button" class="danger" type="button">Elimina strategia</button>
@@ -76,16 +77,35 @@
 
             <div class="form-grid compact">
                 <label>
-                    Nome strategia
-                    <input id="profile-name" autocomplete="off">
-                </label>
-                <label>
-                    Simbolo
+                    Simbolo stock
                     <input id="profile-symbol" autocomplete="off">
                 </label>
                 <label>
-                    Provider azione
-                    <select id="profile-provider"></select>
+                    Security type
+                    <input id="stock-security-type" autocomplete="off">
+                </label>
+                <label>
+                    Exchange
+                    <input id="stock-exchange" autocomplete="off">
+                </label>
+                <label>
+                    Primary exchange
+                    <input id="stock-primary-exchange" autocomplete="off">
+                </label>
+                <label>
+                    Valuta
+                    <input id="stock-currency" autocomplete="off">
+                </label>
+            </div>
+
+            <div class="panel-heading sub-heading">
+                <h2>Strategia selezionata</h2>
+            </div>
+
+            <div class="form-grid compact">
+                <label>
+                    Nome strategia
+                    <input id="profile-name" autocomplete="off">
                 </label>
                 <label>
                     Strategia
@@ -138,16 +158,22 @@
                     <input id="profile-max-points" type="number" min="1" max="5000" step="1">
                 </label>
                 <label>
-                    Prezzo manuale
-                    <input id="manual-price-value" type="number" min="0.01" step="0.01">
+                    Direzione segnale strategia
+                    <select id="profile-trade-direction">
+                        <option value="LONG_SHORT">Long e short</option>
+                        <option value="LONG_ONLY">Solo long</option>
+                        <option value="SHORT_ONLY">Solo short</option>
+                    </select>
+                    <span class="field-note">Questa e la scelta Long e short: abilita BUY per long e SELL per short nella simulazione.</span>
                 </label>
                 <label>
-                    Azione segnale
+                    Azione segnale manuale
                     <select id="signal-action">
-                        <option value="BUY">BUY</option>
-                        <option value="SELL">SELL</option>
-                        <option value="HOLD">HOLD</option>
+                        <option value="BUY">BUY - segnale long</option>
+                        <option value="SELL">SELL - segnale short</option>
+                        <option value="HOLD">HOLD - nessuna operazione</option>
                     </select>
+                    <span class="field-note">Usa questo campo solo per pubblicare un segnale manuale BUY, SELL o HOLD.</span>
                 </label>
                 <label>
                     Prezzo segnale
@@ -172,11 +198,10 @@
             </label>
 
             <div class="button-row">
-                <button id="download-history-button" type="button">Scarica storico</button>
-                <button id="update-history-button" type="button">Aggiorna storico</button>
-                <button id="download-simulate-button" type="button">Scarica e simula</button>
+                <button id="download-history-button" type="button">Scarica storico IBKR</button>
+                <button id="update-history-button" type="button">Aggiorna storico IBKR</button>
+                <button id="download-simulate-button" type="button">Scarica IBKR e simula</button>
                 <button id="simulate-button" type="button">Simula serie</button>
-                <button id="publish-price-button" type="button">Pubblica prezzo</button>
                 <button id="publish-signal-button" type="button">Pubblica segnale</button>
             </div>
 

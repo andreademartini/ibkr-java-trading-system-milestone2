@@ -225,37 +225,29 @@ dei dati dipende anche dalle autorizzazioni e sottoscrizioni dell'account.
 
 ---
 
-### Fonte dati gratuita alternativa
+### Dashboard e storico IBKR
 
-Per ricevere prezzi senza usare i market data di Interactive Brokers puoi usare
-Alpha Vantage. Serve una API key gratuita e i dati dell'endpoint gratuito sono
-adatti a test e segnali dimostrativi, non a esecuzione intraday a bassa latenza.
-
-```powershell
-$env:MARKET_DATA_PROVIDER="ALPHA_VANTAGE"
-$env:ALPHA_VANTAGE_API_KEY="LA_TUA_API_KEY"
-$env:IBKR_AUTO_CONNECT="false"
-
-mvn spring-boot:run
-```
-
-Con `ALPHA_VANTAGE`, `LAST` e `CLOSE` vengono aggiornati via polling HTTP; `BID`
-e `ASK` restano a zero perche' l'endpoint gratuito `GLOBAL_QUOTE` non li espone.
-Gli ordini paper restano comunque legati a IBKR e richiedono TWS/IB Gateway.
-
+Interactive Brokers e' l'unica fonte dati configurata dal progetto.
 La dashboard locale e' disponibile su:
 
 ```text
 http://localhost:8080/
 ```
 
-Per imparare il flusso senza connessioni esterne puoi lasciare:
+La pagina di configurazione TWS / IB Gateway e' disponibile su:
+
+```text
+http://localhost:8080/provider.html
+```
+
+Per scaricare storico da IBKR, TWS o IB Gateway deve essere connesso e lo
+strumento deve avere permessi dati compatibili con l'account:
 
 ```powershell
-$env:MARKET_DATA_PROVIDER="MANUAL"
-$env:IBKR_AUTO_CONNECT="false"
-$env:IBKR_PAPER_ORDERS_ENABLED="false"
-$env:AUTO_EXECUTE_SIGNALS="false"
+$env:IBKR_AUTO_CONNECT="true"
+$env:IBKR_MARKET_DATA_MODE="DELAYED"
+
+mvn spring-boot:run
 ```
 
 ---
@@ -541,7 +533,6 @@ Questa milestone non include ancora:
 - scanner di mercato;
 - calendario di borsa;
 - controllo del tick minimo tramite `ContractDetails`;
-- bid/ask reali dal provider gratuito Alpha Vantage;
 - riconciliazione completa dopo riavvio;
 - attesa asincrona della cancellazione prima della chiusura;
 - gestione multi-account;
@@ -551,12 +542,10 @@ Questa milestone non include ancora:
 La prossima milestone consigliata è:
 
 1. richiesta `ContractDetails` e tick minimo;
-2. storico a barre;
-3. backtest della stessa interfaccia strategia;
+2. backtest piu' completo della stessa interfaccia strategia;
+3. scheduler con orari di mercato;
 4. riconciliazione ordini/posizioni dopo riavvio;
-5. scheduler con orari di mercato;
-6. notifiche;
-7. dashboard.
+5. notifiche;
 
 ---
 

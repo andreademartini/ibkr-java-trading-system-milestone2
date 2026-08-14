@@ -1,5 +1,6 @@
 package it.andreademartini.trading.ibkr;
 
+import com.ib.client.Bar;
 import com.ib.client.Contract;
 import com.ib.client.EWrapper;
 import com.ib.client.Order;
@@ -86,6 +87,8 @@ public class IbkrEWrapper implements InvocationHandler {
                 case "currentTime" -> handleCurrentTime(safeArgs);
                 case "tickPrice" -> handleTickPrice(safeArgs);
                 case "tickSize" -> handleTickSize(safeArgs);
+                case "historicalData" -> handleHistoricalData(safeArgs);
+                case "historicalDataEnd" -> handleHistoricalDataEnd(safeArgs);
                 case "orderStatus" -> handleOrderStatus(safeArgs);
                 case "openOrder" -> handleOpenOrder(safeArgs);
                 case "position" -> handlePosition(safeArgs);
@@ -150,6 +153,28 @@ public class IbkrEWrapper implements InvocationHandler {
         int field = numberAsInt(args[1]);
         Object size = args[2];
         notifyListeners(listener -> listener.onTickSize(requestId, field, size));
+    }
+
+    private void handleHistoricalData(Object[] args) {
+        if (args.length < 2 || !(args[1] instanceof Bar bar)) {
+            log.debug("Callback historicalData con firma inattesa: {}", Arrays.toString(args));
+            return;
+        }
+
+        int requestId = numberAsInt(args[0]);
+        notifyListeners(listener -> listener.onHistoricalData(requestId, bar));
+    }
+
+    private void handleHistoricalDataEnd(Object[] args) {
+        if (args.length < 3) {
+            log.debug("Callback historicalDataEnd con firma inattesa: {}", Arrays.toString(args));
+            return;
+        }
+
+        int requestId = numberAsInt(args[0]);
+        String start = String.valueOf(args[1]);
+        String end = String.valueOf(args[2]);
+        notifyListeners(listener -> listener.onHistoricalDataEnd(requestId, start, end));
     }
 
     private void handleOrderStatus(Object[] args) {

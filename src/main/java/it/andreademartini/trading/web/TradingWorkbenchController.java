@@ -3,18 +3,21 @@ package it.andreademartini.trading.web;
 import it.andreademartini.trading.config.MarketDataMode;
 import it.andreademartini.trading.config.MarketDataProvider;
 import it.andreademartini.trading.config.StrategyType;
+import it.andreademartini.trading.config.TradingMode;
 import it.andreademartini.trading.config.TradingSystemProperties;
+import it.andreademartini.trading.ibkr.IbkrConnectionService;
+import it.andreademartini.trading.ibkr.IbkrConnectionTestResult;
 import it.andreademartini.trading.marketdata.HistoricalDataService;
 import it.andreademartini.trading.marketdata.HistoricalBar;
 import it.andreademartini.trading.marketdata.HistoricalSeries;
 import it.andreademartini.trading.marketdata.MarketDataService;
-import it.andreademartini.trading.marketdata.MarketSnapshot;
 import it.andreademartini.trading.risk.KillSwitchService;
 import it.andreademartini.trading.strategy.ManualOnlyStrategy;
 import it.andreademartini.trading.strategy.MovingAverageCrossoverStrategy;
 import it.andreademartini.trading.strategy.SignalAction;
 import it.andreademartini.trading.strategy.SignalService;
 import it.andreademartini.trading.strategy.StrategyEngine;
+import it.andreademartini.trading.strategy.TradeDirection;
 import it.andreademartini.trading.strategy.TradingSignal;
 import it.andreademartini.trading.strategy.TradingStrategy;
 import org.springframework.http.HttpStatus;
@@ -39,6 +42,7 @@ import java.util.Map;
 public class TradingWorkbenchController {
 
     private final TradingSystemProperties properties;
+    private final IbkrConnectionService connectionService;
     private final MarketDataService marketDataService;
     private final HistoricalDataService historicalDataService;
     private final ActionProfileService actionProfileService;
@@ -48,6 +52,7 @@ public class TradingWorkbenchController {
 
     public TradingWorkbenchController(
             TradingSystemProperties properties,
+            IbkrConnectionService connectionService,
             MarketDataService marketDataService,
             HistoricalDataService historicalDataService,
             ActionProfileService actionProfileService,
@@ -55,6 +60,7 @@ public class TradingWorkbenchController {
             SignalService signalService,
             KillSwitchService killSwitchService) {
         this.properties = properties;
+        this.connectionService = connectionService;
         this.marketDataService = marketDataService;
         this.historicalDataService = historicalDataService;
         this.actionProfileService = actionProfileService;
@@ -74,8 +80,20 @@ public class TradingWorkbenchController {
         if (request.marketData() != null) {
             applyMarketDataConfig(request.marketData());
         }
+        if (request.ibkr() != null) {
+            applyIbkrConfig(request.ibkr());
+        }
         if (request.strategy() != null) {
             applyStrategyConfig(request.strategy());
+        }
+        if (request.runtime() != null) {
+            applyRuntimeConfig(request.runtime());
+        }
+        if (request.risk() != null) {
+            applyRiskConfig(request.risk());
+        }
+        if (request.orders() != null) {
+            applyOrdersConfig(request.orders());
         }
         strategyEngine.reset();
         return configResponse();
@@ -85,29 +103,29 @@ public class TradingWorkbenchController {
     public Map<String, Object> restartMarketData() {
         marketDataService.restart();
         return Map.of(
-                "provider", properties.getMarketData().getProvider(),
+                "provider", MarketDataProvider.IBKR,
                 "marketData", marketDataService.snapshots());
     }
 
-    @PostMapping("/market-data/manual-price")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public MarketSnapshot publishManualPrice(
-            @RequestBody ManualPriceRequest request) {
-        return marketDataService.publishManualPrice(
-                normalizeSymbol(request.symbol()),
-                request.price());
+    @PostMapping("/ibkr/reconnect")
+    public Map<String, Object> reconnectIbkr() {
+        connectionService.disconnect();
+        connectionService.connect();
+        marketDataService.restart();
+        return Map.of(
+                "connectionState", connectionService.getState(),
+                "marketData", marketDataService.snapshots());
+    }
+
+    @PostMapping("/ibkr/test")
+    public IbkrConnectionTestResult testIbkrConnection() {
+        return connectionService.testConnection();
     }
 
     @PostMapping("/historical/download")
     public HistoricalDownloadResponse downloadHistorical(
             @RequestBody HistoricalDownloadRequest request) {
-        MarketDataProvider provider = request.provider() == null
-                ? properties.getMarketData().getProvider()
-                : request.provider();
-        if (provider != MarketDataProvider.ALPHA_VANTAGE) {
-            throw new IllegalArgumentException(
-                    "Download storico supportato solo con provider ALPHA_VANTAGE");
-        }
+        MarketDataProvider provider = MarketDataProvider.IBKR;
 
         String symbol = normalizeSymbol(request.symbol());
         String timeframe = normalizeTimeframe(request.timeframe());
@@ -231,27 +249,36 @@ public class TradingWorkbenchController {
             marketData.setEnabled(request.enabled());
         }
         if (request.provider() != null) {
-            marketData.setProvider(request.provider());
+            marketData.setProvider(MarketDataProvider.IBKR);
         }
         if (request.mode() != null) {
             marketData.setMode(request.mode());
         }
-        if (request.alphaVantage() != null) {
-            TradingSystemProperties.AlphaVantageProperties alpha =
-                    marketData.getAlphaVantage();
-            if (request.alphaVantage().apiKey() != null
-                    && !request.alphaVantage().apiKey().isBlank()) {
-                alpha.setApiKey(request.alphaVantage().apiKey().trim());
-            }
-            if (request.alphaVantage().pollingIntervalSeconds() != null) {
-                alpha.setPollingInterval(Duration.ofSeconds(
-                        Math.max(3_600, request.alphaVantage().pollingIntervalSeconds())));
-            }
+    }
+
+    private void applyIbkrConfig(IbkrConfigRequest request) {
+        TradingSystemProperties.IbkrProperties ibkr = properties.getIbkr();
+        if (request.host() != null && !request.host().isBlank()) {
+            ibkr.setHost(request.host().trim());
         }
-        if (request.instruments() != null && !request.instruments().isEmpty()) {
-            marketData.setInstruments(request.instruments().stream()
-                    .map(this::instrumentProperties)
-                    .toList());
+        if (request.port() != null) {
+            ibkr.setPort(Math.max(1, Math.min(65_535, request.port())));
+        }
+        if (request.clientId() != null) {
+            ibkr.setClientId(Math.max(0, request.clientId()));
+        }
+        if (request.accountId() != null) {
+            ibkr.setAccountId(request.accountId().trim());
+        }
+        if (request.autoConnect() != null) {
+            ibkr.setAutoConnect(request.autoConnect());
+        }
+        if (request.allowCustomPaperPort() != null) {
+            ibkr.setAllowCustomPaperPort(request.allowCustomPaperPort());
+        }
+        if (request.historicalDataTimeoutSeconds() != null) {
+            ibkr.setHistoricalDataTimeout(Duration.ofSeconds(
+                    Math.max(5, request.historicalDataTimeoutSeconds())));
         }
     }
 
@@ -290,16 +317,87 @@ public class TradingWorkbenchController {
         }
     }
 
-    private TradingSystemProperties.InstrumentProperties instrumentProperties(
-            InstrumentConfigRequest request) {
-        TradingSystemProperties.InstrumentProperties instrument =
-                new TradingSystemProperties.InstrumentProperties();
-        instrument.setSymbol(normalizeSymbol(request.symbol()));
-        instrument.setSecurityType(blankToDefault(request.securityType(), "STK"));
-        instrument.setExchange(blankToDefault(request.exchange(), "SMART"));
-        instrument.setCurrency(blankToDefault(request.currency(), "USD"));
-        instrument.setPrimaryExchange(blankToDefault(request.primaryExchange(), "ARCA"));
-        return instrument;
+    private void applyRuntimeConfig(RuntimeConfigRequest request) {
+        if (request.mode() != null && request.mode() != TradingMode.PAPER) {
+            throw new IllegalArgumentException(
+                    "Questa versione consente solo la modalita PAPER");
+        }
+        properties.setMode(TradingMode.PAPER);
+
+        if (Boolean.TRUE.equals(request.liveTradingEnabled())) {
+            throw new IllegalArgumentException(
+                    "LIVE e' bloccato in questa versione del progetto");
+        }
+        properties.setLiveTradingEnabled(false);
+
+        if (request.paperAccountConfirmation() != null) {
+            properties.setPaperAccountConfirmation(
+                    request.paperAccountConfirmation().trim());
+        }
+        if (request.orderSubmissionEnabled() != null) {
+            properties.setOrderSubmissionEnabled(request.orderSubmissionEnabled());
+        }
+        if (properties.isOrderSubmissionEnabled()) {
+            if (!TradingSystemProperties.PAPER_CONFIRMATION_PHRASE.equals(
+                    properties.getPaperAccountConfirmation())) {
+                throw new IllegalArgumentException(
+                        "Per abilitare gli ordini devi inserire la frase di conferma paper");
+            }
+            if (properties.getIbkr().getAccountId() == null
+                    || properties.getIbkr().getAccountId().isBlank()) {
+                throw new IllegalArgumentException(
+                        "Account paper IBKR obbligatorio prima di abilitare gli ordini");
+            }
+        }
+    }
+
+    private void applyRiskConfig(RiskConfigRequest request) {
+        TradingSystemProperties.RiskProperties risk = properties.getRisk();
+        if (request.maxOrderValue() != null) {
+            risk.setMaxOrderValue(Math.max(0.01, request.maxOrderValue()));
+        }
+        if (request.maxPositionValue() != null) {
+            risk.setMaxPositionValue(Math.max(0.01, request.maxPositionValue()));
+        }
+        if (request.maxQuantityPerOrder() != null) {
+            risk.setMaxQuantityPerOrder(Math.max(1, request.maxQuantityPerOrder()));
+        }
+        if (request.maxDailyOrders() != null) {
+            risk.setMaxDailyOrders(Math.max(1, request.maxDailyOrders()));
+        }
+        if (request.maxOpenOrders() != null) {
+            risk.setMaxOpenOrders(Math.max(1, request.maxOpenOrders()));
+        }
+        if (request.maxDailyLoss() != null) {
+            risk.setMaxDailyLoss(Math.max(0.01, request.maxDailyLoss()));
+        }
+        if (request.allowShortSelling() != null) {
+            risk.setAllowShortSelling(request.allowShortSelling());
+        }
+    }
+
+    private void applyOrdersConfig(OrdersConfigRequest request) {
+        TradingSystemProperties.OrderProperties orders = properties.getOrders();
+        if (request.entryTimeInForce() != null
+                && !request.entryTimeInForce().isBlank()) {
+            orders.setEntryTimeInForce(request.entryTimeInForce()
+                    .trim()
+                    .toUpperCase(Locale.ROOT));
+        }
+        if (request.protectiveTimeInForce() != null
+                && !request.protectiveTimeInForce().isBlank()) {
+            orders.setProtectiveTimeInForce(request.protectiveTimeInForce()
+                    .trim()
+                    .toUpperCase(Locale.ROOT));
+        }
+        if (request.outsideRegularTradingHours() != null) {
+            orders.setOutsideRegularTradingHours(
+                    request.outsideRegularTradingHours());
+        }
+        if (request.interOrderDelayMillis() != null) {
+            orders.setInterOrderDelay(Duration.ofMillis(
+                    Math.max(0, request.interOrderDelayMillis())));
+        }
     }
 
     private TradingSystemProperties.StrategyProperties simulationProperties(
@@ -353,6 +451,9 @@ public class TradingWorkbenchController {
         double slippagePercent = request.slippagePercent() == null
                 ? 0.0
                 : request.slippagePercent();
+        TradeDirection tradeDirection = request.tradeDirection() == null
+                ? TradeDirection.LONG_SHORT
+                : request.tradeDirection();
 
         if (initialCapital <= 0) {
             throw new IllegalArgumentException("initialCapital deve essere positivo");
@@ -381,7 +482,35 @@ public class TradingWorkbenchController {
             while (signalIndex < signals.size()
                     && !signals.get(signalIndex).occurredAt().isAfter(point.timestamp())) {
                 TradingSignal signal = signals.get(signalIndex++);
-                if (signal.action() == SignalAction.BUY && positionQuantity == 0) {
+                if (signal.action() == SignalAction.BUY && positionQuantity < 0) {
+                    long quantity = Math.abs(positionQuantity);
+                    double fillPrice = applySlippage(signal.price(), slippagePercent, true);
+                    cash -= fillPrice * quantity + commissionPerOrder;
+                    double grossPnl = (averageEntryPrice - fillPrice) * quantity;
+                    double netPnl = grossPnl - entryCommission - commissionPerOrder;
+                    trades.add(new TradeResult(
+                            trades.size() + 1,
+                            "SHORT",
+                            entryIndex,
+                            point.index(),
+                            entryAt,
+                            signal.occurredAt(),
+                            quantity,
+                            averageEntryPrice,
+                            fillPrice,
+                            grossPnl,
+                            netPnl,
+                            netPnl / (averageEntryPrice * quantity) * 100.0));
+                    positionQuantity = 0;
+                    averageEntryPrice = 0.0;
+                    entryAt = null;
+                    entryIndex = -1;
+                    entryCommission = 0.0;
+                }
+
+                if (signal.action() == SignalAction.BUY
+                        && positionQuantity == 0
+                        && tradeDirection.allowsLong()) {
                     long quantity = Math.max(1, signal.quantity());
                     double fillPrice = applySlippage(signal.price(), slippagePercent, true);
                     double cost = fillPrice * quantity + commissionPerOrder;
@@ -418,9 +547,22 @@ public class TradingWorkbenchController {
                     entryIndex = -1;
                     entryCommission = 0.0;
                 }
+
+                if (signal.action() == SignalAction.SELL
+                        && positionQuantity == 0
+                        && tradeDirection.allowsShort()) {
+                    long quantity = Math.max(1, signal.quantity());
+                    double fillPrice = applySlippage(signal.price(), slippagePercent, false);
+                    cash += fillPrice * quantity - commissionPerOrder;
+                    positionQuantity = -quantity;
+                    averageEntryPrice = fillPrice;
+                    entryAt = signal.occurredAt();
+                    entryIndex = point.index();
+                    entryCommission = commissionPerOrder;
+                }
             }
 
-            if (positionQuantity > 0) {
+            if (positionQuantity != 0) {
                 barsInPosition++;
             }
 
@@ -460,15 +602,24 @@ public class TradingWorkbenchController {
                 request.strategy() == null
                         ? properties.getStrategy().getType()
                         : request.strategy(),
+                tradeDirection,
                 strategyProperties.getFastPeriod(),
                 strategyProperties.getSlowPeriod(),
                 strategyProperties.getQuantity(),
                 initialCapital,
                 commissionPerOrder,
                 slippagePercent,
-                "Long-only: BUY apre una posizione, SELL chiude la posizione; eventuale posizione aperta resta valorizzata a mercato");
+                executionModel(tradeDirection));
 
         return new BacktestResult(equityCurve, trades, metrics, parameters);
+    }
+
+    private String executionModel(TradeDirection tradeDirection) {
+        return switch (tradeDirection) {
+            case LONG_ONLY -> "Solo long: BUY apre long, SELL chiude long; non apre short";
+            case SHORT_ONLY -> "Solo short: SELL apre short, BUY chiude short; non apre long";
+            case LONG_SHORT -> "Long/short: BUY apre o gira long, SELL apre o gira short; eventuale posizione aperta resta valorizzata a mercato";
+        };
     }
 
     private double applySlippage(double price, double slippagePercent, boolean buy) {
@@ -538,24 +689,28 @@ public class TradingWorkbenchController {
     private WorkbenchConfigResponse configResponse() {
         TradingSystemProperties.MarketDataProperties marketData =
                 properties.getMarketData();
-        TradingSystemProperties.AlphaVantageProperties alpha =
-                marketData.getAlphaVantage();
+        TradingSystemProperties.IbkrProperties ibkr = properties.getIbkr();
         TradingSystemProperties.StrategyProperties strategy = properties.getStrategy();
+        TradingSystemProperties.RiskProperties risk = properties.getRisk();
+        TradingSystemProperties.OrderProperties orders = properties.getOrders();
 
         return new WorkbenchConfigResponse(
                 Arrays.asList(MarketDataProvider.values()),
                 Arrays.asList(MarketDataMode.values()),
                 Arrays.asList(StrategyType.values()),
+                Arrays.asList(TradingMode.values()),
+                new IbkrConfigResponse(
+                        ibkr.getHost(),
+                        ibkr.getPort(),
+                        ibkr.getClientId(),
+                        ibkr.getAccountId(),
+                        ibkr.isAutoConnect(),
+                        ibkr.isAllowCustomPaperPort(),
+                        ibkr.getHistoricalDataTimeout().toSeconds()),
                 new MarketDataConfigResponse(
                         marketData.isEnabled(),
-                        marketData.getProvider(),
-                        marketData.getMode(),
-                        new AlphaVantageConfigResponse(
-                                alpha.getApiKey() != null && !alpha.getApiKey().isBlank(),
-                                alpha.getPollingInterval().toSeconds()),
-                        marketData.getInstruments().stream()
-                                .map(InstrumentConfigResponse::from)
-                                .toList()),
+                        MarketDataProvider.IBKR,
+                        marketData.getMode()),
                 new StrategyConfigResponse(
                         strategy.getType(),
                         strategy.isEnabled(),
@@ -566,6 +721,25 @@ public class TradingWorkbenchController {
                         strategy.getSignalCooldown().toSeconds(),
                         strategy.getTakeProfitPercent(),
                         strategy.getTrailingStopPercent()),
+                new RuntimeConfigResponse(
+                        properties.getMode(),
+                        properties.isLiveTradingEnabled(),
+                        properties.isOrderSubmissionEnabled(),
+                        properties.getPaperAccountConfirmation(),
+                        TradingSystemProperties.PAPER_CONFIRMATION_PHRASE),
+                new RiskConfigResponse(
+                        risk.getMaxOrderValue(),
+                        risk.getMaxPositionValue(),
+                        risk.getMaxQuantityPerOrder(),
+                        risk.getMaxDailyOrders(),
+                        risk.getMaxOpenOrders(),
+                        risk.getMaxDailyLoss(),
+                        risk.isAllowShortSelling()),
+                new OrdersConfigResponse(
+                        orders.getEntryTimeInForce(),
+                        orders.getProtectiveTimeInForce(),
+                        orders.isOutsideRegularTradingHours(),
+                        orders.getInterOrderDelay().toMillis()),
                 killSwitchService.isActive());
     }
 
@@ -605,29 +779,28 @@ public class TradingWorkbenchController {
     }
 
     public record WorkbenchConfigRequest(
+            IbkrConfigRequest ibkr,
             MarketDataConfigRequest marketData,
-            StrategyConfigRequest strategy) {
+            StrategyConfigRequest strategy,
+            RuntimeConfigRequest runtime,
+            RiskConfigRequest risk,
+            OrdersConfigRequest orders) {
+    }
+
+    public record IbkrConfigRequest(
+            String host,
+            Integer port,
+            Integer clientId,
+            String accountId,
+            Boolean autoConnect,
+            Boolean allowCustomPaperPort,
+            Long historicalDataTimeoutSeconds) {
     }
 
     public record MarketDataConfigRequest(
             Boolean enabled,
             MarketDataProvider provider,
-            MarketDataMode mode,
-            AlphaVantageConfigRequest alphaVantage,
-            List<InstrumentConfigRequest> instruments) {
-    }
-
-    public record AlphaVantageConfigRequest(
-            String apiKey,
-            Long pollingIntervalSeconds) {
-    }
-
-    public record InstrumentConfigRequest(
-            String symbol,
-            String securityType,
-            String exchange,
-            String currency,
-            String primaryExchange) {
+            MarketDataMode mode) {
     }
 
     public record StrategyConfigRequest(
@@ -642,11 +815,28 @@ public class TradingWorkbenchController {
             Double trailingStopPercent) {
     }
 
-    public record ManualPriceRequest(
-            String symbol,
-            double price,
-            MarketDataProvider provider,
-            StrategyType strategy) {
+    public record RuntimeConfigRequest(
+            TradingMode mode,
+            Boolean liveTradingEnabled,
+            Boolean orderSubmissionEnabled,
+            String paperAccountConfirmation) {
+    }
+
+    public record RiskConfigRequest(
+            Double maxOrderValue,
+            Double maxPositionValue,
+            Long maxQuantityPerOrder,
+            Integer maxDailyOrders,
+            Integer maxOpenOrders,
+            Double maxDailyLoss,
+            Boolean allowShortSelling) {
+    }
+
+    public record OrdersConfigRequest(
+            String entryTimeInForce,
+            String protectiveTimeInForce,
+            Boolean outsideRegularTradingHours,
+            Long interOrderDelayMillis) {
     }
 
     public record WorkbenchManualSignalRequest(
@@ -685,6 +875,7 @@ public class TradingWorkbenchController {
             String symbol,
             MarketDataProvider provider,
             StrategyType strategy,
+            TradeDirection tradeDirection,
             List<Double> prices,
             Integer fastPeriod,
             Integer slowPeriod,
@@ -763,6 +954,7 @@ public class TradingWorkbenchController {
     public record EvaluationParameters(
             MarketDataProvider provider,
             StrategyType strategy,
+            TradeDirection tradeDirection,
             int fastPeriod,
             int slowPeriod,
             long quantity,
@@ -783,40 +975,30 @@ public class TradingWorkbenchController {
             List<MarketDataProvider> providerOptions,
             List<MarketDataMode> modeOptions,
             List<StrategyType> strategyOptions,
+            List<TradingMode> tradingModeOptions,
+            IbkrConfigResponse ibkr,
             MarketDataConfigResponse marketData,
             StrategyConfigResponse strategy,
+            RuntimeConfigResponse runtime,
+            RiskConfigResponse risk,
+            OrdersConfigResponse orders,
             boolean killSwitchActive) {
+    }
+
+    public record IbkrConfigResponse(
+            String host,
+            int port,
+            int clientId,
+            String accountId,
+            boolean autoConnect,
+            boolean allowCustomPaperPort,
+            long historicalDataTimeoutSeconds) {
     }
 
     public record MarketDataConfigResponse(
             boolean enabled,
             MarketDataProvider provider,
-            MarketDataMode mode,
-            AlphaVantageConfigResponse alphaVantage,
-            List<InstrumentConfigResponse> instruments) {
-    }
-
-    public record AlphaVantageConfigResponse(
-            boolean apiKeyConfigured,
-            long pollingIntervalSeconds) {
-    }
-
-    public record InstrumentConfigResponse(
-            String symbol,
-            String securityType,
-            String exchange,
-            String currency,
-            String primaryExchange) {
-
-        static InstrumentConfigResponse from(
-                TradingSystemProperties.InstrumentProperties instrument) {
-            return new InstrumentConfigResponse(
-                    instrument.getSymbol(),
-                    instrument.getSecurityType(),
-                    instrument.getExchange(),
-                    instrument.getCurrency(),
-                    instrument.getPrimaryExchange());
-        }
+            MarketDataMode mode) {
     }
 
     public record StrategyConfigResponse(
@@ -829,5 +1011,30 @@ public class TradingWorkbenchController {
             long signalCooldownSeconds,
             double takeProfitPercent,
             double trailingStopPercent) {
+    }
+
+    public record RuntimeConfigResponse(
+            TradingMode mode,
+            boolean liveTradingEnabled,
+            boolean orderSubmissionEnabled,
+            String paperAccountConfirmation,
+            String requiredPaperConfirmation) {
+    }
+
+    public record RiskConfigResponse(
+            double maxOrderValue,
+            double maxPositionValue,
+            long maxQuantityPerOrder,
+            int maxDailyOrders,
+            int maxOpenOrders,
+            double maxDailyLoss,
+            boolean allowShortSelling) {
+    }
+
+    public record OrdersConfigResponse(
+            String entryTimeInForce,
+            String protectiveTimeInForce,
+            boolean outsideRegularTradingHours,
+            long interOrderDelayMillis) {
     }
 }

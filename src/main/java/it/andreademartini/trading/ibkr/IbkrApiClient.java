@@ -31,6 +31,34 @@ public class IbkrApiClient {
         connectionService.requireClientSocket().cancelMktData(requestId);
     }
 
+    public void requestHistoricalData(
+            int requestId,
+            Contract contract,
+            String endDateTime,
+            String duration,
+            String barSize,
+            String whatToShow,
+            int useRegularTradingHours,
+            int formatDate,
+            boolean keepUpToDate) {
+        connectionService.requireClientSocket()
+                .reqHistoricalData(
+                        requestId,
+                        contract,
+                        endDateTime,
+                        duration,
+                        barSize,
+                        whatToShow,
+                        useRegularTradingHours,
+                        formatDate,
+                        keepUpToDate,
+                        List.of());
+    }
+
+    public void cancelHistoricalData(int requestId) {
+        connectionService.requireClientSocket().cancelHistoricalData(requestId);
+    }
+
     public void requestPositions() {
         connectionService.requireClientSocket().reqPositions();
     }

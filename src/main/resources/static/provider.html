@@ -3,18 +3,19 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Provider dati</title>
+    <title>Connessione IBKR</title>
     <link rel="stylesheet" href="/app.css">
 </head>
 <body>
 <header class="topbar">
     <div>
-        <h1>Provider dati</h1>
+        <h1>Connessione IBKR</h1>
         <p id="last-refresh">In attesa dati</p>
     </div>
     <nav class="top-actions">
         <a class="link-button" href="/">Azioni</a>
-        <a class="link-button active-link" href="/provider.html">Provider dati</a>
+        <a class="link-button active-link" href="/provider.html">Connessione IBKR</a>
+        <a class="link-button" href="/config.html">Configurazione</a>
         <a class="link-button" href="/api/paper/status" target="_blank">JSON status</a>
         <button id="refresh-button" type="button">Aggiorna</button>
     </nav>
@@ -31,7 +32,7 @@
             <strong id="status-connection">-</strong>
         </div>
         <div class="metric">
-            <span>Provider</span>
+            <span>Fonte dati</span>
             <strong id="status-provider">-</strong>
         </div>
         <div class="metric">
@@ -46,76 +47,66 @@
 
     <section class="panel">
         <div class="panel-heading">
-            <h2>Configurazione provider</h2>
+            <h2>Configurazione TWS / IB Gateway</h2>
             <button id="save-config-button" type="button">Salva</button>
         </div>
 
         <div class="form-grid">
             <label>
-                Provider dati globale
-                <select id="config-provider"></select>
+                Host
+                <input id="config-ibkr-host" autocomplete="off">
             </label>
             <label>
-                Market data
-                <select id="config-market-enabled">
-                    <option value="true">Attivi</option>
-                    <option value="false">Disattivi</option>
+                Porta socket
+                <input id="config-ibkr-port" type="number" min="1" max="65535" step="1">
+            </label>
+            <label>
+                Client id
+                <input id="config-ibkr-client-id" type="number" min="0" step="1">
+            </label>
+            <label>
+                Account paper
+                <input id="config-ibkr-account" autocomplete="off">
+            </label>
+            <label>
+                Auto connect
+                <select id="config-ibkr-auto-connect">
+                    <option value="true">Attivo</option>
+                    <option value="false">Disattivo</option>
                 </select>
             </label>
             <label>
-                Modalita IBKR
-                <select id="config-mode"></select>
+                Porta paper custom
+                <select id="config-ibkr-custom-port">
+                    <option value="false">No</option>
+                    <option value="true">Si</option>
+                </select>
             </label>
             <label>
-                Simbolo base
-                <input id="config-symbol" autocomplete="off">
-            </label>
-            <label>
-                Exchange
-                <input id="config-exchange" autocomplete="off">
-            </label>
-            <label>
-                Primary exchange
-                <input id="config-primary-exchange" autocomplete="off">
-            </label>
-            <label>
-                Valuta
-                <input id="config-currency" autocomplete="off">
-            </label>
-            <label>
-                Alpha Vantage key
-                <input id="config-alpha-key" type="password" autocomplete="off">
-            </label>
-            <label>
-                Polling Alpha sec
-                <input id="config-alpha-polling" type="number" min="3600" step="3600">
+                Timeout storico sec
+                <input id="config-ibkr-history-timeout" type="number" min="5" step="5">
             </label>
         </div>
 
         <div class="button-row">
-            <button id="restart-market-data-button" type="button">Salva e riavvia dati</button>
+            <button id="test-ibkr-button" type="button" aria-describedby="test-ibkr-help">
+                Test connessione
+            </button>
+            <button id="reconnect-ibkr-button" type="button" aria-describedby="reconnect-ibkr-help">
+                Salva e riconnetti IBKR
+            </button>
         </div>
-    </section>
-
-    <section class="panel results-panel">
-        <div class="panel-heading">
-            <h2>Market data corrente</h2>
+        <div class="button-help-grid">
+            <div id="test-ibkr-help" class="button-help">
+                <strong>Prova il socket TWS</strong>
+                <span>Salva i valori correnti e apre una connessione API temporanea. Esempio: verifica 127.0.0.1 porta 7497 prima di avviare i dati.</span>
+            </div>
+            <div id="reconnect-ibkr-help" class="button-help">
+                <strong>Riavvia la connessione TWS</strong>
+                <span>Usalo dopo modifiche a host, porta o client id. Esempio: passi da TWS Paper 7497 a IB Gateway Paper 4002.</span>
+            </div>
         </div>
-        <table>
-            <thead>
-            <tr>
-                <th>Symbol</th>
-                <th>Bid</th>
-                <th>Ask</th>
-                <th>Last</th>
-                <th>Close</th>
-                <th>High</th>
-                <th>Low</th>
-                <th>Aggiornato</th>
-            </tr>
-            </thead>
-            <tbody id="market-body"></tbody>
-        </table>
+        <div id="connection-test-result" class="inline-status"></div>
     </section>
 </main>
 

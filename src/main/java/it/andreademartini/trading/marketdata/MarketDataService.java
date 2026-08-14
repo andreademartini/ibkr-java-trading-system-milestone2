@@ -6,24 +6,22 @@ import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.ibkr.IbkrApiClient;
 import it.andreademartini.trading.ibkr.IbkrEWrapper;
 import it.andreademartini.trading.ibkr.IbkrEventListener;
+import it.andreademartini.trading.persistence.TradingStockEntity;
+import it.andreademartini.trading.persistence.TradingStockRepository;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -33,8 +31,8 @@ public class MarketDataService implements IbkrEventListener {
 
     private final TradingSystemProperties properties;
     private final IbkrApiClient apiClient;
-    private final AlphaVantageMarketDataClient alphaVantageClient;
     private final IbkrContractFactory contractFactory;
+    private final TradingStockRepository stockRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     private final AtomicInteger requestIdSequence = new AtomicInteger(1_000);
@@ -43,26 +41,19 @@ public class MarketDataService implements IbkrEventListener {
     private final Map<String, MarketSnapshot> snapshots = new ConcurrentHashMap<>();
     private final Map<String, TradingSystemProperties.InstrumentProperties> instruments =
             new ConcurrentHashMap<>();
-    private final ScheduledExecutorService alphaVantageExecutor =
-            Executors.newSingleThreadScheduledExecutor(runnable -> {
-                Thread thread = new Thread(runnable, "alpha-vantage-market-data");
-                thread.setDaemon(true);
-                return thread;
-            });
-    private ScheduledFuture<?> alphaVantagePolling;
     private MarketDataProvider activeProvider;
 
     public MarketDataService(
             TradingSystemProperties properties,
             IbkrApiClient apiClient,
-            AlphaVantageMarketDataClient alphaVantageClient,
             IbkrContractFactory contractFactory,
+            TradingStockRepository stockRepository,
             ApplicationEventPublisher eventPublisher,
             IbkrEWrapper wrapper) {
         this.properties = properties;
         this.apiClient = apiClient;
-        this.alphaVantageClient = alphaVantageClient;
         this.contractFactory = contractFactory;
+        this.stockRepository = stockRepository;
         this.eventPublisher = eventPublisher;
         wrapper.addListener(this);
 
@@ -84,23 +75,12 @@ public class MarketDataService implements IbkrEventListener {
         }
 
         stopActiveProvider();
-        activeProvider = provider;
-
-        if (provider == MarketDataProvider.MANUAL) {
-            startManualProvider();
-            return;
-        }
-
-        if (provider == MarketDataProvider.ALPHA_VANTAGE) {
-            startAlphaVantagePolling();
-            return;
-        }
+        activeProvider = MarketDataProvider.IBKR;
 
         apiClient.requestMarketDataType(
                 properties.getMarketData().getMode().getIbkrCode());
 
-        for (TradingSystemProperties.InstrumentProperties instrument
-                : properties.getMarketData().getInstruments()) {
+        for (TradingSystemProperties.InstrumentProperties instrument : configuredInstruments()) {
             subscribe(instrument);
         }
     }
@@ -125,51 +105,10 @@ public class MarketDataService implements IbkrEventListener {
         symbolByRequestId.put(requestId, symbol);
         requestIdBySymbol.put(symbol, requestId);
 
-        MarketDataProvider provider = properties.getMarketData().getProvider();
-        if (provider == MarketDataProvider.ALPHA_VANTAGE
-                || provider == MarketDataProvider.MANUAL) {
-            log.info("Sottoscrizione market data {} registrata: {} reqId={}",
-                    provider, symbol, requestId);
-            return requestId;
-        }
-
         apiClient.requestMarketData(requestId, contract);
         log.info("Sottoscrizione market data richiesta: {} reqId={} mode={}",
                 symbol, requestId, properties.getMarketData().getMode());
         return requestId;
-    }
-
-    public MarketSnapshot publishManualPrice(String symbol, double price) {
-        if (price <= 0) {
-            throw new IllegalArgumentException("Il prezzo manuale deve essere positivo");
-        }
-
-        String normalizedSymbol = normalize(symbol);
-        Instant now = Instant.now();
-        MarketSnapshot updated = snapshots.compute(normalizedSymbol, (key, previous) -> {
-            MarketSnapshot value = previous == null
-                    ? MarketSnapshot.empty(normalizedSymbol)
-                    : previous;
-            return new MarketSnapshot(
-                    normalizedSymbol,
-                    value.bid(),
-                    value.ask(),
-                    price,
-                    price,
-                    Math.max(value.high(), price),
-                    value.low() <= 0 ? price : Math.min(value.low(), price),
-                    now);
-        });
-
-        eventPublisher.publishEvent(
-                new MarketPriceEvent(
-                        normalizedSymbol,
-                        MarketPriceType.LAST,
-                        price,
-                        updated,
-                        now));
-        log.info("Market data manuale {} LAST={}", normalizedSymbol, price);
-        return updated;
     }
 
     @Override
@@ -227,11 +166,19 @@ public class MarketDataService implements IbkrEventListener {
     }
 
     public TradingSystemProperties.InstrumentProperties requireInstrument(String symbol) {
-        TradingSystemProperties.InstrumentProperties instrument =
-                instruments.get(normalize(symbol));
+        String normalized = normalize(symbol);
+        TradingSystemProperties.InstrumentProperties configured = configuredInstruments().stream()
+                .filter(item -> normalize(item.getSymbol()).equals(normalized))
+                .findFirst()
+                .orElse(null);
+        if (configured != null) {
+            instruments.put(normalized, configured);
+            return configured;
+        }
+
+        TradingSystemProperties.InstrumentProperties instrument = instruments.get(normalized);
         if (instrument == null) {
-            throw new IllegalArgumentException(
-                    "Strumento non configurato in trading.market-data.instruments: " + symbol);
+            throw new IllegalArgumentException("Stock non configurata: " + symbol);
         }
         return instrument;
     }
@@ -239,15 +186,9 @@ public class MarketDataService implements IbkrEventListener {
     @PreDestroy
     void stop() {
         stopActiveProvider();
-        alphaVantageExecutor.shutdownNow();
     }
 
     private synchronized void stopActiveProvider() {
-        if (alphaVantagePolling != null) {
-            alphaVantagePolling.cancel(true);
-            alphaVantagePolling = null;
-        }
-
         if (activeProvider == MarketDataProvider.IBKR) {
             for (Integer requestId : requestIdBySymbol.values()) {
                 try {
@@ -276,72 +217,26 @@ public class MarketDataService implements IbkrEventListener {
         };
     }
 
-    private void startAlphaVantagePolling() {
-        String apiKey = properties.getMarketData().getAlphaVantage().getApiKey();
-        if (apiKey == null || apiKey.isBlank()) {
-            log.warn("Alpha Vantage disabilitato: configurare ALPHA_VANTAGE_API_KEY");
-            return;
+    private List<TradingSystemProperties.InstrumentProperties> configuredInstruments() {
+        List<TradingStockEntity> stocks = stockRepository.findAllByOrderBySymbolAsc();
+        if (stocks != null && !stocks.isEmpty()) {
+            return stocks.stream()
+                    .map(this::instrumentFromStock)
+                    .toList();
         }
-
-        for (TradingSystemProperties.InstrumentProperties instrument
-                : properties.getMarketData().getInstruments()) {
-            subscribe(instrument);
-        }
-
-        long intervalMillis = Math.max(
-                Duration.ofHours(1).toMillis(),
-                properties.getMarketData().getAlphaVantage()
-                        .getPollingInterval()
-                        .toMillis());
-        alphaVantagePolling = alphaVantageExecutor.scheduleWithFixedDelay(
-                this::pollAlphaVantage,
-                0,
-                intervalMillis,
-                TimeUnit.MILLISECONDS);
-        log.info("Polling Alpha Vantage avviato ogni {} ms", intervalMillis);
+        return properties.getMarketData().getInstruments();
     }
 
-    private void startManualProvider() {
-        for (TradingSystemProperties.InstrumentProperties instrument
-                : properties.getMarketData().getInstruments()) {
-            subscribe(instrument);
-        }
-        log.info("Market data manuale avviato");
-    }
-
-    private void pollAlphaVantage() {
-        for (String symbol : instruments.keySet()) {
-            try {
-                alphaVantageClient.quote(symbol)
-                        .ifPresent(this::applyAlphaVantageQuote);
-            } catch (RuntimeException exception) {
-                log.warn("Polling Alpha Vantage fallito per {}: {}",
-                        symbol, exception.getMessage());
-            }
-        }
-    }
-
-    private void applyAlphaVantageQuote(AlphaVantageQuote quote) {
-        String symbol = normalize(quote.symbol());
-        Instant now = quote.receivedAt();
-        MarketSnapshot updated = snapshots.compute(symbol, (key, previous) -> {
-            MarketSnapshot value = previous == null
-                    ? MarketSnapshot.empty(symbol)
-                    : previous;
-            return new MarketSnapshot(
-                    symbol,
-                    value.bid(),
-                    value.ask(),
-                    quote.price(),
-                    quote.previousClose(),
-                    value.high(),
-                    value.low(),
-                    now);
-        });
-
-        eventPublisher.publishEvent(
-                new MarketPriceEvent(symbol, MarketPriceType.LAST, quote.price(), updated, now));
-        log.debug("Market data Alpha Vantage {} LAST={}", symbol, quote.price());
+    private TradingSystemProperties.InstrumentProperties instrumentFromStock(
+            TradingStockEntity stock) {
+        TradingSystemProperties.InstrumentProperties instrument =
+                new TradingSystemProperties.InstrumentProperties();
+        instrument.setSymbol(stock.getSymbol());
+        instrument.setSecurityType(stock.getSecurityType());
+        instrument.setExchange(stock.getExchange());
+        instrument.setCurrency(stock.getCurrency());
+        instrument.setPrimaryExchange(stock.getPrimaryExchange());
+        return instrument;
     }
 
     private String normalize(String value) {
