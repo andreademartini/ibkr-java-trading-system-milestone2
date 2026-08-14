@@ -525,13 +525,13 @@ function renderSimulation() {
         $("price-chart").innerHTML = "";
         $("equity-chart").innerHTML = "";
         $("simulation-body").innerHTML = emptyRow(6, "Nessun segnale simulato");
-        $("trades-body").innerHTML = emptyRow(7, "Nessun trade chiuso");
+        $("trades-body").innerHTML = emptyRow(8, "Nessun trade chiuso");
         return;
     }
     const simulation = state.simulation;
     const executionModel = simulation.evaluationParameters?.executionModel || "";
     $("simulation-summary").textContent =
-        `${simulation.symbol} ${simulation.strategy} ${simulation.inputCount} prezzi, segnali ${simulation.signals.length}, trade ${simulation.trades.length}${executionModel ? ` - ${executionModel}` : ""}`;
+        `${simulation.symbol} ${simulation.strategy} ${simulation.inputCount} barre, segnali ${simulation.signals.length}, trade ${simulation.trades.length}${executionModel ? ` - ${executionModel}` : ""}`;
     renderSimulationMetrics(simulation);
     renderPriceChart(simulation);
     renderEquityChart(simulation);
@@ -548,7 +548,7 @@ function renderSimulation() {
             </tr>
         `).join("");
     $("trades-body").innerHTML = simulation.trades.length === 0
-        ? emptyRow(7, "Nessun trade chiuso")
+        ? emptyRow(8, "Nessun trade chiuso")
         : simulation.trades.map((row) => `
             <tr>
                 <td>${row.number}</td>
@@ -558,6 +558,7 @@ function renderSimulation() {
                 <td>${formatNumber(row.quantity)}</td>
                 <td>${formatNumber(row.netPnl)}</td>
                 <td>${formatNumber(row.returnPercent)}%</td>
+                <td>${row.exitReason || "-"}</td>
             </tr>
         `).join("");
 }
@@ -586,12 +587,18 @@ function renderSimulationMetrics(simulation) {
 }
 
 function renderPriceChart(simulation) {
-    const points = simulation.priceSeries.map((point) => ({ x: point.index, y: point.price }));
+    const bars = simulation.priceSeries.map((point) => ({
+        x: point.index,
+        open: point.open ?? point.price,
+        high: point.high ?? point.price,
+        low: point.low ?? point.price,
+        close: point.close ?? point.price
+    }));
     const markers = simulation.signals.map((signal) => {
         const point = nearestPricePoint(simulation.priceSeries, signal.occurredAt);
-        return point ? { x: point.index, y: point.price, type: signal.action } : null;
+        return point ? { x: point.index, y: point.close ?? point.price, type: signal.action } : null;
     }).filter(Boolean);
-    $("price-chart").innerHTML = lineChart(points, "line-price", markers);
+    $("price-chart").innerHTML = ohlcChart(bars, markers);
 }
 
 function renderEquityChart(simulation) {
@@ -656,6 +663,62 @@ function lineChart(points, lineClass, markers) {
     `;
 }
 
+function ohlcChart(bars, markers) {
+    if (!bars || bars.length === 0) {
+        return `<div class="empty-row">Nessun dato</div>`;
+    }
+    const width = 760;
+    const height = 260;
+    const pad = { left: 58, right: 18, top: 18, bottom: 34 };
+    const minX = Math.min(...bars.map((bar) => bar.x));
+    const maxX = Math.max(...bars.map((bar) => bar.x));
+    const minY = Math.min(...bars.map((bar) => bar.low));
+    const maxY = Math.max(...bars.map((bar) => bar.high));
+    const spanX = Math.max(1, maxX - minX);
+    const spanY = Math.max(1, maxY - minY);
+    const lowY = minY - spanY * 0.08;
+    const highY = maxY + spanY * 0.08;
+    const scaleX = (value) => pad.left + (value - minX) / spanX * (width - pad.left - pad.right);
+    const scaleY = (value) => height - pad.bottom - (value - lowY) / (highY - lowY) * (height - pad.top - pad.bottom);
+    const tickWidth = Math.max(3, Math.min(9, (width - pad.left - pad.right) / Math.max(1, bars.length) * 0.35));
+    const gridValues = [lowY, lowY + (highY - lowY) / 2, highY];
+    const barSvg = bars.map((bar) => {
+        const x = scaleX(bar.x);
+        const className = bar.close >= bar.open ? "ohlc-up" : "ohlc-down";
+        const high = scaleY(bar.high);
+        const low = scaleY(bar.low);
+        const open = scaleY(bar.open);
+        const close = scaleY(bar.close);
+        return `
+            <g class="${className}">
+                <line x1="${x}" y1="${high}" x2="${x}" y2="${low}"></line>
+                <line x1="${x - tickWidth}" y1="${open}" x2="${x}" y2="${open}"></line>
+                <line x1="${x}" y1="${close}" x2="${x + tickWidth}" y2="${close}"></line>
+            </g>
+        `;
+    }).join("");
+    const markerSvg = markers.map((marker) => {
+        const className = marker.type === "SELL" ? "sell-marker" : "buy-marker";
+        const x = scaleX(marker.x).toFixed(2);
+        const y = scaleY(marker.y).toFixed(2);
+        return marker.type === "SELL"
+            ? `<path class="${className}" d="M ${x} ${Number(y) + 6} l 6 -12 h -12 z"></path>`
+            : `<path class="${className}" d="M ${x} ${Number(y) - 6} l 6 12 h -12 z"></path>`;
+    }).join("");
+    return `
+        <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img">
+            ${gridValues.map((value) => `
+                <line class="grid-line" x1="${pad.left}" y1="${scaleY(value)}" x2="${width - pad.right}" y2="${scaleY(value)}"></line>
+                <text x="8" y="${scaleY(value) + 4}">${formatNumber(value)}</text>
+            `).join("")}
+            ${barSvg}
+            ${markerSvg}
+            <text x="${pad.left}" y="${height - 10}">0</text>
+            <text x="${width - 62}" y="${height - 10}">${bars.length - 1}</text>
+        </svg>
+    `;
+}
+
 function renderAll() {
     renderStatus();
     renderProfiles();
@@ -677,6 +740,38 @@ function parsePrices() {
         throw new Error("Serie prezzi non valida");
     }
     return values;
+}
+
+function simulationBars(profile) {
+    const historySymbol = (state.history?.symbol || "").toUpperCase();
+    const profileSymbol = (profile.symbol || "").toUpperCase();
+    const historyTimeframe = (state.history?.timeframe || "").toUpperCase();
+    const profileTimeframe = (profile.timeframe || "").toUpperCase();
+    if (state.history?.bars?.length
+        && historySymbol === profileSymbol
+        && (!historyTimeframe || historyTimeframe === profileTimeframe)) {
+        return state.history.bars.map((bar, index) => ({
+            index,
+            timestamp: bar.timestamp,
+            label: bar.label,
+            open: Number(bar.open),
+            high: Number(bar.high),
+            low: Number(bar.low),
+            close: Number(bar.close),
+            volume: Number(bar.volume || 0)
+        }));
+    }
+    const prices = parsePrices();
+    return prices.map((price, index) => ({
+        index,
+        timestamp: new Date(Date.now() - (prices.length - index) * 86400000).toISOString(),
+        label: String(index),
+        open: price,
+        high: price,
+        low: price,
+        close: price,
+        volume: 0
+    }));
 }
 
 async function refreshAll() {
@@ -767,6 +862,7 @@ async function refreshHistoryFromProvider() {
 async function simulateStrategy() {
     saveSelectedFormInMemory();
     const profile = selectedProfile();
+    const bars = simulationBars(profile);
     state.simulation = await api("/api/workbench/strategy/simulate", {
         method: "POST",
         body: JSON.stringify({
@@ -774,7 +870,8 @@ async function simulateStrategy() {
             provider: profile.provider,
             strategy: profile.strategy,
             tradeDirection: profile.tradeDirection || "LONG_SHORT",
-            prices: parsePrices(),
+            prices: bars.map((bar) => bar.close),
+            bars,
             fastPeriod: profile.fastPeriod,
             slowPeriod: profile.slowPeriod,
             quantity: profile.quantity,

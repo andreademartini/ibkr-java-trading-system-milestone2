@@ -453,6 +453,21 @@ tbody tr:hover {
     stroke-width: 2;
 }
 
+.chart .ohlc-up,
+.chart .ohlc-down {
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: square;
+}
+
+.chart .ohlc-up {
+    stroke: #15803d;
+}
+
+.chart .ohlc-down {
+    stroke: var(--danger);
+}
+
 .chart .grid-line {
     stroke: #dce4e6;
     stroke-width: 1;
