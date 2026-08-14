@@ -22,7 +22,7 @@ server:
   port: ${SERVER_PORT:8080}
 
 trading:
-  # Questa versione accetta esclusivamente PAPER.
+  # Questa versione accetta BACKTEST e PAPER. LIVE resta bloccato.
   mode: ${TRADING_MODE:PAPER}
   live-trading-enabled: ${LIVE_TRADING_ENABLED:false}
 
@@ -60,17 +60,37 @@ trading:
     slow-period: ${STRATEGY_SLOW_PERIOD:20}
     quantity: ${STRATEGY_QUANTITY:1}
     signal-cooldown: ${STRATEGY_SIGNAL_COOLDOWN:1m}
-    take-profit-percent: ${STRATEGY_TAKE_PROFIT_PERCENT:2.0}
-    trailing-stop-percent: ${STRATEGY_TRAILING_STOP_PERCENT:1.0}
 
   risk:
+    trading-capital: ${RISK_TRADING_CAPITAL:10000}
+    risk-per-trade-percent: ${RISK_PER_TRADE_PERCENT:2.0}
+    allow-long: ${RISK_ALLOW_LONG:true}
+    allow-short-selling: ${RISK_ALLOW_SHORT:true}
+    use-leverage: ${RISK_USE_LEVERAGE:false}
+    max-long-notional: ${RISK_MAX_LONG_NOTIONAL:10000}
+    max-short-notional: ${RISK_MAX_SHORT_NOTIONAL:10000}
     max-order-value: ${RISK_MAX_ORDER_VALUE:5000}
     max-position-value: ${RISK_MAX_POSITION_VALUE:10000}
-    max-quantity-per-order: ${RISK_MAX_QUANTITY:10}
+    max-quantity-per-order: ${RISK_MAX_QUANTITY:1000}
     max-daily-orders: ${RISK_MAX_DAILY_ORDERS:20}
     max-open-orders: ${RISK_MAX_OPEN_ORDERS:10}
     max-daily-loss: ${RISK_MAX_DAILY_LOSS:250}
-    allow-short-selling: ${RISK_ALLOW_SHORT:false}
+    entry-ticket: ${RISK_ENTRY_TICKET:0.01}
+    commission-per-order: ${RISK_COMMISSION_PER_ORDER:0}
+    slippage-percent: ${RISK_SLIPPAGE_PERCENT:0}
+    transaction-costs-per-share: ${RISK_TRANSACTION_COSTS_PER_SHARE:0}
+
+  take-profit:
+    enabled: ${TAKE_PROFIT_ENABLED:true}
+    target-1:
+      profit-percent: ${TAKE_PROFIT_1_PROFIT_PERCENT:2.0}
+      position-percent: ${TAKE_PROFIT_1_POSITION_PERCENT:50.0}
+    target-2:
+      profit-percent: ${TAKE_PROFIT_2_PROFIT_PERCENT:4.0}
+      position-percent: ${TAKE_PROFIT_2_POSITION_PERCENT:30.0}
+    target-3:
+      profit-percent: ${TAKE_PROFIT_3_PROFIT_PERCENT:8.0}
+      position-percent: ${TAKE_PROFIT_3_POSITION_PERCENT:20.0}
 
   orders:
     entry-time-in-force: ${ORDER_ENTRY_TIF:DAY}

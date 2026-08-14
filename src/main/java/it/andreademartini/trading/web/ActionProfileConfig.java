@@ -2,7 +2,7 @@ package it.andreademartini.trading.web;
 
 import it.andreademartini.trading.config.MarketDataProvider;
 import it.andreademartini.trading.config.StrategyType;
-import it.andreademartini.trading.strategy.TradeDirection;
+import it.andreademartini.trading.strategy.StrategyTradeMode;
 
 public record ActionProfileConfig(
         String id,
@@ -16,7 +16,7 @@ public record ActionProfileConfig(
         Double initialCapital,
         Double commissionPerOrder,
         Double slippagePercent,
-        TradeDirection tradeDirection,
+        StrategyTradeMode tradeDirection,
         String timeframe,
         String outputSize,
         Integer maxPoints) {

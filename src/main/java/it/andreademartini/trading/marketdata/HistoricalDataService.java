@@ -10,11 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -99,6 +102,27 @@ public class HistoricalDataService {
             }
             throw exception;
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<HistoricalBar> latestStoredPreviousDailyBar(String symbol) {
+        String normalized = symbol == null
+                ? ""
+                : symbol.trim().toUpperCase(Locale.ROOT);
+        List<HistoricalBarEntity> bars = repository
+                .findByProviderAndSymbolAndTimeframeOrderByTimestampAsc(
+                        MarketDataProvider.IBKR.name(),
+                        normalized,
+                        "DAILY");
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        for (int index = bars.size() - 1; index >= 0; index--) {
+            HistoricalBar bar = bars.get(index).toHistoricalBar(0);
+            LocalDate barDate = bar.timestamp().atZone(ZoneOffset.UTC).toLocalDate();
+            if (barDate.isBefore(today)) {
+                return Optional.of(bar);
+            }
+        }
+        return Optional.empty();
     }
 
     private TradingSystemProperties.InstrumentProperties instrument(String symbol) {

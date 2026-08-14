@@ -39,8 +39,12 @@ public class TradingAuditService {
         orderEventRepository.save(new OrderEventEntity(
                 command.orderId(),
                 command.parentOrderId(),
+                command.tradeId(),
+                command.role(),
                 command.symbol(),
                 command.side().name(),
+                command.direction() == null ? null : command.direction().name(),
+                command.tradeState() == null ? null : command.tradeState().name(),
                 command.type().name(),
                 command.quantity(),
                 status,

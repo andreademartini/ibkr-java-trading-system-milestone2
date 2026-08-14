@@ -6,6 +6,7 @@ import com.ib.client.Order;
 import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.ibkr.OrderIdSequence;
 import it.andreademartini.trading.marketdata.IbkrContractFactory;
+import it.andreademartini.trading.strategy.TradeDirection;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -40,7 +41,9 @@ public class IbkrOrderFactory {
             case STOP -> List.of(singleStop(request, contract, referencePrice));
             case TRAILING_STOP ->
                     List.of(singleTrailingStop(request, contract, referencePrice));
-            case BRACKET -> bracketWithStop(request, contract, referencePrice);
+            case BRACKET -> request.tradePlan() == null
+                    ? bracketWithStop(request, contract, referencePrice)
+                    : plannedBracketWithStop(request, contract);
             case BRACKET_WITH_TRAILING_STOP ->
                     bracketWithTrailingStop(request, contract, referencePrice);
         };
@@ -130,6 +133,103 @@ public class IbkrOrderFactory {
         return command(orderId, null, "TRAILING_STOP", request,
                 PaperOrderType.TRAILING_STOP, referencePrice,
                 null, initialStop, request.trailingPercent(), contract, order);
+    }
+
+    private List<IbkrOrderCommand> plannedBracketWithStop(
+            PaperOrderRequest request,
+            Contract contract) {
+        TradePlan plan = request.tradePlan();
+        if (plan == null) {
+            throw new IllegalArgumentException("TradePlan obbligatorio");
+        }
+
+        int parentId = orderIdSequence.nextId();
+        List<Integer> takeProfitIds = plan.takeProfits().stream()
+                .filter(target -> target.quantity() > 0)
+                .map(_ignored -> orderIdSequence.nextId())
+                .toList();
+        int stopId = orderIdSequence.nextId();
+
+        Order parent = entryOrder(parentId, request);
+        parent.transmit(false);
+
+        List<IbkrOrderCommand> commands = new ArrayList<>();
+        commands.add(command(
+                parentId,
+                null,
+                "ENTRY",
+                request,
+                PaperOrderType.STOP,
+                plan.quantity(),
+                request.side(),
+                plan.entryPrice().doubleValue(),
+                null,
+                plan.entryPrice().doubleValue(),
+                null,
+                contract,
+                parent));
+
+        OrderSide exitSide = request.side().opposite();
+        int orderIndex = 0;
+        for (TakeProfitAllocation target : plan.takeProfits()) {
+            if (target.quantity() <= 0) {
+                continue;
+            }
+            int takeProfitId = takeProfitIds.get(orderIndex++);
+            Order takeProfit = baseOrder(
+                    takeProfitId,
+                    exitSide,
+                    target.quantity(),
+                    properties.getOrders().getProtectiveTimeInForce(),
+                    request.reason());
+            takeProfit.orderType("LMT");
+            takeProfit.lmtPrice(target.price().doubleValue());
+            takeProfit.parentId(parentId);
+            takeProfit.transmit(false);
+
+            commands.add(command(
+                    takeProfitId,
+                    parentId,
+                    "TAKE_PROFIT_" + target.targetNumber(),
+                    request,
+                    PaperOrderType.LIMIT,
+                    target.quantity(),
+                    exitSide,
+                    plan.entryPrice().doubleValue(),
+                    target.price().doubleValue(),
+                    null,
+                    null,
+                    contract,
+                    takeProfit));
+        }
+
+        Order stopLoss = baseOrder(
+                stopId,
+                exitSide,
+                plan.quantity(),
+                properties.getOrders().getProtectiveTimeInForce(),
+                request.reason());
+        stopLoss.orderType("STP");
+        stopLoss.auxPrice(plan.stopLossPrice().doubleValue());
+        stopLoss.parentId(parentId);
+        stopLoss.transmit(true);
+
+        commands.add(command(
+                stopId,
+                parentId,
+                "STOP_LOSS",
+                request,
+                PaperOrderType.STOP,
+                plan.quantity(),
+                exitSide,
+                plan.entryPrice().doubleValue(),
+                null,
+                plan.stopLossPrice().doubleValue(),
+                null,
+                contract,
+                stopLoss));
+
+        return List.copyOf(commands);
     }
 
     private List<IbkrOrderCommand> bracketWithStop(
@@ -245,7 +345,10 @@ public class IbkrOrderFactory {
                 properties.getOrders().getEntryTimeInForce(),
                 request.reason());
 
-        if (request.limitPrice() != null) {
+        if (request.tradePlan() != null) {
+            order.orderType("STP");
+            order.auxPrice(request.tradePlan().entryPrice().doubleValue());
+        } else if (request.limitPrice() != null) {
             order.orderType("LMT");
             order.lmtPrice(request.limitPrice());
         } else {
@@ -286,15 +389,52 @@ public class IbkrOrderFactory {
         OrderSide actualSide = parentId == null
                 ? sourceRequest.side()
                 : sourceRequest.side().opposite();
+        return command(
+                orderId,
+                parentId,
+                role,
+                sourceRequest,
+                actualType,
+                sourceRequest.quantity(),
+                actualSide,
+                referencePrice,
+                limitPrice,
+                stopPrice,
+                trailingPercent,
+                contract,
+                order);
+    }
+
+    private IbkrOrderCommand command(
+            int orderId,
+            Integer parentId,
+            String role,
+            PaperOrderRequest sourceRequest,
+            PaperOrderType actualType,
+            long quantity,
+            OrderSide actualSide,
+            Double referencePrice,
+            Double limitPrice,
+            Double stopPrice,
+            Double trailingPercent,
+            Contract contract,
+            Order order) {
+        TradePlan plan = sourceRequest.tradePlan();
+        TradeDirection direction = plan == null
+                ? sourceRequest.resolvedDirection()
+                : plan.direction();
 
         return new IbkrOrderCommand(
                 orderId,
                 parentId,
+                plan == null ? null : plan.tradeId(),
                 role,
                 sourceRequest.symbol(),
                 actualSide,
                 actualType,
-                sourceRequest.quantity(),
+                direction,
+                tradeState(direction, role),
+                quantity,
                 referencePrice,
                 limitPrice,
                 stopPrice,
@@ -302,6 +442,28 @@ public class IbkrOrderFactory {
                 contract,
                 order
         );
+    }
+
+    private TradeState tradeState(TradeDirection direction, String role) {
+        if ("ENTRY".equals(role)) {
+            return direction == TradeDirection.LONG
+                    ? TradeState.OPENING_LONG
+                    : TradeState.OPENING_SHORT;
+        }
+        if ("SINGLE".equals(role)) {
+            return direction == TradeDirection.LONG
+                    ? TradeState.CLOSING_LONG
+                    : TradeState.CLOSING_SHORT;
+        }
+        if (role != null
+                && (role.startsWith("TAKE_PROFIT")
+                || role.equals("STOP_LOSS")
+                || role.equals("TRAILING_STOP"))) {
+            return direction == TradeDirection.LONG
+                    ? TradeState.CLOSING_LONG
+                    : TradeState.CLOSING_SHORT;
+        }
+        return null;
     }
 
     private double initialTrailingStop(

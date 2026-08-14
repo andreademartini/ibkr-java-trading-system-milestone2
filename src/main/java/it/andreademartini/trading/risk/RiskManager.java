@@ -8,14 +8,20 @@ import it.andreademartini.trading.orders.OrderSide;
 import it.andreademartini.trading.orders.OrderTracker;
 import it.andreademartini.trading.orders.PaperOrderRequest;
 import it.andreademartini.trading.orders.PaperOrderType;
+import it.andreademartini.trading.orders.TakeProfitAllocation;
+import it.andreademartini.trading.orders.TradePlan;
+import it.andreademartini.trading.strategy.TradeDirection;
 import it.andreademartini.trading.portfolio.PortfolioService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.LocalDate;
 
 @Service
 public class RiskManager {
+
+    private static final MathContext MATH = MathContext.DECIMAL64;
 
     private final TradingSystemProperties properties;
     private final TradingSafetyGuard safetyGuard;
@@ -76,6 +82,9 @@ public class RiskManager {
                         : -request.quantity());
         BigDecimal projectedQuantity = currentQuantity.add(signedOrderQuantity);
         boolean riskReducing = isRiskReducing(currentQuantity, projectedQuantity);
+        if (!riskReducing && request.tradePlan() == null) {
+            reject("Gli ordini di ingresso richiedono un TradePlan calcolato da PositionSizingService");
+        }
 
         /*
          * Il kill switch blocca nuove esposizioni ma lascia sempre possibile
@@ -96,7 +105,7 @@ public class RiskManager {
                     + " superiore al massimo " + risk.getMaxOrderValue());
         }
 
-        int additionalOrders = isBracket(request.type()) ? 3 : 1;
+        int additionalOrders = expectedOrderCount(request);
         if (!riskReducing
                 && orderTracker.activeOrderCount() + additionalOrders
                 > risk.getMaxOpenOrders()) {
@@ -112,19 +121,30 @@ public class RiskManager {
             reject("Perdita giornaliera massima raggiunta: realizedPnL=" + realizedPnl);
         }
 
-        if (!risk.isAllowShortSelling()
+        if (!riskReducing
+                && !risk.isAllowShortSelling()
                 && projectedQuantity.compareTo(BigDecimal.ZERO) < 0) {
             reject("Vendita allo scoperto disabilitata");
         }
 
+        if (!riskReducing
+                && !risk.isAllowLong()
+                && projectedQuantity.compareTo(BigDecimal.ZERO) > 0) {
+            reject("Operazioni long disabilitate");
+        }
+
         double projectedPositionValue =
                 projectedQuantity.abs().doubleValue() * referencePrice;
-        if (projectedPositionValue > risk.getMaxPositionValue()) {
+        if (!riskReducing && projectedPositionValue > risk.getMaxPositionValue()) {
             reject("Valore posizione previsto " + projectedPositionValue
                     + " superiore al massimo " + risk.getMaxPositionValue());
         }
 
-        validateProtectivePrices(request, referencePrice);
+        if (request.tradePlan() != null) {
+            validateTradePlan(request);
+        } else {
+            validateProtectivePrices(request, referencePrice);
+        }
     }
 
     public synchronized void recordAcceptedAction() {
@@ -189,6 +209,113 @@ public class RiskManager {
         }
     }
 
+    private void validateTradePlan(PaperOrderRequest request) {
+        TradePlan plan = request.tradePlan();
+        if (plan.quantity() <= 0 || request.quantity() != plan.quantity()) {
+            reject("Quantita' piano trade non coerente con l'ordine");
+        }
+        if (request.direction() != null && request.direction() != plan.direction()) {
+            reject("Direzione ordine non coerente con il TradePlan");
+        }
+
+        TradingSystemProperties.RiskProperties risk = properties.getRisk();
+        if (plan.direction() == TradeDirection.LONG) {
+            validateLongPlan(request, plan, risk);
+        } else {
+            validateShortPlan(request, plan, risk);
+        }
+
+        BigDecimal configuredMaximumRisk = BigDecimal.valueOf(risk.getTradingCapital())
+                .multiply(BigDecimal.valueOf(risk.getRiskPerTradePercent()), MATH)
+                .divide(BigDecimal.valueOf(100), MATH);
+        if (plan.maximumRisk().compareTo(configuredMaximumRisk) > 0
+                || plan.effectiveRisk().compareTo(configuredMaximumRisk) > 0) {
+            reject("Rischio effettivo superiore al rischio massimo configurato");
+        }
+
+        BigDecimal notionalLimit = plan.direction() == TradeDirection.LONG
+                ? BigDecimal.valueOf(risk.getMaxLongNotional())
+                : BigDecimal.valueOf(risk.getMaxShortNotional());
+        if (!risk.isUseLeverage()) {
+            notionalLimit = notionalLimit.min(BigDecimal.valueOf(risk.getTradingCapital()));
+        }
+        if (plan.notional().compareTo(notionalLimit) > 0) {
+            reject("Nozionale " + plan.notional()
+                    + " superiore al limite " + notionalLimit);
+        }
+
+        if (plan.effectiveRisk().compareTo(BigDecimal.ZERO) <= 0
+                || plan.totalRiskPerShare().compareTo(BigDecimal.ZERO) <= 0) {
+            reject("Rischio trade non valido");
+        }
+
+        validateTakeProfitQuantity(plan);
+    }
+
+    private void validateLongPlan(
+            PaperOrderRequest request,
+            TradePlan plan,
+            TradingSystemProperties.RiskProperties risk) {
+        if (!risk.isAllowLong()) {
+            reject("Operazioni long disabilitate");
+        }
+        if (request.side() != OrderSide.BUY) {
+            reject("Un ingresso LONG deve usare BUY");
+        }
+        if (plan.entryPrice().compareTo(plan.stopLossPrice()) <= 0) {
+            reject("Per un LONG entryPrice deve essere maggiore dello stop loss");
+        }
+
+        BigDecimal previous = plan.entryPrice();
+        for (TakeProfitAllocation target : plan.takeProfits()) {
+            if (target.quantity() == 0) {
+                continue;
+            }
+            if (target.price().compareTo(previous) <= 0) {
+                reject("Per un LONG i take profit devono salire sopra l'entry");
+            }
+            previous = target.price();
+        }
+    }
+
+    private void validateShortPlan(
+            PaperOrderRequest request,
+            TradePlan plan,
+            TradingSystemProperties.RiskProperties risk) {
+        if (!risk.isAllowShortSelling()) {
+            reject("Vendita allo scoperto disabilitata");
+        }
+        if (request.side() != OrderSide.SELL) {
+            reject("Un ingresso SHORT deve usare SELL");
+        }
+        if (plan.entryPrice().compareTo(plan.stopLossPrice()) >= 0) {
+            reject("Per uno SHORT entryPrice deve essere minore dello stop loss");
+        }
+
+        BigDecimal previous = plan.entryPrice();
+        for (TakeProfitAllocation target : plan.takeProfits()) {
+            if (target.quantity() == 0) {
+                continue;
+            }
+            if (target.price().compareTo(previous) >= 0) {
+                reject("Per uno SHORT i take profit devono scendere sotto l'entry");
+            }
+            previous = target.price();
+        }
+    }
+
+    private void validateTakeProfitQuantity(TradePlan plan) {
+        if (!properties.getTakeProfit().isEnabled()) {
+            return;
+        }
+        long totalTakeProfitQuantity = plan.takeProfits().stream()
+                .mapToLong(TakeProfitAllocation::quantity)
+                .sum();
+        if (totalTakeProfitQuantity != plan.quantity()) {
+            reject("La somma quantita' take profit deve essere uguale alla posizione");
+        }
+    }
+
     private void validateBracketDirections(
             OrderSide side,
             double referencePrice,
@@ -214,6 +341,16 @@ public class RiskManager {
     private boolean isBracket(PaperOrderType type) {
         return type == PaperOrderType.BRACKET
                 || type == PaperOrderType.BRACKET_WITH_TRAILING_STOP;
+    }
+
+    private int expectedOrderCount(PaperOrderRequest request) {
+        if (request.tradePlan() != null) {
+            long takeProfitOrders = request.tradePlan().takeProfits().stream()
+                    .filter(target -> target.quantity() > 0)
+                    .count();
+            return 2 + (int) takeProfitOrders;
+        }
+        return isBracket(request.type()) ? 3 : 1;
     }
 
     private void resetDailyCounterIfNeeded() {

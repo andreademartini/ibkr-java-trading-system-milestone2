@@ -6,6 +6,11 @@ GET {{host}}/api/paper/status
 ### Segnali recenti
 GET {{host}}/api/paper/signals
 
+### Nota
+# Gli ingressi LONG/SHORT devono passare dal flusso segnali, che crea un TradePlan
+# con position sizing e RiskManager. /api/paper/orders accetta ordini diretti solo
+# se riducono o chiudono una posizione gia' aperta.
+
 ### Segnale manuale solo registrato, senza ordine
 POST {{host}}/api/paper/signals
 Content-Type: application/json

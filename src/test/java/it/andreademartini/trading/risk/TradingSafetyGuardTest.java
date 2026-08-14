@@ -28,6 +28,19 @@ class TradingSafetyGuardTest {
     }
 
     @Test
+    void backtestModeIsAllowedOnlyWithoutPaperOrders() {
+        TradingSystemProperties properties = new TradingSystemProperties();
+        properties.setMode(TradingMode.BACKTEST);
+        TradingSafetyGuard guard = new TradingSafetyGuard(properties);
+
+        assertDoesNotThrow(guard::validateStartupConfiguration);
+
+        properties.setOrderSubmissionEnabled(true);
+
+        assertThrows(IllegalStateException.class, guard::validateStartupConfiguration);
+    }
+
+    @Test
     void liveDefaultPortIsRejected() {
         TradingSystemProperties properties = new TradingSystemProperties();
         properties.getIbkr().setPort(7496);

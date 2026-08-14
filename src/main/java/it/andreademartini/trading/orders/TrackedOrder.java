@@ -1,15 +1,20 @@
 package it.andreademartini.trading.orders;
 
+import it.andreademartini.trading.strategy.TradeDirection;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 
 public record TrackedOrder(
         int orderId,
         Integer parentOrderId,
+        String tradeId,
         String role,
         String symbol,
         OrderSide side,
         PaperOrderType type,
+        TradeDirection direction,
+        TradeState tradeState,
         long quantity,
         String status,
         BigDecimal filled,

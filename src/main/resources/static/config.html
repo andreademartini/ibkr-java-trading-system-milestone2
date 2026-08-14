@@ -56,8 +56,8 @@
         <div class="form-grid">
             <label>
                 Modalita trading
-                <select id="runtime-mode" disabled></select>
-                <span class="field-note">Questa milestone lavora solo in PAPER; BACKTEST e LIVE restano bloccati.</span>
+                <select id="runtime-mode"></select>
+                <span class="field-note">BACKTEST non invia ordini IBKR; PAPER puo inviare solo dopo conferma. LIVE resta bloccato.</span>
             </label>
             <label>
                 Live trading
@@ -118,6 +118,50 @@
         </p>
         <div class="form-grid">
             <label>
+                Capitale trading
+                <input id="risk-trading-capital" type="number" min="0.01" step="100">
+                <span class="field-note">Capitale usato per calcolare il rischio massimo per trade.</span>
+            </label>
+            <label>
+                Rischio per trade %
+                <input id="risk-per-trade" type="number" min="0.01" step="0.01">
+                <span class="field-note">Con 10000 e 2%, il rischio massimo e 200.</span>
+            </label>
+            <label>
+                Long
+                <select id="risk-allow-long">
+                    <option value="true">Consentito</option>
+                    <option value="false">Bloccato</option>
+                </select>
+                <span class="field-note">Permette aperture BUY long calcolate dal position sizing.</span>
+            </label>
+            <label>
+                Short selling
+                <select id="risk-allow-short">
+                    <option value="true">Consentito</option>
+                    <option value="false">Bloccato</option>
+                </select>
+                <span class="field-note">Permette aperture SELL short solo in paper trading.</span>
+            </label>
+            <label>
+                Leva
+                <select id="risk-use-leverage">
+                    <option value="false">Disattivata</option>
+                    <option value="true">Attivata</option>
+                </select>
+                <span class="field-note">Se disattivata, il nozionale non puo superare capitale e limiti configurati.</span>
+            </label>
+            <label>
+                Max notional long
+                <input id="risk-max-long-notional" type="number" min="0.01" step="100">
+                <span class="field-note">Valore nozionale massimo per una posizione long.</span>
+            </label>
+            <label>
+                Max notional short
+                <input id="risk-max-short-notional" type="number" min="0.01" step="100">
+                <span class="field-note">Valore nozionale massimo per una posizione short.</span>
+            </label>
+            <label>
                 Max valore ordine
                 <input id="risk-max-order-value" type="number" min="0.01" step="100">
                 <span class="field-note">Valore massimo consentito per un singolo ordine.</span>
@@ -148,12 +192,73 @@
                 <span class="field-note">Soglia oltre la quale il risk manager blocca l'operativita'.</span>
             </label>
             <label>
-                Short selling
-                <select id="risk-allow-short">
-                    <option value="false">Bloccato</option>
-                    <option value="true">Consentito</option>
+                Ticket entry
+                <input id="risk-entry-ticket" type="number" min="0" step="0.01">
+                <span class="field-note">Distanza aggiunta a high/low per calcolare entry e stop.</span>
+            </label>
+            <label>
+                Commissione ordine
+                <input id="risk-commission" type="number" min="0" step="0.01">
+                <span class="field-note">Costo fisso stimato per entry e uscita stop.</span>
+            </label>
+            <label>
+                Slippage %
+                <input id="risk-slippage" type="number" min="0" step="0.01">
+                <span class="field-note">Costo stimato applicato al rischio per azione.</span>
+            </label>
+            <label>
+                Costi per azione
+                <input id="risk-transaction-costs" type="number" min="0" step="0.01">
+                <span class="field-note">Costi transazione aggiunti a abs(entry - stop).</span>
+            </label>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-heading">
+            <h2>Take profit</h2>
+        </div>
+        <p class="config-note">
+            I target sono unici per long e short: il codice applica la percentuale verso l'alto per LONG e verso il basso per SHORT.
+        </p>
+        <div class="form-grid">
+            <label>
+                Take profit
+                <select id="tp-enabled">
+                    <option value="true">Attivi</option>
+                    <option value="false">Disattivi</option>
                 </select>
-                <span class="field-note">Consente vendite short solo se la strategia e il conto lo supportano.</span>
+                <span class="field-note">Se disattivi, resta solo lo stop loss protettivo.</span>
+            </label>
+            <label>
+                TP1 profit %
+                <input id="tp1-profit" type="number" min="0.01" step="0.01">
+                <span class="field-note">Default 2%. Long sopra entry, short sotto entry.</span>
+            </label>
+            <label>
+                TP1 posizione %
+                <input id="tp1-position" type="number" min="0" step="0.01">
+                <span class="field-note">Default 50% della posizione iniziale.</span>
+            </label>
+            <label>
+                TP2 profit %
+                <input id="tp2-profit" type="number" min="0.01" step="0.01">
+                <span class="field-note">Default 4%.</span>
+            </label>
+            <label>
+                TP2 posizione %
+                <input id="tp2-position" type="number" min="0" step="0.01">
+                <span class="field-note">Default 30% della posizione iniziale.</span>
+            </label>
+            <label>
+                TP3 profit %
+                <input id="tp3-profit" type="number" min="0.01" step="0.01">
+                <span class="field-note">Default 8%.</span>
+            </label>
+            <label>
+                TP3 posizione %
+                <input id="tp3-position" type="number" min="0" step="0.01">
+                <span class="field-note">TP3 riceve sempre tutte le azioni residue.</span>
             </label>
         </div>
     </section>

@@ -51,6 +51,9 @@ public class TradingSystemProperties {
     private final RiskProperties risk = new RiskProperties();
 
     @Valid
+    private final TakeProfitProperties takeProfit = new TakeProfitProperties();
+
+    @Valid
     private final OrderProperties orders = new OrderProperties();
 
     public TradingMode getMode() {
@@ -99,6 +102,10 @@ public class TradingSystemProperties {
 
     public RiskProperties getRisk() {
         return risk;
+    }
+
+    public TakeProfitProperties getTakeProfit() {
+        return takeProfit;
     }
 
     public OrderProperties getOrders() {
@@ -378,12 +385,6 @@ public class TradingSystemProperties {
         @NotNull
         private Duration signalCooldown = Duration.ofMinutes(1);
 
-        @DecimalMin("0.01")
-        private double takeProfitPercent = 2.0;
-
-        @DecimalMin("0.01")
-        private double trailingStopPercent = 1.0;
-
         public StrategyType getType() {
             return type;
         }
@@ -440,24 +441,15 @@ public class TradingSystemProperties {
             this.signalCooldown = signalCooldown;
         }
 
-        public double getTakeProfitPercent() {
-            return takeProfitPercent;
-        }
-
-        public void setTakeProfitPercent(double takeProfitPercent) {
-            this.takeProfitPercent = takeProfitPercent;
-        }
-
-        public double getTrailingStopPercent() {
-            return trailingStopPercent;
-        }
-
-        public void setTrailingStopPercent(double trailingStopPercent) {
-            this.trailingStopPercent = trailingStopPercent;
-        }
     }
 
     public static class RiskProperties {
+
+        @DecimalMin("0.01")
+        private double tradingCapital = 10_000.0;
+
+        @DecimalMin("0.01")
+        private double riskPerTradePercent = 2.0;
 
         @DecimalMin("0.01")
         private double maxOrderValue = 5_000.0;
@@ -465,8 +457,14 @@ public class TradingSystemProperties {
         @DecimalMin("0.01")
         private double maxPositionValue = 10_000.0;
 
+        @DecimalMin("0.01")
+        private double maxLongNotional = 10_000.0;
+
+        @DecimalMin("0.01")
+        private double maxShortNotional = 10_000.0;
+
         @Min(1)
-        private long maxQuantityPerOrder = 10;
+        private long maxQuantityPerOrder = 1_000;
 
         @Min(1)
         private int maxDailyOrders = 20;
@@ -477,7 +475,39 @@ public class TradingSystemProperties {
         @DecimalMin("0.01")
         private double maxDailyLoss = 250.0;
 
-        private boolean allowShortSelling = false;
+        private boolean allowLong = true;
+
+        private boolean allowShortSelling = true;
+
+        private boolean useLeverage = false;
+
+        @DecimalMin("0.0")
+        private double entryTicket = 0.01;
+
+        @DecimalMin("0.0")
+        private double commissionPerOrder = 0.0;
+
+        @DecimalMin("0.0")
+        private double slippagePercent = 0.0;
+
+        @DecimalMin("0.0")
+        private double transactionCostsPerShare = 0.0;
+
+        public double getTradingCapital() {
+            return tradingCapital;
+        }
+
+        public void setTradingCapital(double tradingCapital) {
+            this.tradingCapital = tradingCapital;
+        }
+
+        public double getRiskPerTradePercent() {
+            return riskPerTradePercent;
+        }
+
+        public void setRiskPerTradePercent(double riskPerTradePercent) {
+            this.riskPerTradePercent = riskPerTradePercent;
+        }
 
         public double getMaxOrderValue() {
             return maxOrderValue;
@@ -493,6 +523,22 @@ public class TradingSystemProperties {
 
         public void setMaxPositionValue(double maxPositionValue) {
             this.maxPositionValue = maxPositionValue;
+        }
+
+        public double getMaxLongNotional() {
+            return maxLongNotional;
+        }
+
+        public void setMaxLongNotional(double maxLongNotional) {
+            this.maxLongNotional = maxLongNotional;
+        }
+
+        public double getMaxShortNotional() {
+            return maxShortNotional;
+        }
+
+        public void setMaxShortNotional(double maxShortNotional) {
+            this.maxShortNotional = maxShortNotional;
         }
 
         public long getMaxQuantityPerOrder() {
@@ -527,12 +573,131 @@ public class TradingSystemProperties {
             this.maxDailyLoss = maxDailyLoss;
         }
 
+        public boolean isAllowLong() {
+            return allowLong;
+        }
+
+        public void setAllowLong(boolean allowLong) {
+            this.allowLong = allowLong;
+        }
+
         public boolean isAllowShortSelling() {
             return allowShortSelling;
         }
 
         public void setAllowShortSelling(boolean allowShortSelling) {
             this.allowShortSelling = allowShortSelling;
+        }
+
+        public boolean isUseLeverage() {
+            return useLeverage;
+        }
+
+        public void setUseLeverage(boolean useLeverage) {
+            this.useLeverage = useLeverage;
+        }
+
+        public double getEntryTicket() {
+            return entryTicket;
+        }
+
+        public void setEntryTicket(double entryTicket) {
+            this.entryTicket = entryTicket;
+        }
+
+        public double getCommissionPerOrder() {
+            return commissionPerOrder;
+        }
+
+        public void setCommissionPerOrder(double commissionPerOrder) {
+            this.commissionPerOrder = commissionPerOrder;
+        }
+
+        public double getSlippagePercent() {
+            return slippagePercent;
+        }
+
+        public void setSlippagePercent(double slippagePercent) {
+            this.slippagePercent = slippagePercent;
+        }
+
+        public double getTransactionCostsPerShare() {
+            return transactionCostsPerShare;
+        }
+
+        public void setTransactionCostsPerShare(double transactionCostsPerShare) {
+            this.transactionCostsPerShare = transactionCostsPerShare;
+        }
+    }
+
+    public static class TakeProfitProperties {
+
+        private boolean enabled = true;
+
+        @Valid
+        private final TargetProperties target1 = new TargetProperties(2.0, 50.0);
+
+        @Valid
+        private final TargetProperties target2 = new TargetProperties(4.0, 30.0);
+
+        @Valid
+        private final TargetProperties target3 = new TargetProperties(8.0, 20.0);
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public TargetProperties getTarget1() {
+            return target1;
+        }
+
+        public TargetProperties getTarget2() {
+            return target2;
+        }
+
+        public TargetProperties getTarget3() {
+            return target3;
+        }
+
+        public List<TargetProperties> targets() {
+            return List.of(target1, target2, target3);
+        }
+    }
+
+    public static class TargetProperties {
+
+        @DecimalMin("0.01")
+        private double profitPercent;
+
+        @DecimalMin("0.0")
+        private double positionPercent;
+
+        public TargetProperties() {
+        }
+
+        public TargetProperties(double profitPercent, double positionPercent) {
+            this.profitPercent = profitPercent;
+            this.positionPercent = positionPercent;
+        }
+
+        public double getProfitPercent() {
+            return profitPercent;
+        }
+
+        public void setProfitPercent(double profitPercent) {
+            this.profitPercent = profitPercent;
+        }
+
+        public double getPositionPercent() {
+            return positionPercent;
+        }
+
+        public void setPositionPercent(double positionPercent) {
+            this.positionPercent = positionPercent;
         }
     }
 

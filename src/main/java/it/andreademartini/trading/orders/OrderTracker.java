@@ -1,15 +1,18 @@
 package it.andreademartini.trading.orders;
 
 import com.ib.client.Contract;
+import com.ib.client.Decimal;
 import com.ib.client.Order;
 import com.ib.client.OrderState;
 import com.ib.client.Types;
+import it.andreademartini.trading.ibkr.IbkrApiClient;
 import it.andreademartini.trading.ibkr.IbkrEWrapper;
 import it.andreademartini.trading.ibkr.IbkrError;
 import it.andreademartini.trading.ibkr.IbkrEventListener;
 import it.andreademartini.trading.ibkr.IbkrNumber;
 import it.andreademartini.trading.ibkr.IbkrOrderStatusUpdate;
 import it.andreademartini.trading.persistence.TradingAuditService;
+import it.andreademartini.trading.strategy.TradeDirection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -31,11 +35,14 @@ public class OrderTracker implements IbkrEventListener {
     private final Map<Integer, TrackedOrder> orders = new ConcurrentHashMap<>();
     private final Map<Integer, IbkrOrderCommand> commands = new ConcurrentHashMap<>();
     private final TradingAuditService auditService;
+    private final IbkrApiClient apiClient;
 
     public OrderTracker(
             TradingAuditService auditService,
+            IbkrApiClient apiClient,
             IbkrEWrapper wrapper) {
         this.auditService = auditService;
+        this.apiClient = apiClient;
         wrapper.addListener(this);
     }
 
@@ -44,10 +51,13 @@ public class OrderTracker implements IbkrEventListener {
         orders.put(command.orderId(), new TrackedOrder(
                 command.orderId(),
                 command.parentOrderId(),
+                command.tradeId(),
                 command.role(),
                 command.symbol(),
                 command.side(),
                 command.type(),
+                command.direction(),
+                command.tradeState(),
                 command.quantity(),
                 "SUBMITTED_TO_TWS",
                 BigDecimal.ZERO,
@@ -69,10 +79,13 @@ public class OrderTracker implements IbkrEventListener {
         TrackedOrder updated = new TrackedOrder(
                 previous.orderId(),
                 previous.parentOrderId(),
+                previous.tradeId(),
                 previous.role(),
                 previous.symbol(),
                 previous.side(),
                 previous.type(),
+                previous.direction(),
+                tradeStateForUpdate(previous, update),
                 previous.quantity(),
                 update.status(),
                 update.filled(),
@@ -81,6 +94,7 @@ public class OrderTracker implements IbkrEventListener {
                 Instant.now()
         );
         orders.put(update.orderId(), updated);
+        reconcileTrade(updated);
 
         IbkrOrderCommand command = commands.get(update.orderId());
         if (command != null) {
@@ -113,10 +127,13 @@ public class OrderTracker implements IbkrEventListener {
             orders.put(error.requestId(), new TrackedOrder(
                     previous.orderId(),
                     previous.parentOrderId(),
+                    previous.tradeId(),
                     previous.role(),
                     previous.symbol(),
                     previous.side(),
                     previous.type(),
+                    previous.direction(),
+                    previous.tradeState(),
                     previous.quantity(),
                     "ERROR_" + error.code(),
                     previous.filled(),
@@ -162,10 +179,13 @@ public class OrderTracker implements IbkrEventListener {
         orders.put(orderId, new TrackedOrder(
                 orderId,
                 order.parentId() == 0 ? null : order.parentId(),
+                null,
                 "DISCOVERED",
                 symbol,
                 side,
                 type,
+                side == OrderSide.SELL ? TradeDirection.SHORT : TradeDirection.LONG,
+                null,
                 quantity,
                 status,
                 BigDecimal.ZERO,
@@ -194,6 +214,217 @@ public class OrderTracker implements IbkrEventListener {
                 .filter(order -> normalize(order.symbol()).equals(normalized))
                 .map(TrackedOrder::orderId)
                 .toList();
+    }
+
+    public List<Integer> activeProtectiveOrderIdsForSymbol(String symbol) {
+        String normalized = normalize(symbol);
+        return orders.values().stream()
+                .filter(TrackedOrder::isActive)
+                .filter(order -> normalize(order.symbol()).equals(normalized))
+                .filter(order -> isProtectiveRole(order.role()))
+                .map(TrackedOrder::orderId)
+                .toList();
+    }
+
+    private void reconcileTrade(TrackedOrder updated) {
+        if (updated.tradeId() == null || updated.tradeId().isBlank()) {
+            return;
+        }
+
+        BigDecimal entryFilled = sumFilled(updated.tradeId(), this::isEntryRole);
+        if (entryFilled.compareTo(BigDecimal.ZERO) <= 0) {
+            return;
+        }
+
+        BigDecimal exitFilled = sumFilled(updated.tradeId(), this::isProtectiveRole);
+        BigDecimal remainingPosition = entryFilled.subtract(exitFilled);
+        if (remainingPosition.compareTo(BigDecimal.ZERO) <= 0) {
+            cancelActiveProtectiveOrders(updated.tradeId());
+            markTradeClosed(updated.tradeId());
+            return;
+        }
+
+        resizeActiveTakeProfits(updated.tradeId(), entryFilled);
+        resizeActiveStops(updated.tradeId(), remainingPosition);
+    }
+
+    private BigDecimal sumFilled(
+            String tradeId,
+            java.util.function.Predicate<String> roleFilter) {
+        return orders.values().stream()
+                .filter(order -> tradeId.equals(order.tradeId()))
+                .filter(order -> roleFilter.test(order.role()))
+                .map(TrackedOrder::filled)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    private void resizeActiveStops(
+            String tradeId,
+            BigDecimal remainingPosition) {
+        long quantity = remainingPosition.max(BigDecimal.ZERO).longValue();
+        if (quantity <= 0) {
+            cancelActiveProtectiveOrders(tradeId);
+            return;
+        }
+
+        orders.values().stream()
+                .filter(order -> tradeId.equals(order.tradeId()))
+                .filter(TrackedOrder::isActive)
+                .filter(order -> isStopRole(order.role()))
+                .filter(order -> order.quantity() != quantity)
+                .forEach(order -> resizeOrder(order, quantity));
+    }
+
+    private void resizeActiveTakeProfits(
+            String tradeId,
+            BigDecimal entryFilled) {
+        Optional<TrackedOrder> entryOrder = orders.values().stream()
+                .filter(order -> tradeId.equals(order.tradeId()))
+                .filter(order -> isEntryRole(order.role()))
+                .findFirst();
+        if (entryOrder.isEmpty() || entryOrder.get().quantity() <= 0) {
+            return;
+        }
+
+        long filledEntryQuantity = entryFilled.max(BigDecimal.ZERO).longValue();
+        if (filledEntryQuantity <= 0) {
+            return;
+        }
+
+        List<TrackedOrder> takeProfits = orders.values().stream()
+                .filter(order -> tradeId.equals(order.tradeId()))
+                .filter(order -> order.role() != null
+                        && order.role().startsWith("TAKE_PROFIT"))
+                .sorted(Comparator.comparing(TrackedOrder::role))
+                .toList();
+        if (takeProfits.isEmpty()) {
+            return;
+        }
+
+        long originalEntryQuantity = entryOrder.get().quantity();
+        long allocated = 0;
+        for (int index = 0; index < takeProfits.size(); index++) {
+            TrackedOrder takeProfit = takeProfits.get(index);
+            IbkrOrderCommand command = commands.get(takeProfit.orderId());
+            long originalTargetQuantity = command == null
+                    ? takeProfit.quantity()
+                    : command.quantity();
+            boolean last = index == takeProfits.size() - 1;
+            long desiredTotal = last
+                    ? Math.max(0, filledEntryQuantity - allocated)
+                    : Math.floorDiv(
+                            originalTargetQuantity * filledEntryQuantity,
+                            originalEntryQuantity);
+            long alreadyFilled = takeProfit.filled().max(BigDecimal.ZERO).longValue();
+            desiredTotal = Math.max(desiredTotal, alreadyFilled);
+            allocated += desiredTotal;
+
+            if (takeProfit.isActive() && takeProfit.quantity() != desiredTotal) {
+                if (desiredTotal <= 0) {
+                    apiClient.cancelOrder(takeProfit.orderId());
+                    continue;
+                }
+                resizeOrder(takeProfit, desiredTotal);
+            }
+        }
+    }
+
+    private void resizeOrder(TrackedOrder trackedOrder, long quantity) {
+        IbkrOrderCommand command = commands.get(trackedOrder.orderId());
+        if (command == null) {
+            return;
+        }
+
+        command.order().totalQuantity(Decimal.get(quantity));
+        apiClient.placeOrder(command.orderId(), command.contract(), command.order());
+        orders.put(trackedOrder.orderId(), new TrackedOrder(
+                trackedOrder.orderId(),
+                trackedOrder.parentOrderId(),
+                trackedOrder.tradeId(),
+                trackedOrder.role(),
+                trackedOrder.symbol(),
+                trackedOrder.side(),
+                trackedOrder.type(),
+                trackedOrder.direction(),
+                trackedOrder.tradeState(),
+                quantity,
+                trackedOrder.status(),
+                trackedOrder.filled(),
+                BigDecimal.valueOf(quantity)
+                        .subtract(trackedOrder.filled())
+                        .max(BigDecimal.ZERO),
+                trackedOrder.averageFillPrice(),
+                Instant.now()));
+        log.warn("Ordine protettivo {} ridimensionato a qty={} per trade {}",
+                trackedOrder.orderId(), quantity, trackedOrder.tradeId());
+    }
+
+    private void cancelActiveProtectiveOrders(String tradeId) {
+        orders.values().stream()
+                .filter(order -> tradeId.equals(order.tradeId()))
+                .filter(TrackedOrder::isActive)
+                .filter(order -> isProtectiveRole(order.role()))
+                .forEach(order -> {
+                    apiClient.cancelOrder(order.orderId());
+                    log.warn("Cancellazione protezione residua orderId={} trade={}",
+                            order.orderId(), tradeId);
+                });
+    }
+
+    private void markTradeClosed(String tradeId) {
+        orders.values().stream()
+                .filter(order -> tradeId.equals(order.tradeId()))
+                .forEach(order -> orders.put(order.orderId(), new TrackedOrder(
+                        order.orderId(),
+                        order.parentOrderId(),
+                        order.tradeId(),
+                        order.role(),
+                        order.symbol(),
+                        order.side(),
+                        order.type(),
+                        order.direction(),
+                        TradeState.CLOSED,
+                        order.quantity(),
+                        order.status(),
+                        order.filled(),
+                        order.remaining(),
+                        order.averageFillPrice(),
+                        Instant.now())));
+    }
+
+    private TradeState tradeStateForUpdate(
+            TrackedOrder previous,
+            IbkrOrderStatusUpdate update) {
+        if (update.filled().compareTo(BigDecimal.ZERO) <= 0) {
+            return previous.tradeState();
+        }
+        if (isEntryRole(previous.role())) {
+            return previous.direction() == TradeDirection.SHORT
+                    ? TradeState.OPEN_SHORT
+                    : TradeState.OPEN_LONG;
+        }
+        if (isProtectiveRole(previous.role())) {
+            return previous.direction() == TradeDirection.SHORT
+                    ? TradeState.CLOSING_SHORT
+                    : TradeState.CLOSING_LONG;
+        }
+        return previous.tradeState();
+    }
+
+    private boolean isEntryRole(String role) {
+        return "ENTRY".equals(role);
+    }
+
+    private boolean isProtectiveRole(String role) {
+        return role != null
+                && (role.startsWith("TAKE_PROFIT")
+                || role.equals("STOP_LOSS")
+                || role.equals("TRAILING_STOP"));
+    }
+
+    private boolean isStopRole(String role) {
+        return "STOP_LOSS".equals(role)
+                || "TRAILING_STOP".equals(role);
     }
 
     private PaperOrderType mapType(String value) {

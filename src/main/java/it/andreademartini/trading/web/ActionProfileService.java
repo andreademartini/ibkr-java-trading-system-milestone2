@@ -6,7 +6,7 @@ import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.persistence.TradingStockEntity;
 import it.andreademartini.trading.persistence.TradingStockRepository;
 import it.andreademartini.trading.persistence.TradingStockStrategyEntity;
-import it.andreademartini.trading.strategy.TradeDirection;
+import it.andreademartini.trading.strategy.StrategyTradeMode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -248,7 +248,7 @@ public class ActionProfileService {
                 10_000.0,
                 0.0,
                 0.0,
-                TradeDirection.LONG_SHORT,
+                StrategyTradeMode.LONG_SHORT,
                 "DAILY",
                 "compact",
                 100);
@@ -258,18 +258,18 @@ public class ActionProfileService {
         return MarketDataProvider.IBKR;
     }
 
-    private TradeDirection direction(TradeDirection direction) {
-        return direction == null ? TradeDirection.LONG_SHORT : direction;
+    private StrategyTradeMode direction(StrategyTradeMode direction) {
+        return direction == null ? StrategyTradeMode.LONG_SHORT : direction;
     }
 
-    private TradeDirection direction(String value) {
+    private StrategyTradeMode direction(String value) {
         if (value == null || value.isBlank()) {
-            return TradeDirection.LONG_SHORT;
+            return StrategyTradeMode.LONG_SHORT;
         }
         try {
-            return TradeDirection.valueOf(value.trim().toUpperCase(Locale.ROOT));
+            return StrategyTradeMode.valueOf(value.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException exception) {
-            return TradeDirection.LONG_SHORT;
+            return StrategyTradeMode.LONG_SHORT;
         }
     }
 

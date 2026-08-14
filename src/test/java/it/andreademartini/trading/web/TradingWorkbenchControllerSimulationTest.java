@@ -9,7 +9,7 @@ import it.andreademartini.trading.marketdata.MarketDataService;
 import it.andreademartini.trading.risk.KillSwitchService;
 import it.andreademartini.trading.strategy.SignalService;
 import it.andreademartini.trading.strategy.StrategyEngine;
-import it.andreademartini.trading.strategy.TradeDirection;
+import it.andreademartini.trading.strategy.StrategyTradeMode;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -34,7 +34,7 @@ class TradingWorkbenchControllerSimulationTest {
     @Test
     void simulationReversesBetweenLongAndShortPositions() {
         TradingWorkbenchController.StrategySimulationResponse response =
-                controller.simulateStrategy(request(TradeDirection.LONG_SHORT));
+                controller.simulateStrategy(request(StrategyTradeMode.LONG_SHORT));
 
         assertThat(response.trades())
                 .extracting(TradingWorkbenchController.TradeResult::side)
@@ -47,7 +47,7 @@ class TradingWorkbenchControllerSimulationTest {
     @Test
     void simulationCanBeRestrictedToLongOnly() {
         TradingWorkbenchController.StrategySimulationResponse response =
-                controller.simulateStrategy(request(TradeDirection.LONG_ONLY));
+                controller.simulateStrategy(request(StrategyTradeMode.LONG_ONLY));
 
         assertThat(response.trades())
                 .extracting(TradingWorkbenchController.TradeResult::side)
@@ -60,7 +60,7 @@ class TradingWorkbenchControllerSimulationTest {
     @Test
     void simulationCanBeRestrictedToShortOnly() {
         TradingWorkbenchController.StrategySimulationResponse response =
-                controller.simulateStrategy(request(TradeDirection.SHORT_ONLY));
+                controller.simulateStrategy(request(StrategyTradeMode.SHORT_ONLY));
 
         assertThat(response.trades())
                 .extracting(TradingWorkbenchController.TradeResult::side)
@@ -71,7 +71,7 @@ class TradingWorkbenchControllerSimulationTest {
     }
 
     private TradingWorkbenchController.StrategySimulationRequest request(
-            TradeDirection tradeDirection) {
+            StrategyTradeMode tradeDirection) {
         TradingWorkbenchController.StrategySimulationRequest request =
                 new TradingWorkbenchController.StrategySimulationRequest(
                         "SPY",

@@ -1,5 +1,6 @@
 package it.andreademartini.trading.paper;
 
+import it.andreademartini.trading.config.TradingMode;
 import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.ibkr.IbkrConnectionService;
 import it.andreademartini.trading.marketdata.MarketDataService;
@@ -35,6 +36,11 @@ public class PaperTradingCoordinator {
 
     public void start() {
         if (!started.compareAndSet(false, true)) {
+            return;
+        }
+
+        if (properties.getMode() == TradingMode.BACKTEST) {
+            log.info("Modalita BACKTEST: servizi paper non avviati");
             return;
         }
 

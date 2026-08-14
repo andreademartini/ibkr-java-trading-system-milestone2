@@ -10,11 +10,11 @@ Questa versione aggiunge:
 - strategia dimostrativa con incrocio di medie mobili;
 - segnali manuali tramite API REST;
 - ordini paper `MARKET`, `LIMIT`, `STOP` e `TRAILING_STOP`;
-- bracket order con take profit e stop loss;
+- bracket order con tre take profit, stop loss e sizing risk-based;
 - bracket order con take profit e trailing stop;
 - stato ordini tramite callback `orderStatus` e `openOrder`;
 - posizioni e riepilogo account;
-- `RiskManager`;
+- `RiskManager` con controlli LONG/SHORT;
 - kill switch;
 - salvataggio di segnali ed eventi ordine su database H2;
 - endpoint REST e file `http/paper-trading.http` per testarli da IntelliJ.
@@ -297,6 +297,11 @@ http/paper-trading.http
 
 IntelliJ mostra un pulsante verde accanto a ogni richiesta HTTP.
 
+Nota: gli ordini che aumentano esposizione devono nascere da un `TradePlan`
+calcolato dal sistema. Le chiamate dirette a `/api/paper/orders` restano utili
+per test tecnici e per ordini che riducono o chiudono una posizione; un nuovo
+ingresso manuale senza `TradePlan` viene respinto dal `RiskManager`.
+
 Il file contiene esempi per:
 
 - stato sistema;
@@ -457,7 +462,7 @@ Comportamento predefinito:
 - segnale `SELL` con posizione long:
   cancellazione ordini protettivi e chiusura a mercato;
 - segnale `SELL` a posizione vuota:
-  nessuno short, perché `allow-short-selling=false`;
+  apertura SHORT se `allow-short-selling=true` e il risk manager approva il piano;
 - nessuna inversione long/short automatica nello stesso tick.
 
 ---
@@ -466,18 +471,21 @@ Comportamento predefinito:
 
 Controlli inclusi:
 
-- modalità PAPER;
+- modalità `PAPER` per invio ordini e `BACKTEST` per simulazione;
 - account esatto verificato;
 - connessione `READY`;
 - kill switch;
+- sizing basato su capitale e rischio percentuale;
+- blocco leva se `use-leverage=false`;
+- limite nozionale separato per long e short;
 - quantità massima;
 - valore massimo ordine;
 - valore massimo posizione;
 - numero massimo ordini aperti;
 - numero massimo azioni giornaliere;
 - perdita realizzata giornaliera;
-- short selling disabilitato di default;
-- coerenza di take profit e stop rispetto alla direzione;
+- short selling configurabile;
+- coerenza di entry, take profit e stop rispetto alla direzione `LONG` o `SHORT`;
 - trailing percentuale compreso tra 0 e 50.
 
 Configurazione:
@@ -485,14 +493,40 @@ Configurazione:
 ```yaml
 trading:
   risk:
+    trading-capital: 10000
+    risk-per-trade-percent: 2.0
+    allow-long: true
+    allow-short-selling: true
+    use-leverage: false
+    max-long-notional: 10000
+    max-short-notional: 10000
     max-order-value: 5000
     max-position-value: 10000
-    max-quantity-per-order: 10
+    max-quantity-per-order: 1000
     max-daily-orders: 20
     max-open-orders: 10
     max-daily-loss: 250
-    allow-short-selling: false
+    entry-ticket: 0.01
+    commission-per-order: 0
+    slippage-percent: 0
+    transaction-costs-per-share: 0
+
+  take-profit:
+    enabled: true
+    target-1:
+      profit-percent: 2.0
+      position-percent: 50.0
+    target-2:
+      profit-percent: 4.0
+      position-percent: 30.0
+    target-3:
+      profit-percent: 8.0
+      position-percent: 20.0
 ```
+
+Per un LONG il sistema genera `BUY STOP` in ingresso, `SELL LIMIT` sui take
+profit e `SELL STOP` sullo stop loss. Per uno SHORT genera `SELL STOP` in
+ingresso, `BUY LIMIT` sui take profit e `BUY STOP` sullo stop loss.
 
 Gli ordini che riducono una posizione esistente possono essere inviati anche
 quando il kill switch è attivo o è stato raggiunto un limite operativo. Questo
@@ -528,8 +562,6 @@ src/main/resources/logback-spring.xml
 
 Questa milestone non include ancora:
 
-- backtest storico;
-- calcolo commissioni e slippage;
 - scanner di mercato;
 - calendario di borsa;
 - controllo del tick minimo tramite `ContractDetails`;

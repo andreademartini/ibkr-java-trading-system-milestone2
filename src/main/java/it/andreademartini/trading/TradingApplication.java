@@ -1,5 +1,6 @@
 package it.andreademartini.trading;
 
+import it.andreademartini.trading.config.TradingMode;
 import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.ibkr.IbkrConnectionException;
 import it.andreademartini.trading.ibkr.IbkrConnectionService;
@@ -40,6 +41,11 @@ public class TradingApplication {
                 log.info("Invio ordini paper abilitato: {}", properties.isOrderSubmissionEnabled());
                 log.info("Esecuzione automatica segnali: {}",
                         properties.getStrategy().isAutoExecuteSignals());
+
+                if (properties.getMode() == TradingMode.BACKTEST) {
+                    log.info("Modalita BACKTEST: connessione IBKR e servizi paper non avviati");
+                    return;
+                }
 
                 if (!properties.getIbkr().isAutoConnect()) {
                     log.warn("Connessione automatica IBKR disabilitata");

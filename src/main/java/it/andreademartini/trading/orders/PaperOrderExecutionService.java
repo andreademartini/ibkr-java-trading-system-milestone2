@@ -7,7 +7,9 @@ import it.andreademartini.trading.marketdata.MarketSnapshot;
 import it.andreademartini.trading.portfolio.PortfolioService;
 import it.andreademartini.trading.risk.KillSwitchService;
 import it.andreademartini.trading.risk.RiskManager;
+import it.andreademartini.trading.risk.TradeSetupService;
 import it.andreademartini.trading.strategy.SignalAction;
+import it.andreademartini.trading.strategy.TradeDirection;
 import it.andreademartini.trading.strategy.TradingSignal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,7 @@ public class PaperOrderExecutionService {
     private final OrderTracker orderTracker;
     private final RiskManager riskManager;
     private final KillSwitchService killSwitch;
+    private final TradeSetupService tradeSetupService;
 
     public PaperOrderExecutionService(
             TradingSystemProperties properties,
@@ -41,7 +44,8 @@ public class PaperOrderExecutionService {
             IbkrApiClient apiClient,
             OrderTracker orderTracker,
             RiskManager riskManager,
-            KillSwitchService killSwitch) {
+            KillSwitchService killSwitch,
+            TradeSetupService tradeSetupService) {
         this.properties = properties;
         this.marketDataService = marketDataService;
         this.portfolioService = portfolioService;
@@ -50,6 +54,7 @@ public class PaperOrderExecutionService {
         this.orderTracker = orderTracker;
         this.riskManager = riskManager;
         this.killSwitch = killSwitch;
+        this.tradeSetupService = tradeSetupService;
     }
 
     public synchronized OrderSubmissionResult submit(PaperOrderRequest rawRequest) {
@@ -57,6 +62,7 @@ public class PaperOrderExecutionService {
         double referencePrice = resolveReferencePrice(request);
 
         riskManager.validate(request, referencePrice);
+        logApprovedTradePlan(request.tradePlan(), request.symbol());
 
         TradingSystemProperties.InstrumentProperties instrument =
                 marketDataService.requireInstrument(request.symbol());
@@ -122,7 +128,7 @@ public class PaperOrderExecutionService {
                 return;
             }
 
-            submit(createAutomaticEntry(signal, OrderSide.BUY));
+            submit(createAutomaticEntry(signal, TradeDirection.LONG));
             return;
         }
 
@@ -143,7 +149,7 @@ public class PaperOrderExecutionService {
                 return;
             }
 
-            submit(createAutomaticEntry(signal, OrderSide.SELL));
+            submit(createAutomaticEntry(signal, TradeDirection.SHORT));
         }
     }
 
@@ -168,7 +174,10 @@ public class PaperOrderExecutionService {
                     exception);
         }
 
-        OrderSide closeSide = quantity.compareTo(BigDecimal.ZERO) > 0
+        TradeDirection direction = quantity.compareTo(BigDecimal.ZERO) > 0
+                ? TradeDirection.LONG
+                : TradeDirection.SHORT;
+        OrderSide closeSide = direction == TradeDirection.LONG
                 ? OrderSide.SELL
                 : OrderSide.BUY;
 
@@ -181,12 +190,14 @@ public class PaperOrderExecutionService {
                 null,
                 null,
                 null,
-                reason
+                reason,
+                direction,
+                null
         ));
     }
 
     public void cancelProtectiveOrders(String symbol) {
-        List<Integer> orderIds = orderTracker.activeOrderIdsForSymbol(symbol);
+        List<Integer> orderIds = orderTracker.activeProtectiveOrderIdsForSymbol(symbol);
         for (Integer orderId : orderIds) {
             try {
                 apiClient.cancelOrder(orderId);
@@ -201,27 +212,34 @@ public class PaperOrderExecutionService {
 
     private PaperOrderRequest createAutomaticEntry(
             TradingSignal signal,
-            OrderSide side) {
-        double takeProfitFactor =
-                properties.getStrategy().getTakeProfitPercent() / 100.0;
-        double takeProfit = side == OrderSide.BUY
-                ? signal.price() * (1.0 + takeProfitFactor)
-                : signal.price() * (1.0 - takeProfitFactor);
+            TradeDirection direction) {
+        TradePlan plan = tradeSetupService.create(signal.symbol(), direction);
+        OrderSide side = direction == TradeDirection.LONG
+                ? OrderSide.BUY
+                : OrderSide.SELL;
+        Double firstTakeProfit = plan.takeProfits().isEmpty()
+                ? null
+                : plan.takeProfits().getFirst().price().doubleValue();
 
         return new PaperOrderRequest(
                 signal.symbol(),
                 side,
-                PaperOrderType.BRACKET_WITH_TRAILING_STOP,
-                signal.quantity(),
+                PaperOrderType.BRACKET,
+                plan.quantity(),
                 null,
+                plan.stopLossPrice().doubleValue(),
+                firstTakeProfit,
                 null,
-                takeProfit,
-                properties.getStrategy().getTrailingStopPercent(),
-                "auto-" + signal.source()
+                "auto-" + signal.source(),
+                direction,
+                plan
         );
     }
 
     private double resolveReferencePrice(PaperOrderRequest request) {
+        if (request.tradePlan() != null) {
+            return request.tradePlan().entryPrice().doubleValue();
+        }
         MarketSnapshot snapshot = marketDataService.snapshot(request.symbol())
                 .orElse(MarketSnapshot.empty(request.symbol()));
 
@@ -239,6 +257,48 @@ public class PaperOrderExecutionService {
             return request.stopPrice();
         }
         return 0.0;
+    }
+
+    private void logApprovedTradePlan(TradePlan plan, String symbol) {
+        if (plan == null) {
+            return;
+        }
+        log.info("""
+                ========== TRADE SETUP ==========
+                Direction: {}
+                Symbol: {}
+                Capital: {}
+                Maximum Risk: {}
+                Entry: {}
+                Stop: {}
+                Risk Per Share: {}
+                Quantity: {}
+                Effective Risk: {}
+                TP1: {}
+                TP2: {}
+                TP3: {}
+                ORDER APPROVED
+                """,
+                plan.direction(),
+                symbol,
+                plan.tradingCapital(),
+                plan.maximumRisk(),
+                plan.entryPrice(),
+                plan.stopLossPrice(),
+                plan.totalRiskPerShare(),
+                plan.quantity(),
+                plan.effectiveRisk(),
+                takeProfitPrice(plan, 1),
+                takeProfitPrice(plan, 2),
+                takeProfitPrice(plan, 3));
+    }
+
+    private Object takeProfitPrice(TradePlan plan, int targetNumber) {
+        return plan.takeProfits().stream()
+                .filter(target -> target.targetNumber() == targetNumber)
+                .map(target -> (Object) target.price())
+                .findFirst()
+                .orElse("-");
     }
 
     private void pauseBetweenAttachedOrders() {

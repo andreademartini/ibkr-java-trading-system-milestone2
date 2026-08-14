@@ -16,8 +16,8 @@ import it.andreademartini.trading.strategy.ManualOnlyStrategy;
 import it.andreademartini.trading.strategy.MovingAverageCrossoverStrategy;
 import it.andreademartini.trading.strategy.SignalAction;
 import it.andreademartini.trading.strategy.SignalService;
+import it.andreademartini.trading.strategy.StrategyTradeMode;
 import it.andreademartini.trading.strategy.StrategyEngine;
-import it.andreademartini.trading.strategy.TradeDirection;
 import it.andreademartini.trading.strategy.TradingSignal;
 import it.andreademartini.trading.strategy.TradingStrategy;
 import org.springframework.http.HttpStatus;
@@ -91,6 +91,9 @@ public class TradingWorkbenchController {
         }
         if (request.risk() != null) {
             applyRiskConfig(request.risk());
+        }
+        if (request.takeProfit() != null) {
+            applyTakeProfitConfig(request.takeProfit());
         }
         if (request.orders() != null) {
             applyOrdersConfig(request.orders());
@@ -309,20 +312,16 @@ public class TradingWorkbenchController {
             strategy.setSignalCooldown(Duration.ofSeconds(
                     Math.max(0, request.signalCooldownSeconds())));
         }
-        if (request.takeProfitPercent() != null) {
-            strategy.setTakeProfitPercent(request.takeProfitPercent());
-        }
-        if (request.trailingStopPercent() != null) {
-            strategy.setTrailingStopPercent(request.trailingStopPercent());
-        }
     }
 
     private void applyRuntimeConfig(RuntimeConfigRequest request) {
-        if (request.mode() != null && request.mode() != TradingMode.PAPER) {
+        if (request.mode() == TradingMode.LIVE) {
             throw new IllegalArgumentException(
-                    "Questa versione consente solo la modalita PAPER");
+                    "Questa versione consente solo BACKTEST o PAPER");
         }
-        properties.setMode(TradingMode.PAPER);
+        if (request.mode() != null) {
+            properties.setMode(request.mode());
+        }
 
         if (Boolean.TRUE.equals(request.liveTradingEnabled())) {
             throw new IllegalArgumentException(
@@ -338,6 +337,10 @@ public class TradingWorkbenchController {
             properties.setOrderSubmissionEnabled(request.orderSubmissionEnabled());
         }
         if (properties.isOrderSubmissionEnabled()) {
+            if (properties.getMode() != TradingMode.PAPER) {
+                throw new IllegalArgumentException(
+                        "Gli ordini IBKR paper sono consentiti solo in modalita PAPER");
+            }
             if (!TradingSystemProperties.PAPER_CONFIRMATION_PHRASE.equals(
                     properties.getPaperAccountConfirmation())) {
                 throw new IllegalArgumentException(
@@ -353,11 +356,23 @@ public class TradingWorkbenchController {
 
     private void applyRiskConfig(RiskConfigRequest request) {
         TradingSystemProperties.RiskProperties risk = properties.getRisk();
+        if (request.tradingCapital() != null) {
+            risk.setTradingCapital(Math.max(0.01, request.tradingCapital()));
+        }
+        if (request.riskPerTradePercent() != null) {
+            risk.setRiskPerTradePercent(Math.max(0.01, request.riskPerTradePercent()));
+        }
         if (request.maxOrderValue() != null) {
             risk.setMaxOrderValue(Math.max(0.01, request.maxOrderValue()));
         }
         if (request.maxPositionValue() != null) {
             risk.setMaxPositionValue(Math.max(0.01, request.maxPositionValue()));
+        }
+        if (request.maxLongNotional() != null) {
+            risk.setMaxLongNotional(Math.max(0.01, request.maxLongNotional()));
+        }
+        if (request.maxShortNotional() != null) {
+            risk.setMaxShortNotional(Math.max(0.01, request.maxShortNotional()));
         }
         if (request.maxQuantityPerOrder() != null) {
             risk.setMaxQuantityPerOrder(Math.max(1, request.maxQuantityPerOrder()));
@@ -371,8 +386,52 @@ public class TradingWorkbenchController {
         if (request.maxDailyLoss() != null) {
             risk.setMaxDailyLoss(Math.max(0.01, request.maxDailyLoss()));
         }
+        if (request.allowLong() != null) {
+            risk.setAllowLong(request.allowLong());
+        }
         if (request.allowShortSelling() != null) {
             risk.setAllowShortSelling(request.allowShortSelling());
+        }
+        if (request.useLeverage() != null) {
+            risk.setUseLeverage(request.useLeverage());
+        }
+        if (request.entryTicket() != null) {
+            risk.setEntryTicket(Math.max(0.0, request.entryTicket()));
+        }
+        if (request.commissionPerOrder() != null) {
+            risk.setCommissionPerOrder(Math.max(0.0, request.commissionPerOrder()));
+        }
+        if (request.slippagePercent() != null) {
+            risk.setSlippagePercent(Math.max(0.0, request.slippagePercent()));
+        }
+        if (request.transactionCostsPerShare() != null) {
+            risk.setTransactionCostsPerShare(
+                    Math.max(0.0, request.transactionCostsPerShare()));
+        }
+    }
+
+    private void applyTakeProfitConfig(TakeProfitConfigRequest request) {
+        TradingSystemProperties.TakeProfitProperties takeProfit =
+                properties.getTakeProfit();
+        if (request.enabled() != null) {
+            takeProfit.setEnabled(request.enabled());
+        }
+        applyTakeProfitTarget(takeProfit.getTarget1(), request.target1());
+        applyTakeProfitTarget(takeProfit.getTarget2(), request.target2());
+        applyTakeProfitTarget(takeProfit.getTarget3(), request.target3());
+    }
+
+    private void applyTakeProfitTarget(
+            TradingSystemProperties.TargetProperties target,
+            TakeProfitTargetConfigRequest request) {
+        if (request == null) {
+            return;
+        }
+        if (request.profitPercent() != null) {
+            target.setProfitPercent(Math.max(0.01, request.profitPercent()));
+        }
+        if (request.positionPercent() != null) {
+            target.setPositionPercent(Math.max(0.0, request.positionPercent()));
         }
     }
 
@@ -421,8 +480,6 @@ public class TradingWorkbenchController {
                 ? source.getQuantity()
                 : request.quantity());
         strategy.setSignalCooldown(source.getSignalCooldown());
-        strategy.setTakeProfitPercent(source.getTakeProfitPercent());
-        strategy.setTrailingStopPercent(source.getTrailingStopPercent());
         return strategy;
     }
 
@@ -451,8 +508,8 @@ public class TradingWorkbenchController {
         double slippagePercent = request.slippagePercent() == null
                 ? 0.0
                 : request.slippagePercent();
-        TradeDirection tradeDirection = request.tradeDirection() == null
-                ? TradeDirection.LONG_SHORT
+        StrategyTradeMode tradeDirection = request.tradeDirection() == null
+                ? StrategyTradeMode.LONG_SHORT
                 : request.tradeDirection();
 
         if (initialCapital <= 0) {
@@ -614,7 +671,7 @@ public class TradingWorkbenchController {
         return new BacktestResult(equityCurve, trades, metrics, parameters);
     }
 
-    private String executionModel(TradeDirection tradeDirection) {
+    private String executionModel(StrategyTradeMode tradeDirection) {
         return switch (tradeDirection) {
             case LONG_ONLY -> "Solo long: BUY apre long, SELL chiude long; non apre short";
             case SHORT_ONLY -> "Solo short: SELL apre short, BUY chiude short; non apre long";
@@ -692,6 +749,8 @@ public class TradingWorkbenchController {
         TradingSystemProperties.IbkrProperties ibkr = properties.getIbkr();
         TradingSystemProperties.StrategyProperties strategy = properties.getStrategy();
         TradingSystemProperties.RiskProperties risk = properties.getRisk();
+        TradingSystemProperties.TakeProfitProperties takeProfit =
+                properties.getTakeProfit();
         TradingSystemProperties.OrderProperties orders = properties.getOrders();
 
         return new WorkbenchConfigResponse(
@@ -718,9 +777,7 @@ public class TradingWorkbenchController {
                         strategy.getFastPeriod(),
                         strategy.getSlowPeriod(),
                         strategy.getQuantity(),
-                        strategy.getSignalCooldown().toSeconds(),
-                        strategy.getTakeProfitPercent(),
-                        strategy.getTrailingStopPercent()),
+                        strategy.getSignalCooldown().toSeconds()),
                 new RuntimeConfigResponse(
                         properties.getMode(),
                         properties.isLiveTradingEnabled(),
@@ -728,19 +785,41 @@ public class TradingWorkbenchController {
                         properties.getPaperAccountConfirmation(),
                         TradingSystemProperties.PAPER_CONFIRMATION_PHRASE),
                 new RiskConfigResponse(
+                        risk.getTradingCapital(),
+                        risk.getRiskPerTradePercent(),
                         risk.getMaxOrderValue(),
                         risk.getMaxPositionValue(),
+                        risk.getMaxLongNotional(),
+                        risk.getMaxShortNotional(),
                         risk.getMaxQuantityPerOrder(),
                         risk.getMaxDailyOrders(),
                         risk.getMaxOpenOrders(),
                         risk.getMaxDailyLoss(),
-                        risk.isAllowShortSelling()),
+                        risk.isAllowLong(),
+                        risk.isAllowShortSelling(),
+                        risk.isUseLeverage(),
+                        risk.getEntryTicket(),
+                        risk.getCommissionPerOrder(),
+                        risk.getSlippagePercent(),
+                        risk.getTransactionCostsPerShare()),
+                new TakeProfitConfigResponse(
+                        takeProfit.isEnabled(),
+                        takeProfitTargetResponse(takeProfit.getTarget1()),
+                        takeProfitTargetResponse(takeProfit.getTarget2()),
+                        takeProfitTargetResponse(takeProfit.getTarget3())),
                 new OrdersConfigResponse(
                         orders.getEntryTimeInForce(),
                         orders.getProtectiveTimeInForce(),
                         orders.isOutsideRegularTradingHours(),
                         orders.getInterOrderDelay().toMillis()),
                 killSwitchService.isActive());
+    }
+
+    private TakeProfitTargetConfigResponse takeProfitTargetResponse(
+            TradingSystemProperties.TargetProperties target) {
+        return new TakeProfitTargetConfigResponse(
+                target.getProfitPercent(),
+                target.getPositionPercent());
     }
 
     private String source(String prefix, MarketDataProvider provider, StrategyType strategy) {
@@ -784,6 +863,7 @@ public class TradingWorkbenchController {
             StrategyConfigRequest strategy,
             RuntimeConfigRequest runtime,
             RiskConfigRequest risk,
+            TakeProfitConfigRequest takeProfit,
             OrdersConfigRequest orders) {
     }
 
@@ -810,9 +890,7 @@ public class TradingWorkbenchController {
             Integer fastPeriod,
             Integer slowPeriod,
             Long quantity,
-            Long signalCooldownSeconds,
-            Double takeProfitPercent,
-            Double trailingStopPercent) {
+            Long signalCooldownSeconds) {
     }
 
     public record RuntimeConfigRequest(
@@ -823,13 +901,35 @@ public class TradingWorkbenchController {
     }
 
     public record RiskConfigRequest(
+            Double tradingCapital,
+            Double riskPerTradePercent,
             Double maxOrderValue,
             Double maxPositionValue,
+            Double maxLongNotional,
+            Double maxShortNotional,
             Long maxQuantityPerOrder,
             Integer maxDailyOrders,
             Integer maxOpenOrders,
             Double maxDailyLoss,
-            Boolean allowShortSelling) {
+            Boolean allowLong,
+            Boolean allowShortSelling,
+            Boolean useLeverage,
+            Double entryTicket,
+            Double commissionPerOrder,
+            Double slippagePercent,
+            Double transactionCostsPerShare) {
+    }
+
+    public record TakeProfitConfigRequest(
+            Boolean enabled,
+            TakeProfitTargetConfigRequest target1,
+            TakeProfitTargetConfigRequest target2,
+            TakeProfitTargetConfigRequest target3) {
+    }
+
+    public record TakeProfitTargetConfigRequest(
+            Double profitPercent,
+            Double positionPercent) {
     }
 
     public record OrdersConfigRequest(
@@ -875,7 +975,7 @@ public class TradingWorkbenchController {
             String symbol,
             MarketDataProvider provider,
             StrategyType strategy,
-            TradeDirection tradeDirection,
+            StrategyTradeMode tradeDirection,
             List<Double> prices,
             Integer fastPeriod,
             Integer slowPeriod,
@@ -954,7 +1054,7 @@ public class TradingWorkbenchController {
     public record EvaluationParameters(
             MarketDataProvider provider,
             StrategyType strategy,
-            TradeDirection tradeDirection,
+            StrategyTradeMode tradeDirection,
             int fastPeriod,
             int slowPeriod,
             long quantity,
@@ -981,6 +1081,7 @@ public class TradingWorkbenchController {
             StrategyConfigResponse strategy,
             RuntimeConfigResponse runtime,
             RiskConfigResponse risk,
+            TakeProfitConfigResponse takeProfit,
             OrdersConfigResponse orders,
             boolean killSwitchActive) {
     }
@@ -1008,9 +1109,7 @@ public class TradingWorkbenchController {
             int fastPeriod,
             int slowPeriod,
             long quantity,
-            long signalCooldownSeconds,
-            double takeProfitPercent,
-            double trailingStopPercent) {
+            long signalCooldownSeconds) {
     }
 
     public record RuntimeConfigResponse(
@@ -1022,13 +1121,35 @@ public class TradingWorkbenchController {
     }
 
     public record RiskConfigResponse(
+            double tradingCapital,
+            double riskPerTradePercent,
             double maxOrderValue,
             double maxPositionValue,
+            double maxLongNotional,
+            double maxShortNotional,
             long maxQuantityPerOrder,
             int maxDailyOrders,
             int maxOpenOrders,
             double maxDailyLoss,
-            boolean allowShortSelling) {
+            boolean allowLong,
+            boolean allowShortSelling,
+            boolean useLeverage,
+            double entryTicket,
+            double commissionPerOrder,
+            double slippagePercent,
+            double transactionCostsPerShare) {
+    }
+
+    public record TakeProfitConfigResponse(
+            boolean enabled,
+            TakeProfitTargetConfigResponse target1,
+            TakeProfitTargetConfigResponse target2,
+            TakeProfitTargetConfigResponse target3) {
+    }
+
+    public record TakeProfitTargetConfigResponse(
+            double profitPercent,
+            double positionPercent) {
     }
 
     public record OrdersConfigResponse(

@@ -19,23 +19,31 @@ public class TradingSafetyGuard {
     }
 
     public void validateStartupConfiguration() {
-        if (properties.getMode() == TradingMode.LIVE || properties.isLiveTradingEnabled()) {
+        if (properties.getMode() == TradingMode.LIVE
+                || properties.isLiveTradingEnabled()) {
             throw new IllegalStateException(
-                    "La modalità LIVE è intenzionalmente bloccata in questo progetto");
+                    "La modalita LIVE e' intenzionalmente bloccata in questo progetto");
         }
-
-        if (properties.getMode() != TradingMode.PAPER) {
-            throw new IllegalStateException(
-                    "Questa milestone supporta solo PAPER. BACKTEST sarà aggiunto separatamente");
-        }
-
-        assertPaperPort();
 
         if (properties.getStrategy().getFastPeriod()
                 >= properties.getStrategy().getSlowPeriod()) {
             throw new IllegalStateException(
                     "strategy.fast-period deve essere minore di strategy.slow-period");
         }
+
+        if (properties.getMode() == TradingMode.BACKTEST) {
+            if (properties.isOrderSubmissionEnabled()) {
+                throw new IllegalStateException(
+                        "In BACKTEST l'invio ordini IBKR deve restare disabilitato");
+            }
+            if (properties.getStrategy().isAutoExecuteSignals()) {
+                throw new IllegalStateException(
+                        "In BACKTEST AUTO_EXECUTE_SIGNALS deve restare false");
+            }
+            return;
+        }
+
+        assertPaperPort();
 
         if (properties.getStrategy().isAutoExecuteSignals()
                 && !properties.isOrderSubmissionEnabled()) {
@@ -52,7 +60,7 @@ public class TradingSafetyGuard {
         if (properties.getMode() != TradingMode.PAPER
                 || properties.isLiveTradingEnabled()) {
             throw new IllegalStateException(
-                    "La connessione IBKR è consentita solo in modalità PAPER");
+                    "La connessione IBKR e' consentita solo in modalita PAPER");
         }
         assertPaperPort();
     }
@@ -66,7 +74,7 @@ public class TradingSafetyGuard {
         if (properties.getMode() != TradingMode.PAPER
                 || properties.isLiveTradingEnabled()) {
             throw new IllegalStateException(
-                    "Ordini consentiti esclusivamente in modalità PAPER");
+                    "Ordini consentiti esclusivamente in modalita PAPER");
         }
 
         if (!TradingSystemProperties.PAPER_CONFIRMATION_PHRASE.equals(
@@ -79,7 +87,7 @@ public class TradingSafetyGuard {
         if (properties.getIbkr().getAccountId() == null
                 || properties.getIbkr().getAccountId().isBlank()) {
             throw new IllegalStateException(
-                    "IBKR_PAPER_ACCOUNT_ID è obbligatorio per inviare ordini paper");
+                    "IBKR_PAPER_ACCOUNT_ID e' obbligatorio per inviare ordini paper");
         }
 
         assertPaperPort();

@@ -22,11 +22,23 @@ public class OrderEventEntity {
 
     private Integer parentOrderId;
 
+    @Column(length = 64)
+    private String tradeId;
+
+    @Column(length = 32)
+    private String role;
+
     @Column(nullable = false, length = 32)
     private String symbol;
 
     @Column(nullable = false, length = 16)
     private String side;
+
+    @Column(length = 16)
+    private String direction;
+
+    @Column(length = 32)
+    private String tradeState;
 
     @Column(nullable = false, length = 32)
     private String orderType;
@@ -54,8 +66,12 @@ public class OrderEventEntity {
     public OrderEventEntity(
             int ibkrOrderId,
             Integer parentOrderId,
+            String tradeId,
+            String role,
             String symbol,
             String side,
+            String direction,
+            String tradeState,
             String orderType,
             long quantity,
             String status,
@@ -67,8 +83,12 @@ public class OrderEventEntity {
             Instant createdAt) {
         this.ibkrOrderId = ibkrOrderId;
         this.parentOrderId = parentOrderId;
+        this.tradeId = tradeId;
+        this.role = role;
         this.symbol = symbol;
         this.side = side;
+        this.direction = direction;
+        this.tradeState = tradeState;
         this.orderType = orderType;
         this.quantity = quantity;
         this.status = status;
