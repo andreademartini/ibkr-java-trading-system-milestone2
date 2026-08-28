@@ -2,6 +2,7 @@ package it.andreademartini.trading.marketdata;
 
 import com.ib.client.Bar;
 import com.ib.client.Contract;
+import it.andreademartini.trading.config.MarketDataMode;
 import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.ibkr.IbkrApiClient;
 import it.andreademartini.trading.ibkr.IbkrEWrapper;
@@ -11,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,12 +38,16 @@ public class IbkrHistoricalDataClient implements IbkrEventListener {
             LoggerFactory.getLogger(IbkrHistoricalDataClient.class);
 
     private static final Set<Integer> INFORMATIONAL_CODES = Set.of(
-            1101, 1102, 2104, 2106, 2158
+            1101, 1102, 2104, 2106, 2158, 2174
     );
     private static final DateTimeFormatter IBKR_DATE_TIME =
             DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
+    private static final DateTimeFormatter IBKR_END_DATE_TIME =
+            DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm:ss")
+                    .withZone(ZoneOffset.UTC);
     private static final DateTimeFormatter LABEL_DATE_TIME =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final Duration DELAYED_HISTORICAL_LAG = Duration.ofMinutes(30);
 
     private final TradingSystemProperties properties;
     private final IbkrApiClient apiClient;
@@ -78,21 +84,29 @@ public class IbkrHistoricalDataClient implements IbkrEventListener {
 
         String duration = duration(normalizedTimeframe, outputSize, limit);
         String barSize = barSize(normalizedTimeframe);
+        String endDateTime = historicalEndDateTime(normalizedTimeframe);
         Contract contract = contractFactory.create(instrument);
 
         try {
+            apiClient.requestMarketDataType(
+                    properties.getMarketData().getMode().getIbkrCode());
             apiClient.requestHistoricalData(
                     requestId,
                     contract,
-                    "",
+                    endDateTime,
                     duration,
                     barSize,
                     "TRADES",
                     1,
                     2,
                     false);
-            log.info("Richiesta storico IBKR {} reqId={} duration={} barSize={}",
-                    contract.symbol(), requestId, duration, barSize);
+            log.info("Richiesta storico IBKR {} reqId={} endDateTime={} duration={} barSize={} mode={}",
+                    contract.symbol(),
+                    requestId,
+                    endDateTime.isBlank() ? "now" : endDateTime,
+                    duration,
+                    barSize,
+                    properties.getMarketData().getMode());
             return pending.future().get(
                     properties.getIbkr().getHistoricalDataTimeout().toMillis(),
                     TimeUnit.MILLISECONDS);
@@ -165,6 +179,15 @@ public class IbkrHistoricalDataClient implements IbkrEventListener {
         if (pending == null || INFORMATIONAL_CODES.contains(error.code())) {
             return;
         }
+        if (Integer.valueOf(2188).equals(error.code())) {
+            pending.future().completeExceptionally(new IbkrMarketDataPermissionException(
+                    "IBKR non consente lo storico API per "
+                            + "questo strumento senza una sottoscrizione market data "
+                            + "abilitata per API. Per AAPL servono permessi dati USA/NASDAQ "
+                            + "sull'utente collegato a TWS/IB Gateway, oppure dati storici "
+                            + "gia' salvati nel database."));
+            return;
+        }
         pending.future().completeExceptionally(new IllegalStateException(
                 "Errore storico IBKR code=" + error.code() + ": " + error.message()));
     }
@@ -234,6 +257,23 @@ public class IbkrHistoricalDataClient implements IbkrEventListener {
             default -> throw new IllegalArgumentException("Timeframe storico non supportato: "
                     + timeframe);
         };
+    }
+
+    private String historicalEndDateTime(String timeframe) {
+        MarketDataMode mode = properties.getMarketData().getMode();
+        if (mode != MarketDataMode.DELAYED && mode != MarketDataMode.DELAYED_FROZEN) {
+            return "";
+        }
+
+        if ("DAILY".equals(timeframe)) {
+            return IBKR_END_DATE_TIME.format(LocalDate
+                    .now(ZoneOffset.UTC)
+                    .minusDays(1)
+                    .atTime(23, 59, 59)
+                    .toInstant(ZoneOffset.UTC));
+        }
+
+        return IBKR_END_DATE_TIME.format(Instant.now().minus(DELAYED_HISTORICAL_LAG));
     }
 
     private String duration(String timeframe, String outputSize, int maxPoints) {

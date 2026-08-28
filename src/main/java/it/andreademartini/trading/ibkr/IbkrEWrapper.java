@@ -31,6 +31,9 @@ public class IbkrEWrapper implements InvocationHandler {
     private static final Set<Integer> INFORMATIONAL_CODES = Set.of(
             1101, 1102, 2104, 2106, 2158
     );
+    private static final Set<Integer> WARNING_CODES = Set.of(
+            162, 10167, 2174
+    );
 
     private final AtomicReference<CompletableFuture<Integer>> nextValidIdFuture =
             new AtomicReference<>(new CompletableFuture<>());
@@ -260,15 +263,15 @@ public class IbkrEWrapper implements InvocationHandler {
             return;
         }
 
-        Integer code = extractErrorCode(args);
-        int requestId = args.length > 0 ? numberAsInt(args[0]) : -1;
-        String message = args.length > 2 ? String.valueOf(args[2]) : Arrays.toString(args);
-        String advancedReject = args.length > 3 && args[3] != null
-                ? String.valueOf(args[3])
-                : "";
+        IbkrError error = extractError(args);
+        Integer code = error.code();
+        int requestId = error.requestId();
+        String message = error.message();
 
         if (code != null && INFORMATIONAL_CODES.contains(code)) {
             log.info("Messaggio IBKR id={} code={}: {}", requestId, code, message);
+        } else if (code != null && WARNING_CODES.contains(code)) {
+            log.warn("Avviso IBKR id={} code={}: {}", requestId, code, message);
         } else if (code != null && code == 1100) {
             log.warn("Connettività IBKR interrotta id={} code={}: {}",
                     requestId, code, message);
@@ -276,7 +279,6 @@ public class IbkrEWrapper implements InvocationHandler {
             log.error("Errore IBKR id={} code={}: {}", requestId, code, message);
         }
 
-        IbkrError error = new IbkrError(requestId, code, message, advancedReject);
         notifyListeners(listener -> listener.onError(error));
     }
 
@@ -291,11 +293,26 @@ public class IbkrEWrapper implements InvocationHandler {
         }
     }
 
-    private Integer extractErrorCode(Object[] args) {
-        if (args.length > 1 && args[1] instanceof Number number) {
-            return number.intValue();
+    private IbkrError extractError(Object[] args) {
+        int requestId = args.length > 0 ? numberAsInt(args[0]) : -1;
+
+        if (args.length >= 5 && args[2] instanceof Number code) {
+            return new IbkrError(
+                    requestId,
+                    code.intValue(),
+                    String.valueOf(args[3]),
+                    args[4] == null ? "" : String.valueOf(args[4]));
         }
-        return null;
+
+        if (args.length >= 3 && args[1] instanceof Number code) {
+            return new IbkrError(
+                    requestId,
+                    code.intValue(),
+                    String.valueOf(args[2]),
+                    args.length > 3 && args[3] != null ? String.valueOf(args[3]) : "");
+        }
+
+        return new IbkrError(requestId, null, Arrays.toString(args), "");
     }
 
     private int numberAsInt(Object value) {

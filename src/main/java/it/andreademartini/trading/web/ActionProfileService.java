@@ -83,7 +83,7 @@ public class ActionProfileService {
                         "STK",
                         "SMART",
                         "USD",
-                        "ARCA",
+                        defaultPrimaryExchange(entry.getKey()),
                         entry.getValue()))
                 .toList();
     }
@@ -98,7 +98,7 @@ public class ActionProfileService {
                 blankToDefault(stock.securityType(), "STK"),
                 blankToDefault(stock.exchange(), "SMART"),
                 blankToDefault(stock.currency(), "USD"),
-                blankToDefault(stock.primaryExchange(), "ARCA"),
+                blankToDefault(stock.primaryExchange(), defaultPrimaryExchange(symbol)),
                 now);
 
         List<ActionProfileConfig> strategies = stock.strategies() == null
@@ -228,7 +228,7 @@ public class ActionProfileService {
                 blankToDefault(instrument.getSecurityType(), "STK"),
                 blankToDefault(instrument.getExchange(), "SMART"),
                 blankToDefault(instrument.getCurrency(), "USD"),
-                blankToDefault(instrument.getPrimaryExchange(), "ARCA"),
+                blankToDefault(instrument.getPrimaryExchange(), defaultPrimaryExchange(symbol)),
                 List.of(defaultStrategy(symbol)));
         repository.save(entity(stock));
         repository.flush();
@@ -292,5 +292,14 @@ public class ActionProfileService {
 
     private String blankToDefault(String value, String fallback) {
         return value == null || value.isBlank() ? fallback : value.trim();
+    }
+
+    private String defaultPrimaryExchange(String symbol) {
+        return switch (normalizeSymbol(symbol)) {
+            case "AAPL", "AMD", "AMZN", "GOOG", "GOOGL", "INTC", "META",
+                    "MSFT", "NFLX", "NVDA", "QQQ", "TSLA" -> "NASDAQ";
+            case "DIA", "IWM", "SPY" -> "ARCA";
+            default -> "";
+        };
     }
 }

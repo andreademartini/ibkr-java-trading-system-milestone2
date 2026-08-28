@@ -91,7 +91,7 @@ function profileToStock(profile) {
         securityType: "STK",
         exchange: "SMART",
         currency: "USD",
-        primaryExchange: "ARCA",
+        primaryExchange: defaultPrimaryExchange(profile.symbol),
         strategies: [profile]
     };
 }
@@ -138,9 +138,25 @@ function defaultStock(symbol) {
         securityType: "STK",
         exchange: "SMART",
         currency: "USD",
-        primaryExchange: "ARCA",
+        primaryExchange: defaultPrimaryExchange(normalized),
         strategies: [defaultStrategy(normalized)]
     };
+}
+
+function defaultPrimaryExchange(symbol) {
+    const normalized = (symbol || "").trim().toUpperCase();
+    const nasdaq = new Set([
+        "AAPL", "AMD", "AMZN", "GOOG", "GOOGL", "INTC",
+        "META", "MSFT", "NFLX", "NVDA", "QQQ", "TSLA"
+    ]);
+    const arca = new Set(["DIA", "IWM", "SPY"]);
+    if (nasdaq.has(normalized)) {
+        return "NASDAQ";
+    }
+    if (arca.has(normalized)) {
+        return "ARCA";
+    }
+    return "";
 }
 
 function normalizeListResponse(value) {
@@ -245,7 +261,8 @@ function applyProfileToForm(profile) {
     setValue("profile-symbol", stock?.symbol || profile.symbol);
     setValue("stock-security-type", stock?.securityType || "STK");
     setValue("stock-exchange", stock?.exchange || "SMART");
-    setValue("stock-primary-exchange", stock?.primaryExchange || "ARCA");
+    setValue("stock-primary-exchange",
+        stock?.primaryExchange || defaultPrimaryExchange(stock?.symbol || profile.symbol));
     setValue("stock-currency", stock?.currency || "USD");
     setValue("profile-strategy", profile.strategy);
     setValue("profile-trade-direction", profile.tradeDirection || "LONG_SHORT");
@@ -300,7 +317,7 @@ function collectStockFromForm() {
         currency: $("stock-currency").value.trim().toUpperCase() || current?.currency || "USD",
         primaryExchange: $("stock-primary-exchange").value.trim().toUpperCase()
             || current?.primaryExchange
-            || "ARCA"
+            || defaultPrimaryExchange(symbol)
     };
 }
 
