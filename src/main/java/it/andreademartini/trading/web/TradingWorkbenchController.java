@@ -469,7 +469,7 @@ public class TradingWorkbenchController {
         if (request.bars() != null && !request.bars().isEmpty()) {
             List<PricePoint> priceSeries = new ArrayList<>(request.bars().size());
             for (int index = 0; index < request.bars().size(); index++) {
-                HistoricalBar bar = request.bars().get(index);
+                SimulationBarRequest bar = request.bars().get(index);
                 validateSimulationBar(bar);
                 Instant timestamp = bar.timestamp() == null
                         ? Instant.now().minus(Duration.ofDays(request.bars().size() - index))
@@ -481,12 +481,12 @@ public class TradingWorkbenchController {
                         index,
                         timestamp,
                         label,
-                        bar.close(),
-                        bar.open(),
-                        bar.high(),
-                        bar.low(),
-                        bar.close(),
-                        Math.max(0L, bar.volume())));
+                        bar.closeValue(),
+                        bar.openValue(),
+                        bar.highValue(),
+                        bar.lowValue(),
+                        bar.closeValue(),
+                        Math.max(0L, bar.volumeValue())));
             }
             return priceSeries;
         }
@@ -518,20 +518,20 @@ public class TradingWorkbenchController {
         return priceSeries;
     }
 
-    private void validateSimulationBar(HistoricalBar bar) {
+    private void validateSimulationBar(SimulationBarRequest bar) {
         if (bar == null) {
             throw new IllegalArgumentException("Barra OHLC non valida");
         }
-        if (bar.open() <= 0 || bar.high() <= 0
-                || bar.low() <= 0 || bar.close() <= 0) {
+        if (bar.openValue() <= 0 || bar.highValue() <= 0
+                || bar.lowValue() <= 0 || bar.closeValue() <= 0) {
             throw new IllegalArgumentException(
                     "Open, high, low e close devono essere positivi");
         }
-        if (bar.high() < Math.max(bar.open(), bar.close())) {
+        if (bar.highValue() < Math.max(bar.openValue(), bar.closeValue())) {
             throw new IllegalArgumentException(
                     "High deve essere maggiore o uguale a open/close");
         }
-        if (bar.low() > Math.min(bar.open(), bar.close())) {
+        if (bar.lowValue() > Math.min(bar.openValue(), bar.closeValue())) {
             throw new IllegalArgumentException(
                     "Low deve essere minore o uguale a open/close");
         }
@@ -934,6 +934,16 @@ public class TradingWorkbenchController {
         position.exitIndex = point.index();
         position.exitAt = point.timestamp();
         position.exitReason = exitReason;
+        double netPnl = grossPnl - commissionPerOrder;
+        position.events.add(new TradeEventResult(
+                exitEventType(exitReason),
+                point.index(),
+                point.timestamp(),
+                fillPrice,
+                quantity,
+                grossPnl,
+                netPnl,
+                eventReturnPercent(netPnl, position.entryPrice, quantity)));
     }
 
     private void recordClosedTrade(
@@ -956,7 +966,20 @@ public class TradingWorkbenchController {
                 position.grossPnl,
                 position.netPnl,
                 denominator == 0.0 ? 0.0 : position.netPnl / denominator * 100.0,
-                position.exitReason));
+                position.exitReason,
+                position.events));
+    }
+
+    private String exitEventType(String exitReason) {
+        if (exitReason == null || exitReason.isBlank()) {
+            return "EXIT";
+        }
+        return "EXIT - " + exitReason.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private static double eventReturnPercent(double netPnl, double entryPrice, long quantity) {
+        double denominator = entryPrice * quantity;
+        return denominator == 0.0 ? 0.0 : netPnl / denominator * 100.0;
     }
 
     private boolean entryHit(BacktestPendingEntry pendingEntry, PricePoint point) {
@@ -1387,7 +1410,7 @@ public class TradingWorkbenchController {
             StrategyType strategy,
             StrategyTradeMode tradeDirection,
             List<Double> prices,
-            List<HistoricalBar> bars,
+            List<SimulationBarRequest> bars,
             Integer fastPeriod,
             Integer slowPeriod,
             Long quantity,
@@ -1395,6 +1418,48 @@ public class TradingWorkbenchController {
             Double commissionPerOrder,
             Double slippagePercent,
             Boolean publishSignals) {
+    }
+
+    public record SimulationBarRequest(
+            Integer index,
+            Instant timestamp,
+            String label,
+            Double price,
+            Double open,
+            Double high,
+            Double low,
+            Double close,
+            Long volume) {
+
+        public double openValue() {
+            return requiredPositive(open, "open");
+        }
+
+        public double highValue() {
+            return requiredPositive(high, "high");
+        }
+
+        public double lowValue() {
+            return requiredPositive(low, "low");
+        }
+
+        public double closeValue() {
+            if (close != null) {
+                return requiredPositive(close, "close");
+            }
+            return requiredPositive(price, "price");
+        }
+
+        public long volumeValue() {
+            return volume == null ? 0L : volume;
+        }
+
+        private static double requiredPositive(Double value, String field) {
+            if (value == null || value <= 0) {
+                throw new IllegalArgumentException(field + " deve essere positivo");
+            }
+            return value;
+        }
     }
 
     public record StrategySimulationResponse(
@@ -1446,7 +1511,23 @@ public class TradingWorkbenchController {
             double grossPnl,
             double netPnl,
             double returnPercent,
-            String exitReason) {
+            String exitReason,
+            List<TradeEventResult> events) {
+
+        public TradeResult {
+            events = events == null ? List.of() : List.copyOf(events);
+        }
+    }
+
+    public record TradeEventResult(
+            String eventType,
+            int index,
+            Instant occurredAt,
+            double price,
+            long quantity,
+            double grossPnl,
+            double netPnl,
+            double returnPercent) {
     }
 
     public record PerformanceMetrics(
@@ -1526,6 +1607,7 @@ public class TradingWorkbenchController {
         private int exitIndex;
         private Instant exitAt;
         private String exitReason;
+        private final List<TradeEventResult> events = new ArrayList<>();
 
         private BacktestPosition(
                 TradeDirection direction,
@@ -1545,6 +1627,15 @@ public class TradingWorkbenchController {
             this.stopLossPrice = stopLossPrice;
             this.takeProfits = takeProfits == null ? List.of() : List.copyOf(takeProfits);
             this.netPnl = -entryCommission;
+            this.events.add(new TradeEventResult(
+                    "ENTRY",
+                    entryIndex,
+                    entryAt,
+                    entryPrice,
+                    quantity,
+                    0.0,
+                    -entryCommission,
+                    eventReturnPercent(-entryCommission, entryPrice, quantity)));
         }
     }
 

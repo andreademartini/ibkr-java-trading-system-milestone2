@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Azioni e strategie</title>
-    <link rel="stylesheet" href="/app.css">
+    <link rel="stylesheet" href="/app.css?v=simulation-trade-group-colors-20260828">
 </head>
 <body>
 <header class="topbar">
@@ -158,6 +158,14 @@
                     <input id="profile-max-points" type="number" min="1" max="5000" step="1">
                 </label>
                 <label>
+                    Storico da
+                    <input id="historical-from" type="date">
+                </label>
+                <label>
+                    Storico a
+                    <input id="historical-to" type="date">
+                </label>
+                <label>
                     Direzione segnale strategia
                     <select id="profile-trade-direction">
                         <option value="LONG_SHORT">Long e short</option>
@@ -198,6 +206,13 @@
             </label>
 
             <div class="button-row">
+                <input id="stooq-csv-file" class="file-input-hidden" type="file" accept=".csv,text/csv">
+                <label id="import-stooq-file-button"
+                       class="file-button primary-action"
+                       for="stooq-csv-file"
+                       role="button"
+                       tabindex="0">Carica e importa CSV STOOQ</label>
+                <button id="import-stooq-directory-button" type="button">Importa directory STOOQ</button>
                 <button id="download-history-button" type="button">Scarica storico IBKR</button>
                 <button id="update-history-button" type="button">Aggiorna storico IBKR</button>
                 <button id="download-simulate-button" type="button">Scarica IBKR e simula</button>
@@ -336,17 +351,17 @@
                 <tbody id="simulation-body"></tbody>
             </table>
             <h3>Trade chiusi</h3>
-            <table>
+            <table class="trade-table">
                 <thead>
                 <tr>
-                    <th>#</th>
+                    <th>Trade</th>
                     <th>Side</th>
-                    <th>Entry</th>
-                    <th>Exit</th>
+                    <th>Evento</th>
+                    <th>Prezzo</th>
+                    <th>Data/Ora</th>
                     <th>Qty</th>
-                    <th>Net PnL</th>
+                    <th>PnL</th>
                     <th>Return %</th>
-                    <th>Uscita</th>
                 </tr>
                 </thead>
                 <tbody id="trades-body"></tbody>
@@ -356,6 +371,6 @@
 </main>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script src="/app.js"></script>
+<script src="/app.js?v=simulation-trade-group-colors-20260828"></script>
 </body>
 </html>

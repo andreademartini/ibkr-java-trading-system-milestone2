@@ -106,7 +106,7 @@ public class TradeSetupService {
                 .map(bar -> new PriceRange(bar.high(), bar.low()))
                 .orElseThrow(() -> new RiskRejectedException(
                         "Barra daily precedente non disponibile per " + symbol
-                                + ": scarica lo storico daily IBKR prima di eseguire il trade"));
+                                + ": importa o scarica lo storico daily prima di eseguire il trade"));
     }
 
     private BigDecimal transactionCostsPerShare(

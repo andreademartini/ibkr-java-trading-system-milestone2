@@ -4,5 +4,8 @@
 *.log
 /lib/*.jar
 !.gitkeep
-/data/
+/data/*
+!/data/stooq/
+/data/stooq/**
+!/data/stooq/.gitkeep
 .env

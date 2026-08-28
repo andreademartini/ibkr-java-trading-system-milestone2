@@ -542,6 +542,23 @@ Il database H2 viene creato in:
 ./data/ibkr-paper-trading.mv.db
 ```
 
+La URL predefinita usa H2 `AUTO_SERVER=TRUE`:
+
+```text
+jdbc:h2:file:./data/ibkr-paper-trading;AUTO_SERVER=TRUE
+```
+
+Questo evita l'errore `Database may be already in use` quando due processi
+locali, per esempio IntelliJ e Maven, aprono lo stesso database. Se un processo
+era gia' avviato con la vecchia URL senza `AUTO_SERVER=TRUE`, chiuderlo una
+volta e riavviare l'applicazione.
+
+La URL puo' essere sovrascritta con:
+
+```text
+DB_URL=jdbc:h2:file:./data/ibkr-paper-trading;AUTO_SERVER=TRUE
+```
+
 Tabelle:
 
 - `TRADING_SIGNAL`;
@@ -558,7 +575,85 @@ src/main/resources/logback-spring.xml
 
 ---
 
-## 12. Limiti attuali
+## 12. Dati storici STOOQ
+
+Stooq automatic download is intentionally disabled.
+Historical Stooq data must be downloaded manually through a browser and
+imported as CSV.
+
+Flusso operativo:
+
+1. Aprire Stooq nel browser.
+2. Cercare il titolo, per esempio `AAPL.US`.
+3. Aprire i dati storici.
+4. Usare `Download data in csv file`.
+5. Salvare il file nella directory configurata:
+
+```text
+./data/stooq
+```
+
+Esempio:
+
+```text
+./data/stooq/AAPL.US.csv
+./data/stooq/MSFT.US.csv
+./data/stooq/NVDA.US.csv
+```
+
+Configurazione:
+
+```yaml
+stooq:
+  enabled: true
+  import-directory: ./data/stooq
+  accept-zero-volume: true
+  default-market-suffix: US
+  price-adjustment: RAW
+```
+
+Import singolo file gia' presente nella directory:
+
+```http
+POST /api/historical/import/stooq
+Content-Type: application/json
+
+{
+  "file": "AAPL.US.csv",
+  "interval": "DAILY"
+}
+```
+
+Import tramite upload dalla UI:
+
+1. Aprire la pagina `Azioni e strategie`.
+2. Selezionare il file con il campo `CSV STOOQ`.
+3. Premere `Importa CSV STOOQ`.
+
+Import di tutti i CSV nella directory:
+
+```http
+POST /api/historical/import/stooq/directory?interval=DAILY&priceAdjustment=RAW
+```
+
+Verifica dei dati:
+
+```http
+GET /api/historical/AAPL/status?interval=DAILY
+GET /api/historical/AAPL?from=2020-01-01&to=2026-08-01&interval=DAILY
+```
+
+Il ticker viene ricavato dal nome file. `AAPL.US.csv` viene importato come
+simbolo interno `AAPL`, usando il suffisso configurato in
+`stooq.default-market-suffix`.
+
+I duplicati non vengono reinseriti. Se una barra con stesso symbol, data,
+intervallo e provider e' gia' presente, viene conteggiata come record
+saltato. I valori esistenti non vengono sovrascritti automaticamente.
+
+---
+
+## 13. Limiti attuali
 
 Questa milestone non include ancora:
 

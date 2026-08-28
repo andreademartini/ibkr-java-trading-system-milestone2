@@ -4,7 +4,6 @@ import it.andreademartini.trading.config.MarketDataProvider;
 import it.andreademartini.trading.config.StrategyType;
 import it.andreademartini.trading.config.TradingSystemProperties;
 import it.andreademartini.trading.ibkr.IbkrConnectionService;
-import it.andreademartini.trading.marketdata.HistoricalBar;
 import it.andreademartini.trading.marketdata.HistoricalDataService;
 import it.andreademartini.trading.marketdata.MarketDataService;
 import it.andreademartini.trading.risk.KillSwitchService;
@@ -15,6 +14,7 @@ import it.andreademartini.trading.strategy.SignalService;
 import it.andreademartini.trading.strategy.StrategyEngine;
 import it.andreademartini.trading.strategy.StrategyTradeMode;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Instant;
 import java.util.List;
@@ -82,6 +82,60 @@ class TradingWorkbenchControllerSimulationTest {
                 .contains("Solo short");
     }
 
+    @Test
+    void closedTradesExposeEntryAndExitEvents() {
+        TradingWorkbenchController.StrategySimulationResponse response =
+                controller.simulateStrategy(request(StrategyTradeMode.LONG_SHORT));
+
+        TradingWorkbenchController.TradeResult firstTrade = response.trades().get(0);
+
+        assertThat(firstTrade.events()).hasSizeGreaterThanOrEqualTo(2);
+        assertThat(firstTrade.events().get(0).eventType()).isEqualTo("ENTRY");
+        assertThat(firstTrade.events().get(0).quantity()).isEqualTo(firstTrade.quantity());
+        assertThat(firstTrade.events())
+                .anyMatch(event -> event.eventType().startsWith("EXIT - "));
+    }
+
+    @Test
+    void simulationRequestDeserializesBarsFromJson() throws Exception {
+        String json = """
+                {
+                  "symbol": "AAPL",
+                  "provider": "IBKR",
+                  "strategy": "MOVING_AVERAGE_CROSSOVER",
+                  "tradeDirection": "LONG_ONLY",
+                  "prices": [229.31],
+                  "bars": [
+                    {
+                      "index": 0,
+                      "timestamp": "2026-08-25T00:00:00Z",
+                      "label": "2026-08-25",
+                      "open": 227.92,
+                      "high": 230.10,
+                      "low": 226.44,
+                      "close": 229.31,
+                      "volume": 45892100
+                    }
+                  ],
+                  "fastPeriod": 2,
+                  "slowPeriod": 3,
+                  "quantity": 1,
+                  "initialCapital": 10000,
+                  "commissionPerOrder": 0,
+                  "slippagePercent": 0,
+                  "publishSignals": false
+                }
+                """;
+
+        TradingWorkbenchController.StrategySimulationRequest request =
+                new ObjectMapper().readValue(
+                        json,
+                        TradingWorkbenchController.StrategySimulationRequest.class);
+
+        assertThat(request.bars()).hasSize(1);
+        assertThat(request.bars().get(0).closeValue()).isEqualTo(229.31);
+    }
+
     private TradingWorkbenchController.StrategySimulationRequest request(
             StrategyTradeMode tradeDirection) {
         TradingWorkbenchController.StrategySimulationRequest request =
@@ -90,7 +144,7 @@ class TradingWorkbenchControllerSimulationTest {
                         MarketDataProvider.IBKR,
                         StrategyType.MOVING_AVERAGE_CROSSOVER,
                         tradeDirection,
-                        bars().stream().map(HistoricalBar::close).toList(),
+                        bars().stream().map(TradingWorkbenchController.SimulationBarRequest::close).toList(),
                         bars(),
                         2,
                         3,
@@ -102,7 +156,7 @@ class TradingWorkbenchControllerSimulationTest {
         return request;
     }
 
-    private List<HistoricalBar> bars() {
+    private List<TradingWorkbenchController.SimulationBarRequest> bars() {
         return List.of(
                 bar(0, 12.0, 12.5, 11.5),
                 bar(1, 11.0, 11.5, 10.5),
@@ -117,15 +171,16 @@ class TradingWorkbenchControllerSimulationTest {
                 bar(10, 12.0, 12.6, 11.5));
     }
 
-    private HistoricalBar bar(
+    private TradingWorkbenchController.SimulationBarRequest bar(
             int index,
             double close,
             double high,
             double low) {
-        return new HistoricalBar(
+        return new TradingWorkbenchController.SimulationBarRequest(
                 index,
                 Instant.parse("2024-01-01T00:00:00Z").plusSeconds(index * 86_400L),
                 String.valueOf(index),
+                close,
                 close,
                 high,
                 low,

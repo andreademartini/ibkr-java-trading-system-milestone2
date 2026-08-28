@@ -98,7 +98,8 @@ p {
 }
 
 button,
-.link-button {
+.link-button,
+.file-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -118,14 +119,23 @@ button,
 }
 
 button:hover,
-.link-button:hover {
+.link-button:hover,
+.file-button:hover {
     border-color: var(--accent);
+}
+
+button:disabled,
+.file-button.disabled {
+    opacity: 0.62;
+    cursor: progress;
+    pointer-events: none;
 }
 
 .topbar button,
 .topbar .link-button,
 .panel-heading > button,
-.button-row button:first-child {
+.button-row button:first-child,
+.button-row .primary-action {
     background: var(--accent);
     border-color: var(--accent);
     color: #fff;
@@ -134,8 +144,17 @@ button:hover,
 .topbar button:hover,
 .topbar .link-button:hover,
 .panel-heading > button:hover,
-.button-row button:first-child:hover {
+.button-row button:first-child:hover,
+.button-row .primary-action:hover {
     background: var(--accent-dark);
+}
+
+.file-input-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
 }
 
 button.danger {
@@ -378,6 +397,170 @@ th {
 
 tbody tr:hover {
     background: #f8fbfb;
+}
+
+.trade-table th:nth-child(1) {
+    width: 82px;
+}
+
+.trade-table th:nth-child(2) {
+    width: 82px;
+}
+
+.trade-table th:nth-child(3) {
+    width: 132px;
+}
+
+.trade-table th:nth-child(5) {
+    width: 145px;
+}
+
+.trade-table th:nth-child(6) {
+    width: 72px;
+}
+
+.trade-table th:nth-child(7),
+.trade-table th:nth-child(8) {
+    width: 96px;
+}
+
+.trade-row.trade-group-1 > td {
+    background: #fbf8ec;
+}
+
+.trade-row.trade-group-2 > td {
+    background: #eef7fb;
+}
+
+.trade-row.trade-group-3 > td {
+    background: #f4f0fb;
+}
+
+.trade-row.trade-group-4 > td {
+    background: #edf8ef;
+}
+
+.trade-row.trade-group-5 > td {
+    background: #fff1f2;
+}
+
+.trade-row.trade-group-6 > td {
+    background: #f1f5f9;
+}
+
+.trade-row.trade-group-1:hover > td {
+    background: #f7f0d8;
+}
+
+.trade-row.trade-group-2:hover > td {
+    background: #e2f1f7;
+}
+
+.trade-row.trade-group-3:hover > td {
+    background: #ece4f7;
+}
+
+.trade-row.trade-group-4:hover > td {
+    background: #ddf2e2;
+}
+
+.trade-row.trade-group-5:hover > td {
+    background: #ffe4e6;
+}
+
+.trade-row.trade-group-6:hover > td {
+    background: #e2e8f0;
+}
+
+.trade-row.trade-group-start td {
+    border-top: 2px solid #aebdc2;
+}
+
+.trade-id,
+.trade-side,
+.trade-event {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.trade-id {
+    background: #e8f2f1;
+    border-color: #bad8d4;
+    color: var(--accent-dark);
+}
+
+.trade-side.long {
+    background: #e0f2fe;
+    border-color: #bae6fd;
+    color: #075985;
+}
+
+.trade-side.short {
+    background: #fff1f2;
+    border-color: #fecdd3;
+    color: #9f1239;
+}
+
+.trade-event.entry {
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+    color: #166534;
+}
+
+.trade-event.other {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+.trade-event.take-profit {
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+    color: #166534;
+}
+
+.trade-event.stop-loss {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: var(--danger);
+}
+
+.trade-event.signal {
+    background: #fff7ed;
+    border-color: #fed7aa;
+    color: var(--warning);
+}
+
+.trade-bar {
+    display: block;
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.25;
+}
+
+.trade-pnl {
+    font-weight: 800;
+}
+
+.trade-pnl.profit {
+    color: #15803d;
+}
+
+.trade-pnl.loss {
+    color: var(--danger);
+}
+
+.trade-pnl.flat {
+    color: var(--muted);
 }
 
 .simulation-summary {

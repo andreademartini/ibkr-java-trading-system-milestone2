@@ -10,6 +10,7 @@ const state = {
     orders: [],
     positions: [],
     history: null,
+    historyRequestId: 0,
     simulation: null
 };
 
@@ -35,6 +36,27 @@ async function api(path, options = {}) {
         throw new Error(detail);
     }
     return response.status === 204 ? null : response.json();
+}
+
+async function apiForm(path, formData) {
+    const response = await fetch(path, {
+        method: "POST",
+        headers: {
+            "Accept": "application/json"
+        },
+        body: formData
+    });
+    if (!response.ok) {
+        let detail = `${response.status} ${response.statusText}`;
+        try {
+            const body = await response.json();
+            detail = body.detail || body.title || detail;
+        } catch (_ignored) {
+            detail = await response.text();
+        }
+        throw new Error(detail);
+    }
+    return response.json();
 }
 
 function fillSelect(select, values) {
@@ -185,17 +207,55 @@ function formatDate(value) {
     return Number.isNaN(date.getTime()) ? value : date.toLocaleString("it-IT");
 }
 
+function todayIsoDate() {
+    return new Date().toISOString().slice(0, 10);
+}
+
+function normalizeHistoricalInterval(value) {
+    const normalized = (value || "DAILY").trim().toUpperCase();
+    if (["DAILY", "DAY", "1D"].includes(normalized)) {
+        return "DAILY";
+    }
+    if (["HOURLY", "HOUR", "1H", "60MIN", "60MINS", "60M"].includes(normalized)) {
+        return "HOURLY";
+    }
+    if (["MINUTES_5", "5MIN", "5MINS", "5MINUTES", "5M"].includes(normalized)) {
+        return "MINUTES_5";
+    }
+    return null;
+}
+
+function maxIsoDate(first, second) {
+    if (!first) {
+        return second;
+    }
+    if (!second) {
+        return first;
+    }
+    return first > second ? first : second;
+}
+
+function minIsoDate(first, second) {
+    if (!first) {
+        return second;
+    }
+    if (!second) {
+        return first;
+    }
+    return first < second ? first : second;
+}
+
 function emptyRow(columnCount, text) {
     return `<tr><td class="empty-row" colspan="${columnCount}">${text}</td></tr>`;
 }
 
-function toast(message, isError = false) {
+function toast(message, isError = false, duration = 3200) {
     const element = $("toast");
     element.textContent = message;
     element.classList.toggle("error", isError);
     element.classList.add("visible");
     window.clearTimeout(toast.timer);
-    toast.timer = window.setTimeout(() => element.classList.remove("visible"), 3200);
+    toast.timer = window.setTimeout(() => element.classList.remove("visible"), duration);
 }
 
 function renderStatus() {
@@ -227,6 +287,10 @@ function renderProfiles() {
             state.selectedProfileId = stock?.strategies[0]?.id || null;
             applyProfileToForm(selectedProfile());
             renderProfiles();
+            loadStoredHistoryForSelectedProfile({
+                silent: true,
+                switchTab: true
+            }).catch((error) => toast(error.message, true, 9000));
         });
     });
 
@@ -248,6 +312,10 @@ function renderProfiles() {
             state.selectedProfileId = button.dataset.profileId;
             applyProfileToForm(selectedProfile());
             renderProfiles();
+            loadStoredHistoryForSelectedProfile({
+                silent: true,
+                switchTab: true
+            }).catch((error) => toast(error.message, true, 9000));
         });
     });
 }
@@ -279,6 +347,12 @@ function applyProfileToForm(profile) {
     setValue("signal-action", "BUY");
     setValue("signal-execute", "false");
     setValue("signal-reason", profile.name);
+    if (!$("historical-from").value) {
+        setValue("historical-from", "2015-01-01");
+    }
+    if (!$("historical-to").value) {
+        setValue("historical-to", todayIsoDate());
+    }
 }
 
 function collectProfileFromForm() {
@@ -513,11 +587,13 @@ function renderPositions() {
 
 function renderHistory() {
     if (!state.history) {
-        $("history-summary").textContent = "Nessuno storico scaricato";
+        $("history-summary").textContent = "Nessuno storico caricato";
         $("history-body").innerHTML = emptyRow(7, "Nessuna barra storica");
         return;
     }
-    const source = state.history.source === "DATABASE" ? "database" : "IBKR";
+    const source = state.history.source === "DATABASE"
+        ? "database"
+        : (state.history.source || state.history.provider || "storico");
     const loadedAt = state.history.loadedAt ? ` - caricato ${formatDate(state.history.loadedAt)}` : "";
     const message = state.history.message ? ` - ${state.history.message}` : "";
     $("history-summary").textContent =
@@ -533,6 +609,106 @@ function renderHistory() {
             <td>${formatNumber(bar.volume)}</td>
         </tr>
     `).join("");
+}
+
+function historicalBarsToHistory(symbol, interval, barsResponse, message) {
+    const bars = (barsResponse || []).map((bar, index) => {
+        const label = (bar.dateTime || "").slice(0, 10) || String(index);
+        return {
+            index,
+            timestamp: bar.dateTime ? `${bar.dateTime}Z` : new Date().toISOString(),
+            label,
+            open: Number(bar.open),
+            high: Number(bar.high),
+            low: Number(bar.low),
+            close: Number(bar.close),
+            volume: Number(bar.volume || 0),
+            provider: bar.provider,
+            interval: bar.interval,
+            priceAdjustment: bar.priceAdjustment
+        };
+    });
+    return {
+        provider: "STOOQ",
+        symbol,
+        timeframe: interval,
+        outputSize: "range",
+        bars,
+        closePrices: bars.map((bar) => bar.close),
+        source: "STOOQ",
+        loadedAt: new Date().toISOString(),
+        message
+    };
+}
+
+function tradeId(row) {
+    const number = Number(row.number);
+    return Number.isFinite(number) ? `T${String(number).padStart(3, "0")}` : "T---";
+}
+
+function tradeBarNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) ? String(number + 1) : "-";
+}
+
+function tradeSideClass(side) {
+    const normalized = (side || "").toLowerCase();
+    return normalized === "short" ? "short" : "long";
+}
+
+function tradeEventClass(eventType) {
+    const normalized = (eventType || "").toUpperCase();
+    if (normalized === "ENTRY") {
+        return "entry";
+    }
+    if (normalized.includes("STOP_LOSS")) {
+        return "stop-loss";
+    }
+    if (normalized.includes("TP")) {
+        return "take-profit";
+    }
+    if (normalized.includes("SIGNAL")) {
+        return "signal";
+    }
+    return "other";
+}
+
+function tradeEvents(row) {
+    if (Array.isArray(row.events) && row.events.length > 0) {
+        return row.events;
+    }
+    const exitType = row.exitReason ? `EXIT - ${row.exitReason}` : "EXIT";
+    return [
+        {
+            eventType: "ENTRY",
+            index: row.entryIndex,
+            occurredAt: row.entryAt,
+            price: row.entryPrice,
+            quantity: row.quantity,
+            netPnl: 0,
+            returnPercent: 0
+        },
+        {
+            eventType: exitType,
+            index: row.exitIndex,
+            occurredAt: row.exitAt,
+            price: row.exitPrice,
+            quantity: row.quantity,
+            netPnl: row.netPnl,
+            returnPercent: row.returnPercent
+        }
+    ];
+}
+
+function tradePnlClass(value) {
+    const number = Number(value);
+    if (number > 0) {
+        return "profit";
+    }
+    if (number < 0) {
+        return "loss";
+    }
+    return "flat";
 }
 
 function renderSimulation() {
@@ -566,18 +742,35 @@ function renderSimulation() {
         `).join("");
     $("trades-body").innerHTML = simulation.trades.length === 0
         ? emptyRow(8, "Nessun trade chiuso")
-        : simulation.trades.map((row) => `
-            <tr>
-                <td>${row.number}</td>
-                <td>${row.side}</td>
-                <td>${formatNumber(row.entryPrice)}</td>
-                <td>${formatNumber(row.exitPrice)}</td>
-                <td>${formatNumber(row.quantity)}</td>
-                <td>${formatNumber(row.netPnl)}</td>
-                <td>${formatNumber(row.returnPercent)}%</td>
-                <td>${row.exitReason || "-"}</td>
+        : simulation.trades.map((row, tradeIndex) => {
+            const sideClass = tradeSideClass(row.side);
+            const groupClass = `trade-group-${(tradeIndex % 6) + 1}`;
+            const events = tradeEvents(row);
+            return events.map((event, eventIndex) => {
+                const eventClass = tradeEventClass(event.eventType);
+                const pnlClass = tradePnlClass(event.netPnl);
+                const boundaryClass = eventIndex === 0
+                    ? "trade-group-start"
+                    : (eventIndex === events.length - 1 ? "trade-group-end" : "");
+                return `
+            <tr class="trade-row ${groupClass} ${boundaryClass}">
+                <td><span class="trade-id">${tradeId(row)}</span></td>
+                <td><span class="trade-side ${sideClass}">${row.side}</span></td>
+                <td>
+                    <span class="trade-event ${eventClass}">${event.eventType || "-"}</span>
+                </td>
+                <td>
+                    <strong>${formatNumber(event.price)}</strong>
+                    <small class="trade-bar">Bar #${tradeBarNumber(event.index)}</small>
+                </td>
+                <td>${formatDate(event.occurredAt)}</td>
+                <td>${formatNumber(event.quantity)}</td>
+                <td class="trade-pnl ${pnlClass}">${formatNumber(event.netPnl)}</td>
+                <td class="trade-pnl ${pnlClass}">${formatNumber(event.returnPercent)}%</td>
             </tr>
-        `).join("");
+        `;
+            }).join("");
+        }).join("");
 }
 
 function renderSimulationMetrics(simulation) {
@@ -747,6 +940,18 @@ function renderAll() {
     renderSimulation();
 }
 
+function selectedHistorySymbol() {
+    const profile = selectedProfile();
+    return ($("profile-symbol").value || profile?.symbol || "")
+        .trim()
+        .toUpperCase();
+}
+
+function selectedHistoryInterval() {
+    // Stooq CSV import is currently DAILY-only; profile timeframe is still used by IBKR flows.
+    return "DAILY";
+}
+
 function parsePrices() {
     const values = $("simulate-prices").value
         .split(/[,\s;]+/)
@@ -818,6 +1023,8 @@ async function refreshAll() {
     fillSelect($("profile-strategy"), state.strategyOptions);
     applyProfileToForm(selectedProfile());
     renderAll();
+    await loadStoredHistoryForSelectedProfile({ silent: true })
+        .catch(() => undefined);
 }
 
 async function refreshStatusOnly() {
@@ -870,6 +1077,192 @@ async function downloadHistory(refresh = false) {
     const action = refresh ? "Aggiornamento storico" : "Storico";
     const suffix = state.history.message ? `. ${state.history.message}` : "";
     toast(`${action}: ${state.history.bars.length} barre ${profile.symbol} da ${source}${suffix}`);
+}
+
+async function loadStoredHistoryForSelectedProfile({
+    silent = true,
+    force = false,
+    switchTab = false,
+    showEmpty = false
+} = {}) {
+    const symbol = selectedHistorySymbol();
+    const interval = selectedHistoryInterval();
+    if (!symbol || !interval) {
+        return;
+    }
+    if (!force
+            && state.history?.symbol === symbol
+            && state.history?.timeframe === interval) {
+        return;
+    }
+
+    const requestId = (state.historyRequestId || 0) + 1;
+    state.historyRequestId = requestId;
+
+    const status = await api(`/api/historical/${encodeURIComponent(symbol)}/status?interval=${interval}`);
+    if (state.historyRequestId !== requestId) {
+        return;
+    }
+
+    if (!status.bars || !status.firstDate || !status.lastDate) {
+        if (showEmpty || state.history?.symbol !== symbol) {
+            state.history = historicalBarsToHistory(
+                symbol,
+                interval,
+                [],
+                "Nessuna barra STOOQ salvata nel database"
+            );
+            $("simulate-prices").value = "";
+            renderHistory();
+        }
+        if (!silent) {
+            toast(`Nessuno storico STOOQ salvato per ${symbol}`, true, 5000);
+        }
+        return;
+    }
+
+    const requestedFrom = $("historical-from").value || status.firstDate;
+    const requestedTo = $("historical-to").value || status.lastDate;
+    const from = maxIsoDate(requestedFrom, status.firstDate);
+    const to = minIsoDate(requestedTo, status.lastDate);
+    if (from > to) {
+        state.history = historicalBarsToHistory(
+            symbol,
+            interval,
+            [],
+            `Database STOOQ disponibile ${status.firstDate} - ${status.lastDate}, fuori dal range selezionato`
+        );
+        $("simulate-prices").value = "";
+        renderHistory();
+        if (switchTab) {
+            setResultTab("history");
+        }
+        return;
+    }
+
+    const bars = await api(`/api/historical/${encodeURIComponent(symbol)}?from=${from}&to=${to}&interval=${interval}`);
+    if (state.historyRequestId !== requestId) {
+        return;
+    }
+
+    state.history = historicalBarsToHistory(
+        symbol,
+        interval,
+        bars,
+        `database STOOQ ${bars.length} barre (${from} - ${to})`
+    );
+    $("simulate-prices").value = state.history.closePrices.join(", ");
+    renderHistory();
+    if (switchTab) {
+        setResultTab("history");
+    }
+    if (!silent) {
+        toast(`Storico STOOQ caricato da DB: ${bars.length} barre ${symbol}`);
+    }
+}
+
+async function importStooqReportIntoHistory(report) {
+    if (!report.from || !report.to) {
+        state.history = {
+            provider: "STOOQ",
+            symbol: report.symbol,
+            timeframe: report.interval,
+            outputSize: "range",
+            bars: [],
+            closePrices: [],
+            source: "STOOQ",
+            loadedAt: new Date().toISOString(),
+            message: `${report.rowsInserted} nuove barre, ${report.duplicates} gia' presenti, ${report.rowsRejected} errori`
+        };
+        setResultTab("history");
+        renderHistory();
+        return;
+    }
+
+    const bars = await api(`/api/historical/${encodeURIComponent(report.symbol)}?from=${report.from}&to=${report.to}&interval=${report.interval}`);
+    state.history = historicalBarsToHistory(
+        report.symbol,
+        report.interval,
+        bars,
+        `${report.rowsInserted} nuove barre, ${report.duplicates} gia' presenti, ${report.rowsRejected} errori`
+    );
+    $("simulate-prices").value = state.history.closePrices.join(", ");
+    setResultTab("history");
+    renderHistory();
+}
+
+async function importSelectedStooqFile(file, button) {
+    saveSelectedFormInMemory();
+    await persistProfiles();
+    const profile = selectedProfile();
+    const symbol = ($("profile-symbol").value || profile?.symbol || "").trim().toUpperCase();
+    if (!symbol) {
+        throw new Error("Inserisci il simbolo stock prima di importare il CSV STOOQ");
+    }
+    if (!file) {
+        throw new Error("Seleziona un file CSV STOOQ");
+    }
+    toast(`Import CSV STOOQ in corso: ${file.name}`, false, 15000);
+    if (button) {
+        button.textContent = "Importo CSV...";
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("symbol", symbol);
+    formData.append("interval", "DAILY");
+    formData.append("priceAdjustment", "RAW");
+
+    const report = await apiForm("/api/historical/import/stooq/file", formData);
+    await importStooqReportIntoHistory(report);
+    toast(`STOOQ: ${report.rowsInserted} nuove barre, ${report.duplicates} gia' presenti`);
+}
+
+function bindStooqFileImport() {
+    const button = $("import-stooq-file-button");
+    const input = $("stooq-csv-file");
+    if (!button || !input) {
+        return;
+    }
+
+    button.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            input.value = "";
+            input.click();
+        }
+    });
+    input.addEventListener("change", async () => {
+        const file = input.files[0];
+        if (!file) {
+            return;
+        }
+
+        const originalText = button.textContent;
+        button.classList.add("disabled");
+        button.setAttribute("aria-disabled", "true");
+        try {
+            await importSelectedStooqFile(file, button);
+        } catch (error) {
+            toast(error.message, true, 9000);
+        } finally {
+            input.value = "";
+            button.classList.remove("disabled");
+            button.removeAttribute("aria-disabled");
+            button.textContent = originalText;
+        }
+    });
+}
+
+async function importStooqDirectory(button) {
+    toast("Import directory STOOQ in corso", false, 15000);
+    if (button) {
+        button.textContent = "Importo directory...";
+    }
+    const report = await api("/api/historical/import/stooq/directory?interval=DAILY&priceAdjustment=RAW", {
+        method: "POST"
+    });
+    toast(`STOOQ directory: ${report.filesImported} file, ${report.importedRows} nuove barre, ${report.filesFailed} errori`);
 }
 
 async function refreshHistoryFromProvider() {
@@ -937,12 +1330,36 @@ function setResultTab(name) {
     });
 }
 
+function historyTabActive() {
+    return $("result-history")?.classList.contains("active");
+}
+
+function reloadStoredHistoryIfVisible() {
+    if (!historyTabActive()) {
+        return;
+    }
+    loadStoredHistoryForSelectedProfile({
+        silent: true,
+        force: true,
+        showEmpty: true
+    }).catch((error) => toast(error.message, true, 9000));
+}
+
 function bind(id, handler) {
-    $(id).addEventListener("click", async () => {
+    const button = $(id);
+    if (!button) {
+        return;
+    }
+    button.addEventListener("click", async () => {
+        const originalText = button.textContent;
+        button.disabled = true;
         try {
-            await handler();
+            await handler(button);
         } catch (error) {
-            toast(error.message, true);
+            toast(error.message, true, 9000);
+        } finally {
+            button.disabled = false;
+            button.textContent = originalText;
         }
     });
 }
@@ -954,6 +1371,8 @@ function initEvents() {
     bind("save-profiles-button", saveProfiles);
     bind("delete-stock-button", deleteStock);
     bind("delete-strategy-button", deleteStrategy);
+    bindStooqFileImport();
+    bind("import-stooq-directory-button", importStooqDirectory);
     bind("download-history-button", downloadHistory);
     bind("update-history-button", refreshHistoryFromProvider);
     bind("download-simulate-button", downloadHistoryAndSimulate);
@@ -962,8 +1381,20 @@ function initEvents() {
     bind("activate-kill-button", activateKillSwitch);
     bind("deactivate-kill-button", deactivateKillSwitch);
     document.querySelectorAll("[data-result-tab]").forEach((button) => {
-        button.addEventListener("click", () => setResultTab(button.dataset.resultTab));
+        button.addEventListener("click", () => {
+            const tab = button.dataset.resultTab;
+            setResultTab(tab);
+            if (tab === "history") {
+                loadStoredHistoryForSelectedProfile({
+                    silent: false,
+                    force: true,
+                    showEmpty: true
+                }).catch((error) => toast(error.message, true, 9000));
+            }
+        });
     });
+    ["historical-from", "historical-to", "profile-timeframe", "profile-symbol"]
+        .forEach((id) => $(id)?.addEventListener("change", reloadStoredHistoryIfVisible));
 }
 
 initEvents();
