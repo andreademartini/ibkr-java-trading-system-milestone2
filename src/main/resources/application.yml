@@ -90,6 +90,15 @@ trading:
     commission-per-order: ${RISK_COMMISSION_PER_ORDER:0}
     slippage-percent: ${RISK_SLIPPAGE_PERCENT:0}
     transaction-costs-per-share: ${RISK_TRANSACTION_COSTS_PER_SHARE:0}
+    progressive-stop:
+      enabled: ${PROGRESSIVE_STOP_ENABLED:true}
+      move-only-after-full-tp-fill: ${MOVE_STOP_ONLY_AFTER_FULL_TP_FILL:true}
+      after-tp1:
+        move-to: ${PROGRESSIVE_STOP_AFTER_TP1:ENTRY}
+      after-tp2:
+        move-to: ${PROGRESSIVE_STOP_AFTER_TP2:TP1}
+      after-tp3:
+        move-to: ${PROGRESSIVE_STOP_AFTER_TP3:TP2}
 
   take-profit:
     enabled: ${TAKE_PROFIT_ENABLED:true}
@@ -113,3 +122,15 @@ logging:
   level:
     root: INFO
     it.andreademartini.trading: DEBUG
+
+backtest:
+  same-bar-execution-policy: ${BACKTEST_SAME_BAR_EXECUTION_POLICY:STOP_FIRST}
+
+excel-export:
+  enabled: ${EXCEL_EXPORT_ENABLED:true}
+  historical-bars-before-entry: ${EXCEL_EXPORT_HISTORICAL_BARS_BEFORE_ENTRY:30}
+  historical-bars-after-exit: ${EXCEL_EXPORT_HISTORICAL_BARS_AFTER_EXIT:10}
+  include-strategy-indicators: ${EXCEL_EXPORT_INCLUDE_STRATEGY_INDICATORS:true}
+  include-trade-chart: ${EXCEL_EXPORT_INCLUDE_TRADE_CHART:false}
+  colors:
+    enabled: ${EXCEL_EXPORT_COLORS_ENABLED:true}

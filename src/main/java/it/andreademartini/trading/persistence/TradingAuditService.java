@@ -1,6 +1,7 @@
 package it.andreademartini.trading.persistence;
 
 import it.andreademartini.trading.orders.IbkrOrderCommand;
+import it.andreademartini.trading.orders.StopLossAdjustment;
 import it.andreademartini.trading.strategy.TradingSignal;
 import org.springframework.stereotype.Service;
 
@@ -11,12 +12,15 @@ public class TradingAuditService {
 
     private final TradingSignalRepository signalRepository;
     private final OrderEventRepository orderEventRepository;
+    private final StopLossAdjustmentRepository stopLossAdjustmentRepository;
 
     public TradingAuditService(
             TradingSignalRepository signalRepository,
-            OrderEventRepository orderEventRepository) {
+            OrderEventRepository orderEventRepository,
+            StopLossAdjustmentRepository stopLossAdjustmentRepository) {
         this.signalRepository = signalRepository;
         this.orderEventRepository = orderEventRepository;
+        this.stopLossAdjustmentRepository = stopLossAdjustmentRepository;
     }
 
     public void saveSignal(TradingSignal signal) {
@@ -55,5 +59,12 @@ public class TradingAuditService {
                 message,
                 Instant.now()
         ));
+    }
+
+    public void saveStopLossAdjustment(StopLossAdjustment adjustment) {
+        if (adjustment == null) {
+            return;
+        }
+        stopLossAdjustmentRepository.save(new StopLossAdjustmentEntity(adjustment));
     }
 }

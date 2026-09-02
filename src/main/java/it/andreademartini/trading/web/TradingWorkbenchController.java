@@ -1,22 +1,35 @@
 package it.andreademartini.trading.web;
 
+import it.andreademartini.trading.config.BacktestProperties;
 import it.andreademartini.trading.config.MarketDataMode;
 import it.andreademartini.trading.config.MarketDataProvider;
+import it.andreademartini.trading.config.SameBarExecutionPolicy;
 import it.andreademartini.trading.config.StrategyType;
 import it.andreademartini.trading.config.TradingMode;
 import it.andreademartini.trading.config.TradingSystemProperties;
+import it.andreademartini.trading.backtest.export.BacktestExportBar;
+import it.andreademartini.trading.backtest.export.BacktestExportMetrics;
+import it.andreademartini.trading.backtest.export.BacktestExportParameters;
+import it.andreademartini.trading.backtest.export.BacktestExportRun;
+import it.andreademartini.trading.backtest.export.BacktestExportTrade;
+import it.andreademartini.trading.backtest.export.BacktestExportTradeEvent;
+import it.andreademartini.trading.backtest.export.BacktestRunRegistry;
 import it.andreademartini.trading.ibkr.IbkrConnectionService;
 import it.andreademartini.trading.ibkr.IbkrConnectionTestResult;
 import it.andreademartini.trading.marketdata.HistoricalDataService;
 import it.andreademartini.trading.marketdata.HistoricalBar;
 import it.andreademartini.trading.marketdata.HistoricalSeries;
 import it.andreademartini.trading.marketdata.MarketDataService;
+import it.andreademartini.trading.orders.ProgressiveStopLossService;
+import it.andreademartini.trading.orders.StopAdjustmentResult;
 import it.andreademartini.trading.risk.KillSwitchService;
 import it.andreademartini.trading.risk.PositionSizingResult;
 import it.andreademartini.trading.risk.PositionSizingService;
 import it.andreademartini.trading.risk.RiskRejectedException;
 import it.andreademartini.trading.risk.TakeProfitAllocationService;
 import it.andreademartini.trading.orders.TakeProfitAllocation;
+import it.andreademartini.trading.orders.TakeProfitLevel;
+import it.andreademartini.trading.orders.TradeStopState;
 import it.andreademartini.trading.strategy.ManualOnlyStrategy;
 import it.andreademartini.trading.strategy.MovingAverageCrossoverStrategy;
 import it.andreademartini.trading.strategy.SignalAction;
@@ -26,6 +39,7 @@ import it.andreademartini.trading.strategy.TradeDirection;
 import it.andreademartini.trading.strategy.StrategyEngine;
 import it.andreademartini.trading.strategy.TradingSignal;
 import it.andreademartini.trading.strategy.TradingStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,6 +58,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/workbench")
@@ -52,6 +67,7 @@ public class TradingWorkbenchController {
     private static final MathContext MATH = MathContext.DECIMAL64;
 
     private final TradingSystemProperties properties;
+    private final BacktestProperties backtestProperties;
     private final IbkrConnectionService connectionService;
     private final MarketDataService marketDataService;
     private final HistoricalDataService historicalDataService;
@@ -61,9 +77,13 @@ public class TradingWorkbenchController {
     private final KillSwitchService killSwitchService;
     private final PositionSizingService positionSizingService;
     private final TakeProfitAllocationService takeProfitAllocationService;
+    private final ProgressiveStopLossService progressiveStopLossService;
+    private final BacktestRunRegistry backtestRunRegistry;
 
+    @Autowired
     public TradingWorkbenchController(
             TradingSystemProperties properties,
+            BacktestProperties backtestProperties,
             IbkrConnectionService connectionService,
             MarketDataService marketDataService,
             HistoricalDataService historicalDataService,
@@ -72,8 +92,11 @@ public class TradingWorkbenchController {
             SignalService signalService,
             KillSwitchService killSwitchService,
             PositionSizingService positionSizingService,
-            TakeProfitAllocationService takeProfitAllocationService) {
+            TakeProfitAllocationService takeProfitAllocationService,
+            ProgressiveStopLossService progressiveStopLossService,
+            BacktestRunRegistry backtestRunRegistry) {
         this.properties = properties;
+        this.backtestProperties = backtestProperties;
         this.connectionService = connectionService;
         this.marketDataService = marketDataService;
         this.historicalDataService = historicalDataService;
@@ -83,6 +106,37 @@ public class TradingWorkbenchController {
         this.killSwitchService = killSwitchService;
         this.positionSizingService = positionSizingService;
         this.takeProfitAllocationService = takeProfitAllocationService;
+        this.progressiveStopLossService = progressiveStopLossService;
+        this.backtestRunRegistry = backtestRunRegistry;
+    }
+
+    public TradingWorkbenchController(
+            TradingSystemProperties properties,
+            BacktestProperties backtestProperties,
+            IbkrConnectionService connectionService,
+            MarketDataService marketDataService,
+            HistoricalDataService historicalDataService,
+            ActionProfileService actionProfileService,
+            StrategyEngine strategyEngine,
+            SignalService signalService,
+            KillSwitchService killSwitchService,
+            PositionSizingService positionSizingService,
+            TakeProfitAllocationService takeProfitAllocationService,
+            ProgressiveStopLossService progressiveStopLossService) {
+        this(
+                properties,
+                backtestProperties,
+                connectionService,
+                marketDataService,
+                historicalDataService,
+                actionProfileService,
+                strategyEngine,
+                signalService,
+                killSwitchService,
+                positionSizingService,
+                takeProfitAllocationService,
+                progressiveStopLossService,
+                new BacktestRunRegistry());
     }
 
     @GetMapping("/config")
@@ -223,6 +277,13 @@ public class TradingWorkbenchController {
         }
 
         BacktestResult backtest = backtest(request, strategyProperties, priceSeries, signals);
+        String backtestId = UUID.randomUUID().toString();
+        backtestRunRegistry.register(exportRun(
+                backtestId,
+                request,
+                priceSeries,
+                signals,
+                backtest));
 
         boolean publishSignals = Boolean.TRUE.equals(request.publishSignals());
         if (publishSignals) {
@@ -232,6 +293,7 @@ public class TradingWorkbenchController {
         }
 
         return new StrategySimulationResponse(
+                backtestId,
                 request.provider() == null
                         ? properties.getMarketData().getProvider()
                         : request.provider(),
@@ -248,6 +310,166 @@ public class TradingWorkbenchController {
                 backtest.metrics(),
                 backtest.evaluationParameters(),
                 publishSignals);
+    }
+
+    private BacktestExportRun exportRun(
+            String backtestId,
+            StrategySimulationRequest request,
+            List<PricePoint> priceSeries,
+            List<TradingSignal> signals,
+            BacktestResult backtest) {
+        BacktestExportParameters parameters = exportParameters(
+                backtest.evaluationParameters());
+        List<BacktestExportBar> bars = priceSeries.stream()
+                .map(point -> new BacktestExportBar(
+                        point.index(),
+                        point.timestamp(),
+                        point.label(),
+                        point.open(),
+                        point.high(),
+                        point.low(),
+                        point.close(),
+                        point.volume(),
+                        intervalFromRequest(request)))
+                .toList();
+        List<BacktestExportTrade> trades = backtest.trades().stream()
+                .map(trade -> exportTrade(request, trade))
+                .toList();
+
+        Instant startAt = priceSeries.isEmpty()
+                ? null
+                : priceSeries.getFirst().timestamp();
+        Instant endAt = priceSeries.isEmpty()
+                ? null
+                : priceSeries.getLast().timestamp();
+        return new BacktestExportRun(
+                backtestId,
+                normalizeSymbol(request.symbol()),
+                parameters.strategy().name(),
+                parameters.tradeDirection().name(),
+                intervalFromRequest(request),
+                startAt,
+                endAt,
+                bars,
+                signals,
+                trades,
+                exportMetrics(backtest.metrics()),
+                parameters,
+                Instant.now());
+    }
+
+    private BacktestExportParameters exportParameters(
+            EvaluationParameters parameters) {
+        return new BacktestExportParameters(
+                parameters.provider(),
+                parameters.strategy(),
+                parameters.tradeDirection(),
+                parameters.fastPeriod(),
+                parameters.slowPeriod(),
+                parameters.quantity(),
+                parameters.initialCapital(),
+                parameters.commissionPerOrder(),
+                parameters.slippagePercent(),
+                parameters.sameBarExecutionPolicy(),
+                parameters.executionModel());
+    }
+
+    private BacktestExportMetrics exportMetrics(PerformanceMetrics metrics) {
+        return new BacktestExportMetrics(
+                metrics.initialCapital(),
+                metrics.finalEquity(),
+                metrics.netProfit(),
+                metrics.totalReturnPercent(),
+                metrics.maxDrawdownPercent(),
+                metrics.tradeCount(),
+                metrics.winningTrades(),
+                metrics.losingTrades(),
+                metrics.winRatePercent(),
+                metrics.grossProfit(),
+                metrics.grossLoss(),
+                metrics.profitFactor(),
+                metrics.averageTrade(),
+                metrics.exposurePercent(),
+                metrics.openPositionQuantity(),
+                metrics.openPositionMarketValue(),
+                metrics.buyAndHoldReturnPercent());
+    }
+
+    private BacktestExportTrade exportTrade(
+            StrategySimulationRequest request,
+            TradeResult trade) {
+        double commission = trade.grossPnl() - trade.netPnl();
+        Double rMultiple = trade.effectiveRisk() == 0.0
+                ? null
+                : trade.netPnl() / trade.effectiveRisk();
+        String strategyName = (request.strategy() == null
+                ? properties.getStrategy().getType()
+                : request.strategy()).name();
+        return new BacktestExportTrade(
+                trade.number(),
+                tradeId(trade.number()),
+                normalizeSymbol(request.symbol()),
+                strategyName,
+                trade.direction(),
+                trade.signalAt(),
+                trade.signalPrice(),
+                trade.signalSource(),
+                trade.signalReason(),
+                trade.entryIndex(),
+                trade.exitIndex(),
+                trade.entryAt(),
+                trade.exitAt(),
+                trade.quantity(),
+                trade.remainingQuantity(),
+                trade.entryPrice(),
+                trade.exitPrice(),
+                trade.initialStopPrice(),
+                trade.finalStopPrice(),
+                trade.tradingCapital(),
+                trade.riskPercent(),
+                trade.maximumRisk(),
+                trade.riskPerShare(),
+                trade.effectiveRisk(),
+                trade.capitalRequired(),
+                trade.grossPnl(),
+                commission,
+                null,
+                trade.netPnl(),
+                trade.returnPercent(),
+                rMultiple,
+                trade.exitReason(),
+                trade.tradeStatus(),
+                Math.max(0, trade.exitIndex() - trade.entryIndex() + 1),
+                trade.takeProfits(),
+                trade.events().stream()
+                        .map(this::exportTradeEvent)
+                        .toList());
+    }
+
+    private BacktestExportTradeEvent exportTradeEvent(TradeEventResult event) {
+        return new BacktestExportTradeEvent(
+                event.eventType(),
+                event.index(),
+                event.occurredAt(),
+                event.price(),
+                event.quantity(),
+                event.remainingQuantity(),
+                event.currentStopPrice(),
+                event.grossPnl(),
+                event.netPnl(),
+                event.returnPercent(),
+                event.details());
+    }
+
+    private String tradeId(int tradeNumber) {
+        return "T" + String.format(Locale.ROOT, "%03d", tradeNumber);
+    }
+
+    private it.andreademartini.trading.marketdata.BarInterval intervalFromRequest(
+            StrategySimulationRequest request) {
+        return request.bars() == null || request.bars().isEmpty()
+                ? it.andreademartini.trading.marketdata.BarInterval.DAILY
+                : it.andreademartini.trading.marketdata.BarInterval.DAILY;
     }
 
     private void applyMarketDataConfig(MarketDataConfigRequest request) {
@@ -662,6 +884,7 @@ public class TradingWorkbenchController {
                         && tradeDirectionAllows(tradeDirection, signalDirection)) {
                     pendingEntry = createPendingEntry(
                             signalDirection,
+                            signal,
                             previousPoint(priceSeries, index),
                             currentEquity(account, position, point.close()),
                             commissionPerOrder,
@@ -718,6 +941,7 @@ public class TradingWorkbenchController {
                 initialCapital,
                 commissionPerOrder,
                 slippagePercent,
+                backtestProperties.getSameBarExecutionPolicy(),
                 executionModel(tradeDirection));
 
         return new BacktestResult(equityCurve, trades, metrics, parameters);
@@ -730,20 +954,77 @@ public class TradingWorkbenchController {
             double commissionPerOrder,
             double slippagePercent,
             List<TradeResult> trades) {
-        if (stopLossHit(position, point)) {
-            double fillPrice = stopLossFillPrice(position, point, slippagePercent);
-            closePositionQuantity(
+        SameBarExecutionPolicy sameBarPolicy =
+                backtestProperties.getSameBarExecutionPolicy();
+        if (sameBarPolicy == SameBarExecutionPolicy.TAKE_PROFIT_FIRST) {
+            position = processTakeProfitExits(
                     position,
                     point,
                     account,
-                    position.remainingQuantity,
-                    fillPrice,
                     commissionPerOrder,
-                    "STOP_LOSS");
-            recordClosedTrade(position, trades);
-            return null;
+                    slippagePercent,
+                    trades);
+            if (position == null) {
+                return null;
+            }
+            return processStopLossExit(
+                    position,
+                    point,
+                    account,
+                    commissionPerOrder,
+                    slippagePercent,
+                    trades);
         }
 
+        position = processStopLossExit(
+                position,
+                point,
+                account,
+                commissionPerOrder,
+                slippagePercent,
+                trades);
+        if (position == null) {
+            return null;
+        }
+        return processTakeProfitExits(
+                position,
+                point,
+                account,
+                commissionPerOrder,
+                slippagePercent,
+                trades);
+    }
+
+    private BacktestPosition processStopLossExit(
+            BacktestPosition position,
+            PricePoint point,
+            BacktestAccount account,
+            double commissionPerOrder,
+            double slippagePercent,
+            List<TradeResult> trades) {
+        if (!stopLossHit(position, point)) {
+            return position;
+        }
+        double fillPrice = stopLossFillPrice(position, point, slippagePercent);
+        closePositionQuantity(
+                position,
+                point,
+                account,
+                position.remainingQuantity,
+                fillPrice,
+                commissionPerOrder,
+                "STOP_LOSS");
+        recordClosedTrade(position, trades);
+        return null;
+    }
+
+    private BacktestPosition processTakeProfitExits(
+            BacktestPosition position,
+            PricePoint point,
+            BacktestAccount account,
+            double commissionPerOrder,
+            double slippagePercent,
+            List<TradeResult> trades) {
         while (position.remainingQuantity > 0
                 && position.nextTakeProfitIndex < position.takeProfits.size()) {
             TakeProfitAllocation target =
@@ -769,6 +1050,7 @@ public class TradingWorkbenchController {
                     fillPrice,
                     commissionPerOrder,
                     "TP" + target.targetNumber());
+            applyBacktestProgressiveStop(position, target, quantity, true, point);
             position.nextTakeProfitIndex++;
         }
 
@@ -779,8 +1061,94 @@ public class TradingWorkbenchController {
         return position;
     }
 
+    private void applyBacktestProgressiveStop(
+            BacktestPosition position,
+            TakeProfitAllocation target,
+            long filledQuantity,
+            boolean takeProfitFullyFilled,
+            PricePoint point) {
+        StopAdjustmentResult result =
+                progressiveStopLossService.onTakeProfitExecution(
+                        tradeStopState(position),
+                        TakeProfitLevel.fromNumber(target.targetNumber()),
+                        BigDecimal.valueOf(filledQuantity),
+                        takeProfitFullyFilled);
+
+        if (!result.hasPersistableAdjustment()) {
+            return;
+        }
+
+        if (result.stopCancelled()) {
+            position.activeStopQuantity = 0;
+            position.events.add(new TradeEventResult(
+                    "STOP CANCELLED",
+                    point.index(),
+                    point.timestamp(),
+                    result.oldStopPrice() == null
+                            ? 0.0
+                            : result.oldStopPrice().doubleValue(),
+                    0,
+                    0,
+                    null,
+                    0.0,
+                    0.0,
+                    0.0,
+                    "remainingQuantity = 0 | " + result.reason()));
+            return;
+        }
+
+        if (result.stopPriceRejected()) {
+            position.activeStopQuantity = result.newQuantity();
+            position.events.add(new TradeEventResult(
+                    "STOP UPDATE REJECTED",
+                    point.index(),
+                    point.timestamp(),
+                    position.currentStopPrice,
+                    result.newQuantity(),
+                    position.remainingQuantity,
+                    position.currentStopPrice,
+                    0.0,
+                    0.0,
+                    0.0,
+                    result.rejectionReason()));
+            return;
+        }
+
+        double oldStopPrice = position.currentStopPrice;
+        position.currentStopPrice = result.newStopPrice().doubleValue();
+        position.activeStopQuantity = result.newQuantity();
+        position.events.add(new TradeEventResult(
+                result.stopPriceChanged() ? "STOP MOVED" : "STOP QUANTITY UPDATED",
+                point.index(),
+                point.timestamp(),
+                position.currentStopPrice,
+                position.activeStopQuantity,
+                position.remainingQuantity,
+                position.currentStopPrice,
+                0.0,
+                0.0,
+                0.0,
+                formatPrice(oldStopPrice) + " -> "
+                        + formatPrice(position.currentStopPrice)
+                        + " | " + result.reason()));
+    }
+
+    private TradeStopState tradeStopState(BacktestPosition position) {
+        return new TradeStopState(
+                "BT-" + position.entryIndex,
+                position.direction,
+                BigDecimal.valueOf(position.entryPrice),
+                BigDecimal.valueOf(position.initialStopPrice),
+                BigDecimal.valueOf(position.currentStopPrice),
+                position.quantity,
+                position.remainingQuantity,
+                position.activeStopQuantity,
+                position.takeProfits);
+    }
+
     private BacktestPendingEntry createPendingEntry(
             TradeDirection direction,
+            TradingSignal signal,
             PricePoint referencePoint,
             double tradingCapital,
             double commissionPerOrder,
@@ -844,8 +1212,18 @@ public class TradingWorkbenchController {
                             direction);
             return new BacktestPendingEntry(
                     direction,
+                    signal == null ? null : signal.occurredAt(),
+                    signal == null ? 0.0 : signal.price(),
+                    signal == null ? null : signal.source(),
+                    signal == null ? null : signal.reason(),
                     entryPrice,
                     stopLossPrice,
+                    money(tradingCapital),
+                    money(risk.getRiskPerTradePercent()),
+                    sizing.maximumRisk(),
+                    sizing.totalRiskPerShare(),
+                    sizing.effectiveRisk(),
+                    sizing.notional(),
                     sizing.quantity(),
                     takeProfits);
         } catch (IllegalArgumentException | RiskRejectedException rejected) {
@@ -895,11 +1273,21 @@ public class TradingWorkbenchController {
         }
         return new BacktestPosition(
                 pendingEntry.direction(),
+                pendingEntry.signalAt(),
+                pendingEntry.signalPrice(),
+                pendingEntry.signalSource(),
+                pendingEntry.signalReason(),
                 point.index(),
                 point.timestamp(),
                 quantity,
                 fillPrice,
                 pendingEntry.stopLossPrice().doubleValue(),
+                pendingEntry.tradingCapital().doubleValue(),
+                pendingEntry.riskPercent().doubleValue(),
+                pendingEntry.maximumRisk().doubleValue(),
+                pendingEntry.riskPerShare().doubleValue(),
+                pendingEntry.effectiveRisk().doubleValue(),
+                pendingEntry.capitalRequired().doubleValue(),
                 pendingEntry.takeProfits(),
                 commissionPerOrder);
     }
@@ -941,9 +1329,12 @@ public class TradingWorkbenchController {
                 point.timestamp(),
                 fillPrice,
                 quantity,
+                position.remainingQuantity,
+                position.remainingQuantity == 0 ? null : position.currentStopPrice,
                 grossPnl,
                 netPnl,
-                eventReturnPercent(netPnl, position.entryPrice, quantity)));
+                eventReturnPercent(netPnl, position.entryPrice, quantity),
+                exitReason));
     }
 
     private void recordClosedTrade(
@@ -956,17 +1347,35 @@ public class TradingWorkbenchController {
         trades.add(new TradeResult(
                 trades.size() + 1,
                 position.direction.name(),
+                position.direction,
                 position.entryIndex,
                 position.exitIndex,
+                position.signalAt,
+                position.signalPrice,
+                position.signalSource,
+                position.signalReason,
                 position.entryAt,
                 position.exitAt,
                 position.quantity,
+                position.remainingQuantity,
                 position.entryPrice,
                 exitPrice,
+                position.initialStopPrice,
+                position.activeStopQuantity <= 0 || position.remainingQuantity == 0
+                        ? null
+                        : position.currentStopPrice,
+                position.tradingCapital,
+                position.riskPercent,
+                position.maximumRisk,
+                position.riskPerShare,
+                position.effectiveRisk,
+                position.capitalRequired,
                 position.grossPnl,
                 position.netPnl,
                 denominator == 0.0 ? 0.0 : position.netPnl / denominator * 100.0,
                 position.exitReason,
+                "CLOSED",
+                position.takeProfits,
                 position.events));
     }
 
@@ -982,6 +1391,10 @@ public class TradingWorkbenchController {
         return denominator == 0.0 ? 0.0 : netPnl / denominator * 100.0;
     }
 
+    private String formatPrice(double value) {
+        return String.format(Locale.ROOT, "%.2f", value);
+    }
+
     private boolean entryHit(BacktestPendingEntry pendingEntry, PricePoint point) {
         double entryPrice = pendingEntry.entryPrice().doubleValue();
         return pendingEntry.direction() == TradeDirection.LONG
@@ -991,8 +1404,8 @@ public class TradingWorkbenchController {
 
     private boolean stopLossHit(BacktestPosition position, PricePoint point) {
         return position.direction == TradeDirection.LONG
-                ? point.low() <= position.stopLossPrice
-                : point.high() >= position.stopLossPrice;
+                ? point.low() <= position.currentStopPrice
+                : point.high() >= position.currentStopPrice;
     }
 
     private boolean takeProfitHit(
@@ -1027,7 +1440,7 @@ public class TradingWorkbenchController {
             BacktestPosition position,
             PricePoint point,
             double slippagePercent) {
-        double rawPrice = position.stopLossPrice;
+        double rawPrice = position.currentStopPrice;
         if (position.direction == TradeDirection.LONG && point.open() < rawPrice) {
             rawPrice = point.open();
         }
@@ -1463,6 +1876,7 @@ public class TradingWorkbenchController {
     }
 
     public record StrategySimulationResponse(
+            String backtestId,
             MarketDataProvider provider,
             StrategyType strategy,
             String symbol,
@@ -1475,6 +1889,35 @@ public class TradingWorkbenchController {
             PerformanceMetrics metrics,
             EvaluationParameters evaluationParameters,
             boolean publishedSignals) {
+
+        public StrategySimulationResponse(
+                MarketDataProvider provider,
+                StrategyType strategy,
+                String symbol,
+                int inputCount,
+                double lastPrice,
+                List<TradingSignal> signals,
+                List<PricePoint> priceSeries,
+                List<EquityPoint> equityCurve,
+                List<TradeResult> trades,
+                PerformanceMetrics metrics,
+                EvaluationParameters evaluationParameters,
+                boolean publishedSignals) {
+            this(
+                    null,
+                    provider,
+                    strategy,
+                    symbol,
+                    inputCount,
+                    lastPrice,
+                    signals,
+                    priceSeries,
+                    equityCurve,
+                    trades,
+                    metrics,
+                    evaluationParameters,
+                    publishedSignals);
+        }
     }
 
     public record PricePoint(
@@ -1501,21 +1944,95 @@ public class TradingWorkbenchController {
     public record TradeResult(
             int number,
             String side,
+            TradeDirection direction,
             int entryIndex,
             int exitIndex,
+            Instant signalAt,
+            double signalPrice,
+            String signalSource,
+            String signalReason,
             Instant entryAt,
             Instant exitAt,
             long quantity,
+            long remainingQuantity,
             double entryPrice,
             double exitPrice,
+            double initialStopPrice,
+            Double finalStopPrice,
+            double tradingCapital,
+            double riskPercent,
+            double maximumRisk,
+            double riskPerShare,
+            double effectiveRisk,
+            double capitalRequired,
             double grossPnl,
             double netPnl,
             double returnPercent,
             String exitReason,
+            String tradeStatus,
+            List<TakeProfitAllocation> takeProfits,
             List<TradeEventResult> events) {
 
+        public TradeResult(
+                int number,
+                String side,
+                int entryIndex,
+                int exitIndex,
+                Instant entryAt,
+                Instant exitAt,
+                long quantity,
+                double entryPrice,
+                double exitPrice,
+                double grossPnl,
+                double netPnl,
+                double returnPercent,
+                String exitReason,
+                List<TradeEventResult> events) {
+            this(
+                    number,
+                    side,
+                    parseDirection(side),
+                    entryIndex,
+                    exitIndex,
+                    null,
+                    0.0,
+                    null,
+                    null,
+                    entryAt,
+                    exitAt,
+                    quantity,
+                    0L,
+                    entryPrice,
+                    exitPrice,
+                    0.0,
+                    null,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    entryPrice * quantity,
+                    grossPnl,
+                    netPnl,
+                    returnPercent,
+                    exitReason,
+                    exitAt == null ? "OPEN" : "CLOSED",
+                    List.of(),
+                    events);
+        }
+
         public TradeResult {
+            takeProfits = takeProfits == null ? List.of() : List.copyOf(takeProfits);
             events = events == null ? List.of() : List.copyOf(events);
+        }
+
+        private static TradeDirection parseDirection(String side) {
+            if (side == null || side.isBlank()) {
+                return TradeDirection.LONG;
+            }
+            return side.trim().equalsIgnoreCase("SHORT")
+                    ? TradeDirection.SHORT
+                    : TradeDirection.LONG;
         }
     }
 
@@ -1525,9 +2042,36 @@ public class TradingWorkbenchController {
             Instant occurredAt,
             double price,
             long quantity,
+            long remainingQuantity,
+            Double currentStopPrice,
             double grossPnl,
             double netPnl,
-            double returnPercent) {
+            double returnPercent,
+            String details) {
+
+        public TradeEventResult(
+                String eventType,
+                int index,
+                Instant occurredAt,
+                double price,
+                long quantity,
+                double grossPnl,
+                double netPnl,
+                double returnPercent,
+                String details) {
+            this(
+                    eventType,
+                    index,
+                    occurredAt,
+                    price,
+                    quantity,
+                    quantity,
+                    null,
+                    grossPnl,
+                    netPnl,
+                    returnPercent,
+                    details);
+        }
     }
 
     public record PerformanceMetrics(
@@ -1560,6 +2104,7 @@ public class TradingWorkbenchController {
             double initialCapital,
             double commissionPerOrder,
             double slippagePercent,
+            SameBarExecutionPolicy sameBarExecutionPolicy,
             String executionModel) {
     }
 
@@ -1572,8 +2117,18 @@ public class TradingWorkbenchController {
 
     private record BacktestPendingEntry(
             TradeDirection direction,
+            Instant signalAt,
+            double signalPrice,
+            String signalSource,
+            String signalReason,
             BigDecimal entryPrice,
             BigDecimal stopLossPrice,
+            BigDecimal tradingCapital,
+            BigDecimal riskPercent,
+            BigDecimal maximumRisk,
+            BigDecimal riskPerShare,
+            BigDecimal effectiveRisk,
+            BigDecimal capitalRequired,
             long quantity,
             List<TakeProfitAllocation> takeProfits) {
 
@@ -1592,13 +2147,25 @@ public class TradingWorkbenchController {
 
     private static final class BacktestPosition {
         private final TradeDirection direction;
+        private final Instant signalAt;
+        private final double signalPrice;
+        private final String signalSource;
+        private final String signalReason;
         private final int entryIndex;
         private final Instant entryAt;
         private final long quantity;
         private final double entryPrice;
-        private final double stopLossPrice;
+        private final double initialStopPrice;
+        private final double tradingCapital;
+        private final double riskPercent;
+        private final double maximumRisk;
+        private final double riskPerShare;
+        private final double effectiveRisk;
+        private final double capitalRequired;
         private final List<TakeProfitAllocation> takeProfits;
         private long remainingQuantity;
+        private double currentStopPrice;
+        private long activeStopQuantity;
         private int nextTakeProfitIndex;
         private long exitedQuantity;
         private double exitNotional;
@@ -1611,20 +2178,42 @@ public class TradingWorkbenchController {
 
         private BacktestPosition(
                 TradeDirection direction,
+                Instant signalAt,
+                double signalPrice,
+                String signalSource,
+                String signalReason,
                 int entryIndex,
                 Instant entryAt,
                 long quantity,
                 double entryPrice,
                 double stopLossPrice,
+                double tradingCapital,
+                double riskPercent,
+                double maximumRisk,
+                double riskPerShare,
+                double effectiveRisk,
+                double capitalRequired,
                 List<TakeProfitAllocation> takeProfits,
                 double entryCommission) {
             this.direction = direction;
+            this.signalAt = signalAt;
+            this.signalPrice = signalPrice;
+            this.signalSource = signalSource;
+            this.signalReason = signalReason;
             this.entryIndex = entryIndex;
             this.entryAt = entryAt;
             this.quantity = quantity;
             this.remainingQuantity = quantity;
             this.entryPrice = entryPrice;
-            this.stopLossPrice = stopLossPrice;
+            this.initialStopPrice = stopLossPrice;
+            this.tradingCapital = tradingCapital;
+            this.riskPercent = riskPercent;
+            this.maximumRisk = maximumRisk;
+            this.riskPerShare = riskPerShare;
+            this.effectiveRisk = effectiveRisk;
+            this.capitalRequired = capitalRequired;
+            this.currentStopPrice = stopLossPrice;
+            this.activeStopQuantity = quantity;
             this.takeProfits = takeProfits == null ? List.of() : List.copyOf(takeProfits);
             this.netPnl = -entryCommission;
             this.events.add(new TradeEventResult(
@@ -1633,9 +2222,24 @@ public class TradingWorkbenchController {
                     entryAt,
                     entryPrice,
                     quantity,
+                    quantity,
+                    stopLossPrice,
                     0.0,
                     -entryCommission,
-                    eventReturnPercent(-entryCommission, entryPrice, quantity)));
+                    eventReturnPercent(-entryCommission, entryPrice, quantity),
+                    null));
+            this.events.add(new TradeEventResult(
+                    "INITIAL STOP",
+                    entryIndex,
+                    entryAt,
+                    stopLossPrice,
+                    quantity,
+                    quantity,
+                    stopLossPrice,
+                    0.0,
+                    0.0,
+                    0.0,
+                    "INITIAL_STOP"));
         }
     }
 

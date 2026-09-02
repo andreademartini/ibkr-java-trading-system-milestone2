@@ -533,6 +533,12 @@ tbody tr:hover {
     color: var(--danger);
 }
 
+.trade-event.stop-adjustment {
+    background: #eef6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
 .trade-event.signal {
     background: #fff7ed;
     border-color: #fed7aa;

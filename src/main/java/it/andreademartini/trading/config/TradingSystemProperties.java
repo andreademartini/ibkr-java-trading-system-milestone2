@@ -493,6 +493,10 @@ public class TradingSystemProperties {
         @DecimalMin("0.0")
         private double transactionCostsPerShare = 0.0;
 
+        @Valid
+        private final ProgressiveStopProperties progressiveStop =
+                new ProgressiveStopProperties();
+
         public double getTradingCapital() {
             return tradingCapital;
         }
@@ -627,6 +631,80 @@ public class TradingSystemProperties {
 
         public void setTransactionCostsPerShare(double transactionCostsPerShare) {
             this.transactionCostsPerShare = transactionCostsPerShare;
+        }
+
+        public ProgressiveStopProperties getProgressiveStop() {
+            return progressiveStop;
+        }
+    }
+
+    public static class ProgressiveStopProperties {
+
+        private boolean enabled = true;
+
+        private boolean moveOnlyAfterFullTpFill = true;
+
+        @Valid
+        private final ProgressiveStopStepProperties afterTp1 =
+                new ProgressiveStopStepProperties(ProgressiveStopMoveTarget.ENTRY);
+
+        @Valid
+        private final ProgressiveStopStepProperties afterTp2 =
+                new ProgressiveStopStepProperties(ProgressiveStopMoveTarget.TP1);
+
+        @Valid
+        private final ProgressiveStopStepProperties afterTp3 =
+                new ProgressiveStopStepProperties(ProgressiveStopMoveTarget.TP2);
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public boolean isMoveOnlyAfterFullTpFill() {
+            return moveOnlyAfterFullTpFill;
+        }
+
+        public void setMoveOnlyAfterFullTpFill(
+                boolean moveOnlyAfterFullTpFill) {
+            this.moveOnlyAfterFullTpFill = moveOnlyAfterFullTpFill;
+        }
+
+        public ProgressiveStopStepProperties getAfterTp1() {
+            return afterTp1;
+        }
+
+        public ProgressiveStopStepProperties getAfterTp2() {
+            return afterTp2;
+        }
+
+        public ProgressiveStopStepProperties getAfterTp3() {
+            return afterTp3;
+        }
+    }
+
+    public static class ProgressiveStopStepProperties {
+
+        @NotNull
+        private ProgressiveStopMoveTarget moveTo;
+
+        public ProgressiveStopStepProperties() {
+            this(ProgressiveStopMoveTarget.ENTRY);
+        }
+
+        public ProgressiveStopStepProperties(ProgressiveStopMoveTarget moveTo) {
+            this.moveTo = moveTo;
+        }
+
+        public ProgressiveStopMoveTarget getMoveTo() {
+            return moveTo;
+        }
+
+        public void setMoveTo(ProgressiveStopMoveTarget moveTo) {
+            this.moveTo = moveTo;
         }
     }
 

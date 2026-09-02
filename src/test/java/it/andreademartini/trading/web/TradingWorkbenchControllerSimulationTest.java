@@ -1,11 +1,14 @@
 package it.andreademartini.trading.web;
 
+import it.andreademartini.trading.config.BacktestProperties;
 import it.andreademartini.trading.config.MarketDataProvider;
 import it.andreademartini.trading.config.StrategyType;
 import it.andreademartini.trading.config.TradingSystemProperties;
+import it.andreademartini.trading.backtest.export.BacktestRunRegistry;
 import it.andreademartini.trading.ibkr.IbkrConnectionService;
 import it.andreademartini.trading.marketdata.HistoricalDataService;
 import it.andreademartini.trading.marketdata.MarketDataService;
+import it.andreademartini.trading.orders.ProgressiveStopLossService;
 import it.andreademartini.trading.risk.KillSwitchService;
 import it.andreademartini.trading.risk.PositionSizingService;
 import it.andreademartini.trading.risk.TakeProfitAllocationService;
@@ -25,14 +28,18 @@ import static org.mockito.Mockito.mock;
 class TradingWorkbenchControllerSimulationTest {
 
     private final TradingSystemProperties properties = new TradingSystemProperties();
+    private final BacktestProperties backtestProperties = new BacktestProperties();
     private final TradePricingService tradePricingService = new TradePricingService();
     private final PositionSizingService positionSizingService =
             new PositionSizingService(tradePricingService);
     private final TakeProfitAllocationService takeProfitAllocationService =
             new TakeProfitAllocationService(properties, tradePricingService);
+    private final ProgressiveStopLossService progressiveStopLossService =
+            new ProgressiveStopLossService(properties);
     private final TradingWorkbenchController controller =
             new TradingWorkbenchController(
                     properties,
+                    backtestProperties,
                     mock(IbkrConnectionService.class),
                     mock(MarketDataService.class),
                     mock(HistoricalDataService.class),
@@ -41,7 +48,9 @@ class TradingWorkbenchControllerSimulationTest {
                     mock(SignalService.class),
                     mock(KillSwitchService.class),
                     positionSizingService,
-                    takeProfitAllocationService);
+                    takeProfitAllocationService,
+                    progressiveStopLossService,
+                    new BacktestRunRegistry());
 
     @Test
     void simulationReversesBetweenLongAndShortPositions() {
@@ -94,6 +103,60 @@ class TradingWorkbenchControllerSimulationTest {
         assertThat(firstTrade.events().get(0).quantity()).isEqualTo(firstTrade.quantity());
         assertThat(firstTrade.events())
                 .anyMatch(event -> event.eventType().startsWith("EXIT - "));
+    }
+
+    @Test
+    void backtestMovesStopToEntryAfterTp1AndClosesRemainderAtBreakEven() {
+        properties.getRisk().setEntryTicket(0.0);
+        properties.getRisk().setRiskPerTradePercent(5.0);
+        properties.getRisk().setMaxOrderValue(20_000.0);
+        properties.getRisk().setMaxPositionValue(20_000.0);
+        properties.getRisk().setMaxLongNotional(20_000.0);
+
+        TradingWorkbenchController.StrategySimulationResponse response =
+                controller.simulateStrategy(progressiveStopRequest());
+
+        assertThat(response.trades()).hasSize(1);
+        TradingWorkbenchController.TradeResult trade = response.trades().getFirst();
+        assertThat(trade.events())
+                .anyMatch(event -> event.eventType().equals("EXIT - TP1")
+                        && event.quantity() == 50
+                        && event.price() == 102.0);
+        assertThat(trade.events())
+                .anyMatch(event -> event.eventType().equals("STOP MOVED")
+                        && event.price() == 100.0
+                        && event.quantity() == 50
+                        && event.details().contains("95.00 -> 100.00")
+                        && event.details().contains("TP1_TO_BREAK_EVEN"));
+        assertThat(trade.events())
+                .anyMatch(event -> event.eventType().equals("EXIT - STOP_LOSS")
+                        && event.quantity() == 50
+                        && event.price() == 100.0);
+        assertThat(trade.netPnl()).isEqualTo(100.0);
+    }
+
+    @Test
+    void defaultSameBarPolicyExecutesStopBeforeTakeProfit() {
+        properties.getRisk().setEntryTicket(0.0);
+        properties.getRisk().setRiskPerTradePercent(5.0);
+        properties.getRisk().setMaxOrderValue(20_000.0);
+        properties.getRisk().setMaxPositionValue(20_000.0);
+        properties.getRisk().setMaxLongNotional(20_000.0);
+
+        TradingWorkbenchController.StrategySimulationResponse response =
+                controller.simulateStrategy(sameBarStopFirstRequest());
+
+        assertThat(response.evaluationParameters().sameBarExecutionPolicy().name())
+                .isEqualTo("STOP_FIRST");
+        TradingWorkbenchController.TradeResult trade = response.trades().getFirst();
+        assertThat(trade.events())
+                .anyMatch(event -> event.eventType().equals("EXIT - STOP_LOSS")
+                        && event.quantity() == 100
+                        && event.price() == 95.0);
+        assertThat(trade.events())
+                .noneMatch(event -> event.eventType().equals("EXIT - TP1"));
+        assertThat(trade.events())
+                .noneMatch(event -> event.eventType().equals("STOP MOVED"));
     }
 
     @Test
@@ -154,6 +217,55 @@ class TradingWorkbenchControllerSimulationTest {
                         0.0,
                         false);
         return request;
+    }
+
+    private TradingWorkbenchController.StrategySimulationRequest progressiveStopRequest() {
+        List<TradingWorkbenchController.SimulationBarRequest> bars = List.of(
+                bar(0, 100.0, 101.0, 98.0),
+                bar(1, 99.0, 100.0, 97.0),
+                bar(2, 98.0, 100.0, 95.0),
+                bar(3, 101.0, 101.5, 98.5),
+                bar(4, 100.0, 100.5, 99.5),
+                bar(5, 102.0, 102.5, 100.5),
+                bar(6, 100.0, 101.0, 100.0));
+        return new TradingWorkbenchController.StrategySimulationRequest(
+                "SPY",
+                MarketDataProvider.IBKR,
+                StrategyType.MOVING_AVERAGE_CROSSOVER,
+                StrategyTradeMode.LONG_ONLY,
+                bars.stream().map(TradingWorkbenchController.SimulationBarRequest::close).toList(),
+                bars,
+                2,
+                3,
+                1L,
+                10_000.0,
+                0.0,
+                0.0,
+                false);
+    }
+
+    private TradingWorkbenchController.StrategySimulationRequest sameBarStopFirstRequest() {
+        List<TradingWorkbenchController.SimulationBarRequest> bars = List.of(
+                bar(0, 100.0, 101.0, 98.0),
+                bar(1, 99.0, 100.0, 97.0),
+                bar(2, 98.0, 100.0, 95.0),
+                bar(3, 101.0, 101.5, 98.5),
+                bar(4, 100.0, 100.5, 99.5),
+                bar(5, 96.0, 102.5, 94.0));
+        return new TradingWorkbenchController.StrategySimulationRequest(
+                "SPY",
+                MarketDataProvider.IBKR,
+                StrategyType.MOVING_AVERAGE_CROSSOVER,
+                StrategyTradeMode.LONG_ONLY,
+                bars.stream().map(TradingWorkbenchController.SimulationBarRequest::close).toList(),
+                bars,
+                2,
+                3,
+                1L,
+                10_000.0,
+                0.0,
+                0.0,
+                false);
     }
 
     private List<TradingWorkbenchController.SimulationBarRequest> bars() {

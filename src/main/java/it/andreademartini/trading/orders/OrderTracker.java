@@ -36,13 +36,16 @@ public class OrderTracker implements IbkrEventListener {
     private final Map<Integer, IbkrOrderCommand> commands = new ConcurrentHashMap<>();
     private final TradingAuditService auditService;
     private final IbkrApiClient apiClient;
+    private final ProgressiveStopLossService progressiveStopLossService;
 
     public OrderTracker(
             TradingAuditService auditService,
             IbkrApiClient apiClient,
+            ProgressiveStopLossService progressiveStopLossService,
             IbkrEWrapper wrapper) {
         this.auditService = auditService;
         this.apiClient = apiClient;
+        this.progressiveStopLossService = progressiveStopLossService;
         wrapper.addListener(this);
     }
 
@@ -63,9 +66,18 @@ public class OrderTracker implements IbkrEventListener {
                 BigDecimal.ZERO,
                 BigDecimal.valueOf(command.quantity()),
                 0.0,
+                bigDecimal(command.limitPrice()),
+                bigDecimal(command.stopPrice()),
+                command.trailingPercent(),
                 Instant.now()
         ));
         auditService.saveOrderEvent(command, "SUBMITTED_TO_TWS", command.role());
+        if (isStopRole(command.role()) && hasTradeId(command.tradeId())) {
+            auditService.saveStopLossAdjustment(StopLossAdjustment.initial(
+                    command.tradeId(),
+                    bigDecimal(command.stopPrice()),
+                    command.quantity()));
+        }
     }
 
     @Override
@@ -91,10 +103,13 @@ public class OrderTracker implements IbkrEventListener {
                 update.filled(),
                 update.remaining(),
                 update.averageFillPrice(),
+                previous.limitPrice(),
+                previous.stopPrice(),
+                previous.trailingPercent(),
                 Instant.now()
         );
         orders.put(update.orderId(), updated);
-        reconcileTrade(updated);
+        reconcileTrade(previous, updated);
 
         IbkrOrderCommand command = commands.get(update.orderId());
         if (command != null) {
@@ -139,6 +154,9 @@ public class OrderTracker implements IbkrEventListener {
                     previous.filled(),
                     previous.remaining(),
                     previous.averageFillPrice(),
+                    previous.limitPrice(),
+                    previous.stopPrice(),
+                    previous.trailingPercent(),
                     Instant.now()
             ));
         }
@@ -191,6 +209,9 @@ public class OrderTracker implements IbkrEventListener {
                 BigDecimal.ZERO,
                 BigDecimal.valueOf(quantity),
                 0.0,
+                nullablePrice(order.lmtPrice()),
+                nullablePrice(order.auxPrice()),
+                nullablePercent(order.trailingPercent()),
                 Instant.now()
         ));
     }
@@ -226,8 +247,8 @@ public class OrderTracker implements IbkrEventListener {
                 .toList();
     }
 
-    private void reconcileTrade(TrackedOrder updated) {
-        if (updated.tradeId() == null || updated.tradeId().isBlank()) {
+    private void reconcileTrade(TrackedOrder previous, TrackedOrder updated) {
+        if (!hasTradeId(updated.tradeId())) {
             return;
         }
 
@@ -239,13 +260,39 @@ public class OrderTracker implements IbkrEventListener {
         BigDecimal exitFilled = sumFilled(updated.tradeId(), this::isProtectiveRole);
         BigDecimal remainingPosition = entryFilled.subtract(exitFilled);
         if (remainingPosition.compareTo(BigDecimal.ZERO) <= 0) {
+            TakeProfitLevel.fromRole(updated.role())
+                    .ifPresent(level -> recordClosedPositionStopCancellation(
+                            updated.tradeId(),
+                            level,
+                            updated.filled().subtract(previous.filled())
+                                    .max(BigDecimal.ZERO),
+                            updated.isFilled()));
             cancelActiveProtectiveOrders(updated.tradeId());
             markTradeClosed(updated.tradeId());
             return;
         }
 
         resizeActiveTakeProfits(updated.tradeId(), entryFilled);
+        Optional<TakeProfitLevel> takeProfitLevel =
+                TakeProfitLevel.fromRole(updated.role());
+        if (takeProfitLevel.isPresent()
+                && hasNewTakeProfitExecution(previous, updated)) {
+            applyProgressiveStopAfterTakeProfit(
+                    previous,
+                    updated,
+                    takeProfitLevel.get(),
+                    remainingPosition);
+            return;
+        }
+
         resizeActiveStops(updated.tradeId(), remainingPosition);
+    }
+
+    private boolean hasNewTakeProfitExecution(
+            TrackedOrder previous,
+            TrackedOrder updated) {
+        return updated.filled().compareTo(previous.filled()) > 0
+                || (!previous.isFilled() && updated.isFilled());
     }
 
     private BigDecimal sumFilled(
@@ -267,12 +314,227 @@ public class OrderTracker implements IbkrEventListener {
             return;
         }
 
-        orders.values().stream()
+        singleActiveStopOrder(tradeId)
+                .filter(order -> order.quantity() != quantity)
+                .ifPresent(order -> resizeOrder(order, quantity));
+    }
+
+    private void applyProgressiveStopAfterTakeProfit(
+            TrackedOrder previous,
+            TrackedOrder updated,
+            TakeProfitLevel takeProfitLevel,
+            BigDecimal remainingPosition) {
+        Optional<TrackedOrder> stopOrder = singleActiveStopOrder(updated.tradeId());
+        if (stopOrder.isEmpty()) {
+            log.warn("Nessuno stop attivo trovato per trade {} dopo fill {}",
+                    updated.tradeId(), updated.role());
+            return;
+        }
+
+        TrackedOrder stop = stopOrder.get();
+        StopAdjustmentResult result =
+                progressiveStopLossService.onTakeProfitExecution(
+                        tradeStopState(updated.tradeId(), stop, remainingPosition),
+                        takeProfitLevel,
+                        updated.filled().subtract(previous.filled()).max(BigDecimal.ZERO),
+                        updated.isFilled());
+        applyStopAdjustment(stop, result);
+    }
+
+    private void recordClosedPositionStopCancellation(
+            String tradeId,
+            TakeProfitLevel takeProfitLevel,
+            BigDecimal filledQuantity,
+            boolean takeProfitFullyFilled) {
+        Optional<TrackedOrder> stopOrder = singleActiveStopOrder(tradeId);
+        if (stopOrder.isEmpty()) {
+            return;
+        }
+        StopAdjustmentResult result =
+                progressiveStopLossService.onTakeProfitExecution(
+                        tradeStopState(tradeId, stopOrder.get(), BigDecimal.ZERO),
+                        takeProfitLevel,
+                        filledQuantity,
+                        takeProfitFullyFilled);
+        persistStopAdjustment(result);
+    }
+
+    private Optional<TrackedOrder> singleActiveStopOrder(String tradeId) {
+        List<TrackedOrder> activeStops = orders.values().stream()
                 .filter(order -> tradeId.equals(order.tradeId()))
                 .filter(TrackedOrder::isActive)
                 .filter(order -> isStopRole(order.role()))
-                .filter(order -> order.quantity() != quantity)
-                .forEach(order -> resizeOrder(order, quantity));
+                .sorted(Comparator.comparingInt(TrackedOrder::orderId))
+                .toList();
+        if (activeStops.isEmpty()) {
+            return Optional.empty();
+        }
+        TrackedOrder primary = activeStops.getFirst();
+        activeStops.stream()
+                .skip(1)
+                .forEach(this::cancelDuplicateStopOrder);
+        return Optional.of(primary);
+    }
+
+    private void cancelDuplicateStopOrder(TrackedOrder order) {
+        try {
+            apiClient.cancelOrder(order.orderId());
+            orders.put(order.orderId(), order.withStatus("CANCELLED"));
+            log.error("Stop duplicato cancellato orderId={} trade={}",
+                    order.orderId(), order.tradeId());
+        } catch (RuntimeException exception) {
+            log.error("Cancellazione stop duplicato fallita orderId={} trade={}",
+                    order.orderId(), order.tradeId(), exception);
+            throw exception;
+        }
+    }
+
+    private TradeStopState tradeStopState(
+            String tradeId,
+            TrackedOrder stopOrder,
+            BigDecimal remainingPosition) {
+        Optional<TrackedOrder> entryOrder = orders.values().stream()
+                .filter(order -> tradeId.equals(order.tradeId()))
+                .filter(order -> isEntryRole(order.role()))
+                .findFirst();
+        BigDecimal entryPrice = entryPrice(entryOrder.orElse(null));
+        BigDecimal currentStopPrice = stopPrice(stopOrder);
+        long initialQuantity = entryOrder
+                .map(TrackedOrder::quantity)
+                .orElse(Math.max(stopOrder.quantity(), remainingPosition.longValue()));
+        BigDecimal initialStopPrice = initialStopPrice(tradeId, currentStopPrice);
+
+        return new TradeStopState(
+                tradeId,
+                stopOrder.direction(),
+                entryPrice,
+                initialStopPrice,
+                currentStopPrice,
+                initialQuantity,
+                remainingPosition.max(BigDecimal.ZERO).longValue(),
+                stopOrder.quantity(),
+                takeProfitAllocations(tradeId));
+    }
+
+    private BigDecimal entryPrice(TrackedOrder entryOrder) {
+        if (entryOrder == null) {
+            return BigDecimal.ZERO;
+        }
+        if (entryOrder.averageFillPrice() > 0) {
+            return BigDecimal.valueOf(entryOrder.averageFillPrice());
+        }
+        IbkrOrderCommand command = commands.get(entryOrder.orderId());
+        if (command == null) {
+            return entryOrder.stopPrice() == null
+                    ? BigDecimal.ZERO
+                    : entryOrder.stopPrice();
+        }
+        if (command.referencePrice() != null) {
+            return BigDecimal.valueOf(command.referencePrice());
+        }
+        if (command.stopPrice() != null) {
+            return BigDecimal.valueOf(command.stopPrice());
+        }
+        return BigDecimal.ZERO;
+    }
+
+    private BigDecimal initialStopPrice(
+            String tradeId,
+            BigDecimal fallbackStopPrice) {
+        return orders.values().stream()
+                .filter(order -> tradeId.equals(order.tradeId()))
+                .filter(order -> "STOP_LOSS".equals(order.role()))
+                .findFirst()
+                .map(order -> commands.get(order.orderId()))
+                .map(IbkrOrderCommand::stopPrice)
+                .map(BigDecimal::valueOf)
+                .orElse(fallbackStopPrice);
+    }
+
+    private BigDecimal stopPrice(TrackedOrder stopOrder) {
+        if (stopOrder.stopPrice() != null) {
+            return stopOrder.stopPrice();
+        }
+        IbkrOrderCommand command = commands.get(stopOrder.orderId());
+        if (command != null && command.stopPrice() != null) {
+            return BigDecimal.valueOf(command.stopPrice());
+        }
+        return BigDecimal.ZERO;
+    }
+
+    private List<TakeProfitAllocation> takeProfitAllocations(String tradeId) {
+        return orders.values().stream()
+                .filter(order -> tradeId.equals(order.tradeId()))
+                .filter(order -> TakeProfitLevel.fromRole(order.role()).isPresent())
+                .sorted(Comparator.comparing(TrackedOrder::role))
+                .map(order -> new TakeProfitAllocation(
+                        TakeProfitLevel.fromRole(order.role()).orElseThrow().number(),
+                        BigDecimal.ZERO,
+                        BigDecimal.ZERO,
+                        order.quantity(),
+                        limitPrice(order)))
+                .toList();
+    }
+
+    private BigDecimal limitPrice(TrackedOrder order) {
+        if (order.limitPrice() != null) {
+            return order.limitPrice();
+        }
+        IbkrOrderCommand command = commands.get(order.orderId());
+        if (command != null && command.limitPrice() != null) {
+            return BigDecimal.valueOf(command.limitPrice());
+        }
+        return BigDecimal.ZERO;
+    }
+
+    private void applyStopAdjustment(
+            TrackedOrder stopOrder,
+            StopAdjustmentResult result) {
+        persistStopAdjustment(result);
+        if (!result.requiresStopOrderModification()) {
+            return;
+        }
+
+        modifyStopOrder(stopOrder, result.newQuantity(), result.newStopPrice());
+    }
+
+    private void modifyStopOrder(
+            TrackedOrder trackedOrder,
+            long quantity,
+            BigDecimal stopPrice) {
+        IbkrOrderCommand command = commands.get(trackedOrder.orderId());
+        if (command == null) {
+            return;
+        }
+
+        command.order().totalQuantity(Decimal.get(quantity));
+        if (stopPrice != null && isPlainStopOrder(trackedOrder)) {
+            command.order().auxPrice(stopPrice.doubleValue());
+        }
+        apiClient.placeOrder(command.orderId(), command.contract(), command.order());
+
+        Double commandStopPrice = stopPrice == null ? null : stopPrice.doubleValue();
+        commands.put(
+                trackedOrder.orderId(),
+                command.withQuantityAndStopPrice(quantity, commandStopPrice));
+        orders.put(
+                trackedOrder.orderId(),
+                trackedOrder.withStopPriceAndQuantity(
+                        stopPrice,
+                        quantity,
+                        BigDecimal.valueOf(quantity)
+                                .subtract(trackedOrder.filled())
+                                .max(BigDecimal.ZERO)));
+        auditService.saveOrderEvent(
+                commands.get(trackedOrder.orderId()),
+                "STOP_ADJUSTED",
+                "qty=" + quantity + ", stopPrice=" + stopPrice);
+    }
+
+    private void persistStopAdjustment(StopAdjustmentResult result) {
+        if (result != null && result.hasPersistableAdjustment()) {
+            auditService.saveStopLossAdjustment(result.adjustment());
+        }
     }
 
     private void resizeActiveTakeProfits(
@@ -322,6 +584,7 @@ public class OrderTracker implements IbkrEventListener {
             if (takeProfit.isActive() && takeProfit.quantity() != desiredTotal) {
                 if (desiredTotal <= 0) {
                     apiClient.cancelOrder(takeProfit.orderId());
+                    orders.put(takeProfit.orderId(), takeProfit.withStatus("CANCELLED"));
                     continue;
                 }
                 resizeOrder(takeProfit, desiredTotal);
@@ -337,24 +600,13 @@ public class OrderTracker implements IbkrEventListener {
 
         command.order().totalQuantity(Decimal.get(quantity));
         apiClient.placeOrder(command.orderId(), command.contract(), command.order());
-        orders.put(trackedOrder.orderId(), new TrackedOrder(
+        orders.put(
                 trackedOrder.orderId(),
-                trackedOrder.parentOrderId(),
-                trackedOrder.tradeId(),
-                trackedOrder.role(),
-                trackedOrder.symbol(),
-                trackedOrder.side(),
-                trackedOrder.type(),
-                trackedOrder.direction(),
-                trackedOrder.tradeState(),
-                quantity,
-                trackedOrder.status(),
-                trackedOrder.filled(),
-                BigDecimal.valueOf(quantity)
-                        .subtract(trackedOrder.filled())
-                        .max(BigDecimal.ZERO),
-                trackedOrder.averageFillPrice(),
-                Instant.now()));
+                trackedOrder.withQuantity(
+                        quantity,
+                        BigDecimal.valueOf(quantity)
+                                .subtract(trackedOrder.filled())
+                                .max(BigDecimal.ZERO)));
         log.warn("Ordine protettivo {} ridimensionato a qty={} per trade {}",
                 trackedOrder.orderId(), quantity, trackedOrder.tradeId());
     }
@@ -366,6 +618,7 @@ public class OrderTracker implements IbkrEventListener {
                 .filter(order -> isProtectiveRole(order.role()))
                 .forEach(order -> {
                     apiClient.cancelOrder(order.orderId());
+                    orders.put(order.orderId(), order.withStatus("CANCELLED"));
                     log.warn("Cancellazione protezione residua orderId={} trade={}",
                             order.orderId(), tradeId);
                 });
@@ -389,6 +642,9 @@ public class OrderTracker implements IbkrEventListener {
                         order.filled(),
                         order.remaining(),
                         order.averageFillPrice(),
+                        order.limitPrice(),
+                        order.stopPrice(),
+                        order.trailingPercent(),
                         Instant.now())));
     }
 
@@ -425,6 +681,31 @@ public class OrderTracker implements IbkrEventListener {
     private boolean isStopRole(String role) {
         return "STOP_LOSS".equals(role)
                 || "TRAILING_STOP".equals(role);
+    }
+
+    private boolean isPlainStopOrder(TrackedOrder trackedOrder) {
+        return "STOP_LOSS".equals(trackedOrder.role())
+                && trackedOrder.type() == PaperOrderType.STOP;
+    }
+
+    private boolean hasTradeId(String tradeId) {
+        return tradeId != null && !tradeId.isBlank();
+    }
+
+    private BigDecimal bigDecimal(Double value) {
+        return value == null ? null : BigDecimal.valueOf(value);
+    }
+
+    private BigDecimal nullablePrice(double value) {
+        return Double.isFinite(value) && value > 0 && value < Double.MAX_VALUE / 2
+                ? BigDecimal.valueOf(value)
+                : null;
+    }
+
+    private Double nullablePercent(double value) {
+        return Double.isFinite(value) && value > 0 && value < Double.MAX_VALUE / 2
+                ? value
+                : null;
     }
 
     private PaperOrderType mapType(String value) {

@@ -8,6 +8,7 @@ import it.andreademartini.trading.orders.OrderSubmissionResult;
 import it.andreademartini.trading.orders.OrderTracker;
 import it.andreademartini.trading.orders.PaperOrderExecutionService;
 import it.andreademartini.trading.orders.PaperOrderRequest;
+import it.andreademartini.trading.persistence.StopLossAdjustmentRepository;
 import it.andreademartini.trading.portfolio.PortfolioService;
 import it.andreademartini.trading.risk.KillSwitchService;
 import it.andreademartini.trading.risk.RiskManager;
@@ -40,6 +41,7 @@ public class PaperTradingController {
     private final SignalService signalService;
     private final KillSwitchService killSwitchService;
     private final RiskManager riskManager;
+    private final StopLossAdjustmentRepository stopLossAdjustmentRepository;
 
     public PaperTradingController(
             TradingSystemProperties properties,
@@ -51,7 +53,8 @@ public class PaperTradingController {
             PaperOrderExecutionService orderExecutionService,
             SignalService signalService,
             KillSwitchService killSwitchService,
-            RiskManager riskManager) {
+            RiskManager riskManager,
+            StopLossAdjustmentRepository stopLossAdjustmentRepository) {
         this.properties = properties;
         this.connectionService = connectionService;
         this.accountVerifier = accountVerifier;
@@ -62,6 +65,7 @@ public class PaperTradingController {
         this.signalService = signalService;
         this.killSwitchService = killSwitchService;
         this.riskManager = riskManager;
+        this.stopLossAdjustmentRepository = stopLossAdjustmentRepository;
     }
 
     @GetMapping("/status")
@@ -109,6 +113,11 @@ public class PaperTradingController {
     @GetMapping("/orders")
     public Object orders() {
         return orderTracker.orders();
+    }
+
+    @GetMapping("/stop-adjustments")
+    public Object stopAdjustments() {
+        return stopLossAdjustmentRepository.findTop100ByOrderByCreatedAtDesc();
     }
 
     @PostMapping("/orders")

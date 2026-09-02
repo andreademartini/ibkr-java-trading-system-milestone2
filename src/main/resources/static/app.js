@@ -661,6 +661,13 @@ function tradeEventClass(eventType) {
     if (normalized === "ENTRY") {
         return "entry";
     }
+    if (normalized.includes("STOP MOVED")
+            || normalized.includes("STOP CANCELLED")
+            || normalized.includes("INITIAL STOP")
+            || normalized.includes("STOP QUANTITY UPDATED")
+            || normalized.includes("STOP UPDATE REJECTED")) {
+        return "stop-adjustment";
+    }
     if (normalized.includes("STOP_LOSS")) {
         return "stop-loss";
     }
@@ -712,6 +719,7 @@ function tradePnlClass(value) {
 }
 
 function renderSimulation() {
+    const exportButton = $("export-excel-button");
     if (!state.simulation) {
         $("simulation-summary").textContent = "Nessuna simulazione";
         $("simulation-metrics").innerHTML = "";
@@ -719,9 +727,15 @@ function renderSimulation() {
         $("equity-chart").innerHTML = "";
         $("simulation-body").innerHTML = emptyRow(6, "Nessun segnale simulato");
         $("trades-body").innerHTML = emptyRow(8, "Nessun trade chiuso");
+        if (exportButton) {
+            exportButton.disabled = true;
+        }
         return;
     }
     const simulation = state.simulation;
+    if (exportButton) {
+        exportButton.disabled = !simulation.backtestId;
+    }
     const executionModel = simulation.evaluationParameters?.executionModel || "";
     $("simulation-summary").textContent =
         `${simulation.symbol} ${simulation.strategy} ${simulation.inputCount} barre, segnali ${simulation.signals.length}, trade ${simulation.trades.length}${executionModel ? ` - ${executionModel}` : ""}`;
@@ -758,6 +772,7 @@ function renderSimulation() {
                 <td><span class="trade-side ${sideClass}">${row.side}</span></td>
                 <td>
                     <span class="trade-event ${eventClass}">${event.eventType || "-"}</span>
+                    ${event.details ? `<small class="trade-bar">${event.details}</small>` : ""}
                 </td>
                 <td>
                     <strong>${formatNumber(event.price)}</strong>
@@ -1309,6 +1324,14 @@ async function downloadHistoryAndSimulate() {
     await simulateStrategy();
 }
 
+function exportBacktestExcel() {
+    const backtestId = state.simulation?.backtestId;
+    if (!backtestId) {
+        throw new Error("Esegui una simulazione prima di esportare Excel");
+    }
+    window.location.href = `/api/backtest/${encodeURIComponent(backtestId)}/export/excel`;
+}
+
 async function activateKillSwitch() {
     await api("/api/paper/kill-switch/activate", { method: "POST" });
     await refreshStatusOnly();
@@ -1377,6 +1400,7 @@ function initEvents() {
     bind("update-history-button", refreshHistoryFromProvider);
     bind("download-simulate-button", downloadHistoryAndSimulate);
     bind("simulate-button", simulateStrategy);
+    bind("export-excel-button", exportBacktestExcel);
     bind("publish-signal-button", publishManualSignal);
     bind("activate-kill-button", activateKillSwitch);
     bind("deactivate-kill-button", deactivateKillSwitch);

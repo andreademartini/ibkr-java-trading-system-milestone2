@@ -21,4 +21,26 @@ public record IbkrOrderCommand(
         Double trailingPercent,
         Contract contract,
         Order order) {
+
+    public IbkrOrderCommand withQuantityAndStopPrice(
+            long updatedQuantity,
+            Double updatedStopPrice) {
+        return new IbkrOrderCommand(
+                orderId,
+                parentOrderId,
+                tradeId,
+                role,
+                symbol,
+                side,
+                type,
+                direction,
+                tradeState,
+                updatedQuantity,
+                referencePrice,
+                limitPrice,
+                updatedStopPrice,
+                trailingPercent,
+                contract,
+                order);
+    }
 }
