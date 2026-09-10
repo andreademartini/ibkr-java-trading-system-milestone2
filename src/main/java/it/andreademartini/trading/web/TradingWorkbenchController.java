@@ -39,6 +39,13 @@ import it.andreademartini.trading.strategy.TradeDirection;
 import it.andreademartini.trading.strategy.StrategyEngine;
 import it.andreademartini.trading.strategy.TradingSignal;
 import it.andreademartini.trading.strategy.TradingStrategy;
+import it.andreademartini.trading.strategy.StrategyOrderDetails;
+import it.andreademartini.trading.strategy.joeross.JoeRoss123RossHookTteStrategy;
+import it.andreademartini.trading.strategy.joeross.JoeRossBarResult;
+import it.andreademartini.trading.strategy.joeross.JoeRossEvent;
+import it.andreademartini.trading.strategy.joeross.JoeRossPatternStatistics;
+import it.andreademartini.trading.strategy.joeross.JoeRossParameters;
+import it.andreademartini.trading.strategy.joeross.JoeRossSignalAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,6 +63,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -270,10 +278,15 @@ public class TradingWorkbenchController {
                 simulationProperties(request);
         TradingStrategy strategy = createStrategy(request.strategy(), strategyProperties);
 
-        List<TradingSignal> signals = new ArrayList<>();
-        for (PricePoint point : priceSeries) {
-            strategy.onPrice(symbol, point.close(), point.timestamp())
-                    .ifPresent(signals::add);
+        JoeRossAnalysis joeRossAnalysis = strategy instanceof JoeRoss123RossHookTteStrategy joeRoss
+                ? analyzeJoeRoss(symbol, joeRoss, priceSeries, strategyProperties.getQuantity())
+                : JoeRossAnalysis.empty();
+        List<TradingSignal> signals = new ArrayList<>(joeRossAnalysis.signals());
+        if (!(strategy instanceof JoeRoss123RossHookTteStrategy)) {
+            for (PricePoint point : priceSeries) {
+                strategy.onPrice(symbol, point.close(), point.timestamp())
+                        .ifPresent(signals::add);
+            }
         }
 
         BacktestResult backtest = backtest(request, strategyProperties, priceSeries, signals);
@@ -283,7 +296,8 @@ public class TradingWorkbenchController {
                 request,
                 priceSeries,
                 signals,
-                backtest));
+                backtest,
+                joeRossAnalysis.events()));
 
         boolean publishSignals = Boolean.TRUE.equals(request.publishSignals());
         if (publishSignals) {
@@ -309,7 +323,34 @@ public class TradingWorkbenchController {
                 backtest.trades(),
                 backtest.metrics(),
                 backtest.evaluationParameters(),
-                publishSignals);
+                publishSignals,
+                joeRossAnalysis.events(),
+                joeRossAnalysis.statistics());
+    }
+
+    private JoeRossAnalysis analyzeJoeRoss(
+            String symbol,
+            JoeRoss123RossHookTteStrategy strategy,
+            List<PricePoint> priceSeries,
+            long displayQuantity) {
+        List<TradingSignal> signals = new ArrayList<>();
+        List<JoeRossEvent> events = new ArrayList<>();
+        for (PricePoint point : priceSeries) {
+            HistoricalBar bar = new HistoricalBar(
+                    point.index(),
+                    point.timestamp(),
+                    point.label(),
+                    point.open(),
+                    point.high(),
+                    point.low(),
+                    point.close(),
+                    point.volume());
+            JoeRossBarResult result = strategy.onBar(bar);
+            events.addAll(result.events());
+            signals.addAll(JoeRossSignalAdapter.toSignals(
+                    symbol, bar, result, displayQuantity));
+        }
+        return new JoeRossAnalysis(signals, events, strategy.statistics());
     }
 
     private BacktestExportRun exportRun(
@@ -317,7 +358,8 @@ public class TradingWorkbenchController {
             StrategySimulationRequest request,
             List<PricePoint> priceSeries,
             List<TradingSignal> signals,
-            BacktestResult backtest) {
+            BacktestResult backtest,
+            List<JoeRossEvent> joeRossEvents) {
         BacktestExportParameters parameters = exportParameters(
                 backtest.evaluationParameters());
         List<BacktestExportBar> bars = priceSeries.stream()
@@ -355,6 +397,7 @@ public class TradingWorkbenchController {
                 trades,
                 exportMetrics(backtest.metrics()),
                 parameters,
+                joeRossEvents,
                 Instant.now());
     }
 
@@ -440,6 +483,11 @@ public class TradingWorkbenchController {
                 trade.exitReason(),
                 trade.tradeStatus(),
                 Math.max(0, trade.exitIndex() - trade.entryIndex() + 1),
+                trade.mfe(),
+                trade.mae(),
+                trade.mfeR(),
+                trade.maeR(),
+                trade.strategyData(),
                 trade.takeProfits(),
                 trade.events().stream()
                         .map(this::exportTradeEvent)
@@ -780,6 +828,44 @@ public class TradingWorkbenchController {
                 ? source.getQuantity()
                 : request.quantity());
         strategy.setSignalCooldown(source.getSignalCooldown());
+        TradingSystemProperties.JoeRossProperties sourceJoe =
+                source.getJoeRoss123RhTte();
+        TradingSystemProperties.JoeRossProperties joe =
+                strategy.getJoeRoss123RhTte();
+        joe.setEnabled(sourceJoe.isEnabled());
+        joe.setDirection(request.tradeDirection() == null
+                ? sourceJoe.getDirection() : request.tradeDirection());
+        joe.setMinimumTick(request.minimumTick() == null
+                ? sourceJoe.getMinimumTick() : request.minimumTick());
+        joe.getSwing().setPivotStrength(request.pivotStrength() == null
+                ? sourceJoe.getSwing().getPivotStrength() : request.pivotStrength());
+        joe.getRossHook().setRequire123(true);
+        joe.getTte().setEnabled(true);
+        joe.getTte().setMaxBarsAfterRossHook(request.tteMaxBars() == null
+                ? sourceJoe.getTte().getMaxBarsAfterRossHook() : request.tteMaxBars());
+        joe.getTte().setEntryBufferTicks(request.entryBufferTicks() == null
+                ? sourceJoe.getTte().getEntryBufferTicks() : request.entryBufferTicks());
+        joe.getTte().setStopBufferTicks(request.stopBufferTicks() == null
+                ? sourceJoe.getTte().getStopBufferTicks() : request.stopBufferTicks());
+        joe.getTte().getMinimumRoom().setEnabled(request.minimumRoomEnabled() == null
+                ? sourceJoe.getTte().getMinimumRoom().isEnabled()
+                : request.minimumRoomEnabled());
+        joe.getTte().getMinimumRoom().setType("R");
+        joe.getTte().getMinimumRoom().setValue(request.minimumRoomValue() == null
+                ? sourceJoe.getTte().getMinimumRoom().getValue()
+                : request.minimumRoomValue());
+        joe.getTte().setAllowAfterThreeBarsOnDoubleTriple(
+                request.allowDoubleTriple() == null
+                        ? sourceJoe.getTte().isAllowAfterThreeBarsOnDoubleTriple()
+                        : request.allowDoubleTriple());
+        joe.getTte().setDoubleTripleToleranceTicks(
+                request.doubleTripleToleranceTicks() == null
+                        ? sourceJoe.getTte().getDoubleTripleToleranceTicks()
+                        : request.doubleTripleToleranceTicks());
+        joe.getTte().setRejectGapOverEntry(request.rejectGapOverEntry() == null
+                ? sourceJoe.getTte().isRejectGapOverEntry()
+                : request.rejectGapOverEntry());
+        joe.getTte().setFallbackToRossHookBreakout(false);
         return strategy;
     }
 
@@ -791,6 +877,9 @@ public class TradingWorkbenchController {
             case MANUAL_ONLY -> new ManualOnlyStrategy();
             case MOVING_AVERAGE_CROSSOVER ->
                     new MovingAverageCrossoverStrategy(strategyProperties);
+            case JOE_ROSS_123_RH_TTE -> new JoeRoss123RossHookTteStrategy(
+                    JoeRossParameters.from(strategyProperties.getJoeRoss123RhTte()),
+                    strategyProperties.getJoeRoss123RhTte().getDirection());
         };
     }
 
@@ -836,6 +925,7 @@ public class TradingWorkbenchController {
             PricePoint point = priceSeries.get(index);
 
             if (position != null) {
+                position.updateExcursions(point);
                 position = processProtectiveExits(
                         position,
                         point,
@@ -843,6 +933,11 @@ public class TradingWorkbenchController {
                         commissionPerOrder,
                         slippagePercent,
                         trades);
+            }
+
+            if (pendingEntry != null
+                    && hasPendingCancellationAt(signals, signalIndex, point.timestamp())) {
+                pendingEntry = null;
             }
 
             if (position == null && pendingEntry != null
@@ -853,12 +948,30 @@ public class TradingWorkbenchController {
                         account,
                         commissionPerOrder,
                         slippagePercent);
+                if (position != null) {
+                    position.updateExcursions(point);
+                    if (position.isJoeRossTrade()) {
+                        position = processProtectiveExits(
+                                position,
+                                point,
+                                account,
+                                commissionPerOrder,
+                                slippagePercent,
+                                trades);
+                    }
+                }
                 pendingEntry = null;
             }
 
             while (signalIndex < signals.size()
                     && !signals.get(signalIndex).occurredAt().isAfter(point.timestamp())) {
                 TradingSignal signal = signals.get(signalIndex++);
+
+                if (signal.orderDetails() != null
+                        && signal.orderDetails().cancelPending()) {
+                    pendingEntry = null;
+                    continue;
+                }
 
                 if (position != null && isOppositeSignal(position, signal)) {
                     double fillPrice = applySlippage(
@@ -886,6 +999,7 @@ public class TradingWorkbenchController {
                             signalDirection,
                             signal,
                             previousPoint(priceSeries, index),
+                            point,
                             currentEquity(account, position, point.close()),
                             commissionPerOrder,
                             slippagePercent);
@@ -1150,10 +1264,12 @@ public class TradingWorkbenchController {
             TradeDirection direction,
             TradingSignal signal,
             PricePoint referencePoint,
+            PricePoint activationPoint,
             double tradingCapital,
             double commissionPerOrder,
             double slippagePercent) {
-        if (referencePoint == null || tradingCapital <= 0) {
+        StrategyOrderDetails orderDetails = signal == null ? null : signal.orderDetails();
+        if ((referencePoint == null && orderDetails == null) || tradingCapital <= 0) {
             return null;
         }
 
@@ -1165,15 +1281,24 @@ public class TradingWorkbenchController {
             return null;
         }
 
-        BigDecimal ticket = money(risk.getEntryTicket());
-        BigDecimal high = money(referencePoint.high());
-        BigDecimal low = money(referencePoint.low());
-        BigDecimal entryPrice = direction == TradeDirection.LONG
-                ? high.add(ticket, MATH)
-                : low.subtract(ticket, MATH);
-        BigDecimal stopLossPrice = direction == TradeDirection.LONG
-                ? low
-                : high.add(ticket, MATH);
+        BigDecimal entryPrice;
+        BigDecimal stopLossPrice;
+        if (orderDetails != null
+                && orderDetails.entryStopPrice() != null
+                && orderDetails.initialStopPrice() != null) {
+            entryPrice = money(orderDetails.entryStopPrice());
+            stopLossPrice = money(orderDetails.initialStopPrice());
+        } else {
+            BigDecimal ticket = money(risk.getEntryTicket());
+            BigDecimal high = money(referencePoint.high());
+            BigDecimal low = money(referencePoint.low());
+            entryPrice = direction == TradeDirection.LONG
+                    ? high.add(ticket, MATH)
+                    : low.subtract(ticket, MATH);
+            stopLossPrice = direction == TradeDirection.LONG
+                    ? low
+                    : high.add(ticket, MATH);
+        }
         if (entryPrice.compareTo(BigDecimal.ZERO) <= 0
                 || stopLossPrice.compareTo(BigDecimal.ZERO) <= 0) {
             return null;
@@ -1225,7 +1350,12 @@ public class TradingWorkbenchController {
                     sizing.effectiveRisk(),
                     sizing.notional(),
                     sizing.quantity(),
-                    takeProfits);
+                    takeProfits,
+                    orderDetails != null && orderDetails.rejectGapOverEntry(),
+                    orderDetails == null
+                            ? activationPoint.index()
+                            : orderDetails.activeAfterBarIndex(),
+                    orderDetails == null ? Map.of() : orderDetails.metadata());
         } catch (IllegalArgumentException | RiskRejectedException rejected) {
             return null;
         }
@@ -1271,6 +1401,12 @@ public class TradingWorkbenchController {
         } else {
             account.cash += fillPrice * quantity - commissionPerOrder;
         }
+        Map<String, String> strategyMetadata = new LinkedHashMap<>(
+                pendingEntry.strategyMetadata());
+        if (!strategyMetadata.isEmpty()) {
+            strategyMetadata.put("quantity", String.valueOf(quantity));
+            strategyMetadata.put("setupStatus", "TRADE_OPEN");
+        }
         return new BacktestPosition(
                 pendingEntry.direction(),
                 pendingEntry.signalAt(),
@@ -1289,7 +1425,8 @@ public class TradingWorkbenchController {
                 pendingEntry.effectiveRisk().doubleValue(),
                 pendingEntry.capitalRequired().doubleValue(),
                 pendingEntry.takeProfits(),
-                commissionPerOrder);
+                commissionPerOrder,
+                strategyMetadata);
     }
 
     private void closePositionQuantity(
@@ -1375,6 +1512,13 @@ public class TradingWorkbenchController {
                 denominator == 0.0 ? 0.0 : position.netPnl / denominator * 100.0,
                 position.exitReason,
                 "CLOSED",
+                position.maximumFavorableExcursion,
+                position.maximumAdverseExcursion,
+                position.riskPerShare == 0.0
+                        ? null : position.maximumFavorableExcursion / position.riskPerShare,
+                position.riskPerShare == 0.0
+                        ? null : position.maximumAdverseExcursion / position.riskPerShare,
+                position.strategyMetadata,
                 position.takeProfits,
                 position.events));
     }
@@ -1396,10 +1540,39 @@ public class TradingWorkbenchController {
     }
 
     private boolean entryHit(BacktestPendingEntry pendingEntry, PricePoint point) {
+        if (point.index() <= pendingEntry.activeAfterBarIndex()) {
+            return false;
+        }
+        if (pendingEntry.rejectGapOverEntry()) {
+            double entry = pendingEntry.entryPrice().doubleValue();
+            if ((pendingEntry.direction() == TradeDirection.LONG && point.open() > entry)
+                    || (pendingEntry.direction() == TradeDirection.SHORT
+                    && point.open() < entry)) {
+                return false;
+            }
+        }
         double entryPrice = pendingEntry.entryPrice().doubleValue();
         return pendingEntry.direction() == TradeDirection.LONG
                 ? point.high() >= entryPrice
                 : point.low() <= entryPrice;
+    }
+
+    private boolean hasPendingCancellationAt(
+            List<TradingSignal> signals,
+            int fromIndex,
+            Instant timestamp) {
+        for (int index = fromIndex; index < signals.size(); index++) {
+            TradingSignal signal = signals.get(index);
+            if (signal.occurredAt().isAfter(timestamp)) {
+                return false;
+            }
+            if (signal.occurredAt().equals(timestamp)
+                    && signal.orderDetails() != null
+                    && signal.orderDetails().cancelPending()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean stopLossHit(BacktestPosition position, PricePoint point) {
@@ -1830,7 +2003,37 @@ public class TradingWorkbenchController {
             Double initialCapital,
             Double commissionPerOrder,
             Double slippagePercent,
-            Boolean publishSignals) {
+            Boolean publishSignals,
+            Integer pivotStrength,
+            Double minimumTick,
+            Integer tteMaxBars,
+            Integer entryBufferTicks,
+            Integer stopBufferTicks,
+            Boolean minimumRoomEnabled,
+            Double minimumRoomValue,
+            Boolean allowDoubleTriple,
+            Integer doubleTripleToleranceTicks,
+            Boolean rejectGapOverEntry) {
+
+        public StrategySimulationRequest(
+                String symbol,
+                MarketDataProvider provider,
+                StrategyType strategy,
+                StrategyTradeMode tradeDirection,
+                List<Double> prices,
+                List<SimulationBarRequest> bars,
+                Integer fastPeriod,
+                Integer slowPeriod,
+                Long quantity,
+                Double initialCapital,
+                Double commissionPerOrder,
+                Double slippagePercent,
+                Boolean publishSignals) {
+            this(symbol, provider, strategy, tradeDirection, prices, bars,
+                    fastPeriod, slowPeriod, quantity, initialCapital,
+                    commissionPerOrder, slippagePercent, publishSignals,
+                    null, null, null, null, null, null, null, null, null, null);
+        }
     }
 
     public record SimulationBarRequest(
@@ -1888,7 +2091,13 @@ public class TradingWorkbenchController {
             List<TradeResult> trades,
             PerformanceMetrics metrics,
             EvaluationParameters evaluationParameters,
-            boolean publishedSignals) {
+            boolean publishedSignals,
+            List<JoeRossEvent> joeRossEvents,
+            JoeRossPatternStatistics joeRossStatistics) {
+
+        public StrategySimulationResponse {
+            joeRossEvents = joeRossEvents == null ? List.of() : List.copyOf(joeRossEvents);
+        }
 
         public StrategySimulationResponse(
                 MarketDataProvider provider,
@@ -1916,7 +2125,9 @@ public class TradingWorkbenchController {
                     trades,
                     metrics,
                     evaluationParameters,
-                    publishedSignals);
+                    publishedSignals,
+                    List.of(),
+                    null);
         }
     }
 
@@ -1970,6 +2181,11 @@ public class TradingWorkbenchController {
             double returnPercent,
             String exitReason,
             String tradeStatus,
+            double mfe,
+            double mae,
+            Double mfeR,
+            Double maeR,
+            Map<String, String> strategyData,
             List<TakeProfitAllocation> takeProfits,
             List<TradeEventResult> events) {
 
@@ -2017,6 +2233,11 @@ public class TradingWorkbenchController {
                     returnPercent,
                     exitReason,
                     exitAt == null ? "OPEN" : "CLOSED",
+                    0.0,
+                    0.0,
+                    null,
+                    null,
+                    Map.of(),
                     List.of(),
                     events);
         }
@@ -2024,6 +2245,7 @@ public class TradingWorkbenchController {
         public TradeResult {
             takeProfits = takeProfits == null ? List.of() : List.copyOf(takeProfits);
             events = events == null ? List.of() : List.copyOf(events);
+            strategyData = strategyData == null ? Map.of() : Map.copyOf(strategyData);
         }
 
         private static TradeDirection parseDirection(String side) {
@@ -2115,6 +2337,21 @@ public class TradingWorkbenchController {
             EvaluationParameters evaluationParameters) {
     }
 
+    private record JoeRossAnalysis(
+            List<TradingSignal> signals,
+            List<JoeRossEvent> events,
+            JoeRossPatternStatistics statistics) {
+
+        private JoeRossAnalysis {
+            signals = signals == null ? List.of() : List.copyOf(signals);
+            events = events == null ? List.of() : List.copyOf(events);
+        }
+
+        private static JoeRossAnalysis empty() {
+            return new JoeRossAnalysis(List.of(), List.of(), null);
+        }
+    }
+
     private record BacktestPendingEntry(
             TradeDirection direction,
             Instant signalAt,
@@ -2130,10 +2367,15 @@ public class TradingWorkbenchController {
             BigDecimal effectiveRisk,
             BigDecimal capitalRequired,
             long quantity,
-            List<TakeProfitAllocation> takeProfits) {
+            List<TakeProfitAllocation> takeProfits,
+            boolean rejectGapOverEntry,
+            int activeAfterBarIndex,
+            Map<String, String> strategyMetadata) {
 
         private BacktestPendingEntry {
             takeProfits = takeProfits == null ? List.of() : List.copyOf(takeProfits);
+            strategyMetadata = strategyMetadata == null
+                    ? Map.of() : Map.copyOf(strategyMetadata);
         }
     }
 
@@ -2163,6 +2405,7 @@ public class TradingWorkbenchController {
         private final double effectiveRisk;
         private final double capitalRequired;
         private final List<TakeProfitAllocation> takeProfits;
+        private final Map<String, String> strategyMetadata;
         private long remainingQuantity;
         private double currentStopPrice;
         private long activeStopQuantity;
@@ -2174,6 +2417,8 @@ public class TradingWorkbenchController {
         private int exitIndex;
         private Instant exitAt;
         private String exitReason;
+        private double maximumFavorableExcursion;
+        private double maximumAdverseExcursion;
         private final List<TradeEventResult> events = new ArrayList<>();
 
         private BacktestPosition(
@@ -2194,7 +2439,8 @@ public class TradingWorkbenchController {
                 double effectiveRisk,
                 double capitalRequired,
                 List<TakeProfitAllocation> takeProfits,
-                double entryCommission) {
+                double entryCommission,
+                Map<String, String> strategyMetadata) {
             this.direction = direction;
             this.signalAt = signalAt;
             this.signalPrice = signalPrice;
@@ -2215,7 +2461,10 @@ public class TradingWorkbenchController {
             this.currentStopPrice = stopLossPrice;
             this.activeStopQuantity = quantity;
             this.takeProfits = takeProfits == null ? List.of() : List.copyOf(takeProfits);
+            this.strategyMetadata = strategyMetadata == null
+                    ? Map.of() : Map.copyOf(strategyMetadata);
             this.netPnl = -entryCommission;
+            addJoeRossSetupEvents();
             this.events.add(new TradeEventResult(
                     "ENTRY",
                     entryIndex,
@@ -2223,7 +2472,7 @@ public class TradingWorkbenchController {
                     entryPrice,
                     quantity,
                     quantity,
-                    stopLossPrice,
+                    initialStopPrice,
                     0.0,
                     -entryCommission,
                     eventReturnPercent(-entryCommission, entryPrice, quantity),
@@ -2240,6 +2489,100 @@ public class TradingWorkbenchController {
                     0.0,
                     0.0,
                     "INITIAL_STOP"));
+            if (isJoeRossTrade()) {
+                this.events.add(new TradeEventResult(
+                        "TRADE_OPENED",
+                        entryIndex,
+                        entryAt,
+                        entryPrice,
+                        quantity,
+                        quantity,
+                        stopLossPrice,
+                        0.0,
+                        -entryCommission,
+                        eventReturnPercent(-entryCommission, entryPrice, quantity),
+                        "JOE_ROSS_123_RH_TTE"));
+            }
+        }
+
+        private void updateExcursions(PricePoint point) {
+            double favorable = direction == TradeDirection.LONG
+                    ? point.high() - entryPrice
+                    : entryPrice - point.low();
+            double adverse = direction == TradeDirection.LONG
+                    ? entryPrice - point.low()
+                    : point.high() - entryPrice;
+            maximumFavorableExcursion = Math.max(
+                    maximumFavorableExcursion, Math.max(0.0, favorable));
+            maximumAdverseExcursion = Math.max(
+                    maximumAdverseExcursion, Math.max(0.0, adverse));
+        }
+
+        private boolean isJoeRossTrade() {
+            return StrategyType.JOE_ROSS_123_RH_TTE.name().equals(
+                    strategyMetadata.get("strategy"));
+        }
+
+        private void addJoeRossSetupEvents() {
+            if (!isJoeRossTrade()) {
+                return;
+            }
+            addSetupEvent("JOE_ROSS_POINT1_FOUND", "point1BarIndex",
+                    "point1Time", "point1Price", "P1");
+            addSetupEvent("JOE_ROSS_POINT2_FOUND", "point2BarIndex",
+                    "point2Time", "point2Price", "P2");
+            addSetupEvent("JOE_ROSS_POINT3_FOUND", "point3BarIndex",
+                    "point3Time", "point3Price", "P3");
+            addSetupEvent("JOE_ROSS_123_COMPLETED", "point3BarIndex",
+                    "point3Time", "point3Price", "1-2-3");
+            addSetupEvent("POINT2_BREAKOUT", "point2BreakoutBarIndex",
+                    "point2BreakoutTime", "point2BreakoutPrice", "P2 breakout");
+            addSetupEvent("ROSS_HOOK_CREATED", "rossHookBarIndex",
+                    "rossHookTime", "rossHookPrice", "RH");
+            String number = strategyMetadata.getOrDefault("tteBarNumber", "1");
+            addSetupEvent("TTE_BAR_" + number + "_CREATED", "tteBarIndex",
+                    "tteBarTime", "tteEntryPrice", "TTE" + number);
+            addSetupEvent("TTE_ENTRY_CANDIDATE", "tteBarIndex",
+                    "tteBarTime", "tteEntryPrice", "stop="
+                            + strategyMetadata.get("initialStopPrice"));
+            events.add(new TradeEventResult(
+                    "TTE_TRIGGERED",
+                    entryIndex,
+                    entryAt,
+                    entryPrice,
+                    quantity,
+                    quantity,
+                    initialStopPrice,
+                    0.0,
+                    0.0,
+                    0.0,
+                    "tteBar=" + number));
+        }
+
+        private void addSetupEvent(
+                String eventType,
+                String indexKey,
+                String timeKey,
+                String priceKey,
+                String details) {
+            String indexValue = strategyMetadata.get(indexKey);
+            String timeValue = strategyMetadata.get(timeKey);
+            String priceValue = strategyMetadata.get(priceKey);
+            if (indexValue == null || timeValue == null || priceValue == null) {
+                return;
+            }
+            events.add(new TradeEventResult(
+                    eventType,
+                    Integer.parseInt(indexValue),
+                    Instant.parse(timeValue),
+                    Double.parseDouble(priceValue),
+                    0,
+                    quantity,
+                    null,
+                    0.0,
+                    0.0,
+                    0.0,
+                    details));
         }
     }
 

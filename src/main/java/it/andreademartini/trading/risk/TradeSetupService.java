@@ -100,6 +100,69 @@ public class TradeSetupService {
         return plan;
     }
 
+    /** Builds the protected plan from a strategy-owned stop-entry and stop loss. */
+    public TradePlan create(
+            String symbol,
+            TradeDirection direction,
+            BigDecimal entryPrice,
+            BigDecimal stopLossPrice) {
+        TradingSystemProperties.RiskProperties risk = properties.getRisk();
+        if (entryPrice == null || stopLossPrice == null
+                || entryPrice.compareTo(BigDecimal.ZERO) <= 0
+                || stopLossPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RiskRejectedException("Entry e stop della strategia devono essere positivi");
+        }
+        if ((direction == TradeDirection.LONG
+                && entryPrice.compareTo(stopLossPrice) <= 0)
+                || (direction == TradeDirection.SHORT
+                && entryPrice.compareTo(stopLossPrice) >= 0)) {
+            throw new RiskRejectedException("Entry/stop incompatibili con " + direction);
+        }
+
+        BigDecimal transactionCostsPerShare =
+                transactionCostsPerShare(entryPrice, stopLossPrice, risk);
+        BigDecimal fixedTransactionCosts =
+                money(risk.getCommissionPerOrder()).multiply(BigDecimal.valueOf(2), MATH);
+        BigDecimal maxNotional = direction == TradeDirection.LONG
+                ? money(risk.getMaxLongNotional())
+                : money(risk.getMaxShortNotional());
+        maxNotional = maxNotional
+                .min(money(risk.getMaxOrderValue()))
+                .min(money(risk.getMaxPositionValue()));
+
+        PositionSizingResult sizing = positionSizingService.calculate(
+                money(risk.getTradingCapital()),
+                money(risk.getRiskPerTradePercent()),
+                entryPrice,
+                stopLossPrice,
+                transactionCostsPerShare,
+                fixedTransactionCosts,
+                maxNotional,
+                risk.isUseLeverage(),
+                risk.getMaxQuantityPerOrder());
+        List<TakeProfitAllocation> takeProfits = takeProfitAllocationService.allocate(
+                sizing.quantity(), entryPrice, direction);
+        TradePlan plan = new TradePlan(
+                UUID.randomUUID().toString(),
+                direction,
+                direction == TradeDirection.LONG
+                        ? TradeState.OPENING_LONG : TradeState.OPENING_SHORT,
+                money(risk.getTradingCapital()),
+                sizing.maximumRisk(),
+                entryPrice,
+                stopLossPrice,
+                sizing.priceRisk(),
+                sizing.totalRiskPerShare(),
+                transactionCostsPerShare,
+                fixedTransactionCosts,
+                sizing.quantity(),
+                sizing.effectiveRisk(),
+                sizing.notional(),
+                takeProfits);
+        logTradeSetup(symbol, plan);
+        return plan;
+    }
+
     private PriceRange referenceRange(String symbol) {
         return historicalDataService.latestStoredPreviousDailyBar(symbol)
                 .filter(bar -> bar.high() > 0 && bar.low() > 0 && bar.high() > bar.low())

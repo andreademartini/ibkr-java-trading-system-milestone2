@@ -1,0 +1,18 @@
+package it.andreademartini.trading.strategy.joeross;
+
+public enum JoeRossSetupState {
+    SEARCHING_POINT_1,
+    POINT_1_FOUND,
+    POINT_2_FOUND,
+    POINT_3_FOUND,
+    WAITING_POINT_2_BREAKOUT,
+    POINT_2_BROKEN,
+    WAITING_ROSS_HOOK,
+    ROSS_HOOK_FOUND,
+    WAITING_TTE_TRIGGER,
+    TTE_TRIGGERED,
+    TRADE_OPEN,
+    SETUP_EXPIRED,
+    SETUP_INVALIDATED,
+    TTE_MISSED_RH_BROKEN
+}

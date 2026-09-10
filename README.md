@@ -653,7 +653,53 @@ saltato. I valori esistenti non vengono sovrascritti automaticamente.
 
 ---
 
-## 13. Limiti attuali
+## 13. Strategia Joe Ross 1-2-3 / Ross Hook / TTE
+
+La strategia `JOE_ROSS_123_RH_TTE` usa esclusivamente barre OHLC chiuse e
+impone la sequenza completa `1-2-3 -> breakout P2 -> primo Ross Hook ->
+correzione -> TTE`. Non apre posizioni direttamente su P2 o sul Ross Hook.
+
+I pivot sono causali: con `pivot-strength: N`, il pivot della barra `i` viene
+emesso una sola volta alla chiusura della barra `i + N`. Il breakout di P2
+diventa valutabile soltanto dalla barra successiva alla conferma di P3, quindi
+l'OHLC della barra di conferma non viene riutilizzato retroattivamente.
+
+```yaml
+trading:
+  strategy:
+    type: JOE_ROSS_123_RH_TTE
+    joe-ross-123-rh-tte:
+      enabled: true
+      direction: LONG_SHORT
+      minimum-tick: 0.01
+      point2-breakout-buffer-ticks: 0
+      swing:
+        pivot-strength: 2
+      ross-hook:
+        require-123: true
+      tte:
+        enabled: true
+        max-bars-after-ross-hook: 3
+        entry-buffer-ticks: 1
+        stop-buffer-ticks: 1
+        minimum-room:
+          enabled: true
+          type: R
+          value: 0.5
+        allow-after-three-bars-on-double-triple: false
+        double-triple-tolerance-ticks: 1
+        reject-gap-over-entry: true
+        fallback-to-ross-hook-breakout: false
+```
+
+Il backtest usa `STOP_FIRST` come politica conservativa predefinita nelle
+barre ambigue. Nel percorso PAPER ogni nuovo candidato TTE sostituisce il
+bracket non eseguito precedente; dopo un fill, stop e take profit protettivi
+non vengono cancellati. `StrategyEngine.onBar(...)` è il punto di ingresso per
+un futuro adapter IBKR di barre real-time chiuse e continua a passare da
+`SignalService`, position sizing, `RiskManager` e dalle protezioni PAPER.
+
+## 14. Limiti attuali
 
 Questa milestone non include ancora:
 

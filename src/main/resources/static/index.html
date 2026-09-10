@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Azioni e strategie</title>
-    <link rel="stylesheet" href="/app.css?v=excel-export-20260902">
+    <link rel="stylesheet" href="/app.css?v=stock-toolbar-20260903">
 </head>
 <body>
 <header class="topbar">
@@ -46,33 +46,31 @@
     </section>
 
     <section class="grid action-grid">
-        <section class="panel">
+        <section class="panel actions-panel">
             <div class="panel-heading">
                 <h2>Azioni</h2>
-                <div class="button-row inline-row">
-                    <button id="add-stock-button" type="button">Aggiungi</button>
+            </div>
+            <div class="stock-toolbar">
+                <label class="stock-select-field">
+                    Stock
+                    <select id="stock-select"></select>
+                </label>
+                <label class="stock-entry">
+                    Aggiungi simboli
+                    <input id="bulk-symbols" autocomplete="off" placeholder="SPY, AAPL, MSFT">
+                </label>
+                <div class="toolbar-button-row">
+                    <button id="add-stock-button" type="button">+ Aggiungi</button>
                     <button id="save-profiles-button" type="button">Salva profili</button>
                 </div>
+                <button id="delete-stock-button" class="danger toolbar-danger" type="button">Elimina stock</button>
             </div>
-            <label class="stock-entry">
-                Simboli stock
-                <input id="bulk-symbols" autocomplete="off" placeholder="SPY, AAPL, MSFT">
-            </label>
-            <div id="stock-list" class="profile-list"></div>
-            <div class="panel-heading sub-heading">
-                <h2>Strategie stock</h2>
-                <button id="add-strategy-button" type="button">Nuova strategia</button>
-            </div>
-            <div id="strategy-list" class="profile-list strategy-list"></div>
+            <div id="stock-empty-state" class="empty-state" hidden>Nessuno stock configurato</div>
         </section>
 
         <section class="panel">
             <div class="panel-heading">
                 <h2>Stock e dati mercato</h2>
-                <div class="button-row inline-row">
-                    <button id="delete-stock-button" class="danger" type="button">Elimina stock</button>
-                    <button id="delete-strategy-button" class="danger" type="button">Elimina strategia</button>
-                </div>
             </div>
 
             <div class="form-grid compact">
@@ -100,7 +98,16 @@
 
             <div class="panel-heading sub-heading">
                 <h2>Strategia selezionata</h2>
+                <div class="button-row inline-row">
+                    <button id="add-strategy-button" type="button">Nuova strategia</button>
+                    <button id="delete-strategy-button" class="danger" type="button">Elimina strategia</button>
+                </div>
             </div>
+
+            <label class="strategy-select-field">
+                Profilo strategia
+                <select id="strategy-select"></select>
+            </label>
 
             <div class="form-grid compact">
                 <label>
@@ -111,15 +118,68 @@
                     Strategia
                     <select id="profile-strategy"></select>
                 </label>
-                <label>
+                <label class="ma-strategy-field">
                     Media veloce
                     <input id="profile-fast" type="number" min="2" step="1">
                 </label>
-                <label>
+                <label class="ma-strategy-field">
                     Media lenta
                     <input id="profile-slow" type="number" min="3" step="1">
                 </label>
-                <label>
+                <label class="joe-ross-strategy-field" hidden>
+                    Pivot strength
+                    <input id="profile-pivot-strength" type="number" min="1" step="1">
+                </label>
+                <label class="joe-ross-strategy-field" hidden>
+                    Minimum tick
+                    <input id="profile-minimum-tick" type="number" min="0.00000001" step="0.0001">
+                </label>
+                <label class="joe-ross-strategy-field" hidden>
+                    TTE max bars
+                    <input id="profile-tte-max-bars" type="number" min="1" step="1">
+                </label>
+                <label class="joe-ross-strategy-field" hidden>
+                    Entry buffer ticks
+                    <input id="profile-entry-buffer-ticks" type="number" min="0" step="1">
+                </label>
+                <label class="joe-ross-strategy-field" hidden>
+                    Stop buffer ticks
+                    <input id="profile-stop-buffer-ticks" type="number" min="0" step="1">
+                </label>
+                <label class="joe-ross-strategy-field" hidden>
+                    Minimum room
+                    <select id="profile-minimum-room-enabled">
+                        <option value="true">Abilitato</option>
+                        <option value="false">Disabilitato</option>
+                    </select>
+                </label>
+                <label class="joe-ross-strategy-field" hidden>
+                    Minimum room type
+                    <select id="profile-minimum-room-type"><option value="R">R</option></select>
+                </label>
+                <label class="joe-ross-strategy-field" hidden>
+                    Minimum room value
+                    <input id="profile-minimum-room-value" type="number" min="0" step="0.05">
+                </label>
+                <label class="joe-ross-strategy-field" hidden>
+                    Double/triple dopo barra 3
+                    <select id="profile-allow-double-triple">
+                        <option value="false">No</option>
+                        <option value="true">Si</option>
+                    </select>
+                </label>
+                <label class="joe-ross-strategy-field" hidden>
+                    Double/triple tolerance ticks
+                    <input id="profile-double-triple-tolerance" type="number" min="0" step="1">
+                </label>
+                <label class="joe-ross-strategy-field" hidden>
+                    Reject gap over entry
+                    <select id="profile-reject-gap">
+                        <option value="true">Si</option>
+                        <option value="false">No</option>
+                    </select>
+                </label>
+                <label class="ma-strategy-field">
                     Quantita
                     <input id="profile-quantity" type="number" min="1" step="1">
                 </label>
@@ -338,19 +398,6 @@
                     <div id="equity-chart" class="chart"></div>
                 </div>
             </div>
-            <table>
-                <thead>
-                <tr>
-                    <th>Ora</th>
-                    <th>Symbol</th>
-                    <th>Azione</th>
-                    <th>Prezzo</th>
-                    <th>Qty</th>
-                    <th>Reason</th>
-                </tr>
-                </thead>
-                <tbody id="simulation-body"></tbody>
-            </table>
             <h3>Trade chiusi</h3>
             <table class="trade-table">
                 <thead>
@@ -367,11 +414,25 @@
                 </thead>
                 <tbody id="trades-body"></tbody>
             </table>
+            <h3>Segnali di entrata</h3>
+            <table>
+                <thead>
+                <tr>
+                    <th>Ora</th>
+                    <th>Symbol</th>
+                    <th>Azione</th>
+                    <th>Prezzo</th>
+                    <th>Qty</th>
+                    <th>Reason</th>
+                </tr>
+                </thead>
+                <tbody id="simulation-body"></tbody>
+            </table>
         </div>
     </section>
 </main>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<script src="/app.js?v=excel-export-20260902"></script>
+<script src="/app.js?v=stock-toolbar-history-desc-simulation-order-20260903"></script>
 </body>
 </html>

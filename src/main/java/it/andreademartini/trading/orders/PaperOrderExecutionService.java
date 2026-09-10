@@ -19,6 +19,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class PaperOrderExecutionService {
@@ -35,6 +38,8 @@ public class PaperOrderExecutionService {
     private final RiskManager riskManager;
     private final KillSwitchService killSwitch;
     private final TradeSetupService tradeSetupService;
+    private final Map<String, String> pendingStrategyTrades =
+            new ConcurrentHashMap<>();
 
     public PaperOrderExecutionService(
             TradingSystemProperties properties,
@@ -111,7 +116,12 @@ public class PaperOrderExecutionService {
         }
     }
 
-    public void executeSignal(TradingSignal signal) {
+    public synchronized void executeSignal(TradingSignal signal) {
+        if (signal.orderDetails() != null
+                && signal.orderDetails().cancelPending()) {
+            cancelPendingStrategyEntry(signal.symbol());
+            return;
+        }
         BigDecimal position = portfolioService.positionQuantity(signal.symbol());
 
         if (signal.action() == SignalAction.BUY) {
@@ -128,7 +138,7 @@ public class PaperOrderExecutionService {
                 return;
             }
 
-            submit(createAutomaticEntry(signal, TradeDirection.LONG));
+            submitAutomaticEntry(signal, TradeDirection.LONG);
             return;
         }
 
@@ -149,7 +159,54 @@ public class PaperOrderExecutionService {
                 return;
             }
 
-            submit(createAutomaticEntry(signal, TradeDirection.SHORT));
+            submitAutomaticEntry(signal, TradeDirection.SHORT);
+        }
+    }
+
+    private void submitAutomaticEntry(
+            TradingSignal signal,
+            TradeDirection direction) {
+        PaperOrderRequest request = createAutomaticEntry(signal, direction);
+        boolean strategyStopEntry = signal.orderDetails() != null
+                && signal.orderDetails().entryStopPrice() != null
+                && signal.orderDetails().initialStopPrice() != null;
+        if (strategyStopEntry) {
+            cancelPendingStrategyEntry(signal.symbol());
+        }
+
+        submit(request);
+        if (strategyStopEntry && request.tradePlan() != null) {
+            pendingStrategyTrades.put(
+                    normalizeSymbol(signal.symbol()),
+                    request.tradePlan().tradeId());
+        }
+    }
+
+    /**
+     * Cancels an unfilled strategy bracket as one logical TTE candidate. Once
+     * the entry has any fill, its protective children must remain untouched.
+     */
+    public synchronized void cancelPendingStrategyEntry(String symbol) {
+        String normalizedSymbol = normalizeSymbol(symbol);
+        String tradeId = pendingStrategyTrades.remove(normalizedSymbol);
+        if (tradeId == null || orderTracker.hasFilledEntryForTrade(tradeId)) {
+            return;
+        }
+
+        for (Integer orderId : orderTracker.activeOrderIdsForTrade(tradeId)) {
+            try {
+                apiClient.cancelOrder(orderId);
+                log.warn(
+                        "Cancellazione candidato TTE obsoleto orderId={} trade={} symbol={}",
+                        orderId,
+                        tradeId,
+                        normalizedSymbol);
+            } catch (RuntimeException exception) {
+                killSwitch.activate(
+                        "Impossibile cancellare candidato TTE " + tradeId
+                                + " per " + normalizedSymbol);
+                throw exception;
+            }
         }
     }
 
@@ -213,7 +270,15 @@ public class PaperOrderExecutionService {
     private PaperOrderRequest createAutomaticEntry(
             TradingSignal signal,
             TradeDirection direction) {
-        TradePlan plan = tradeSetupService.create(signal.symbol(), direction);
+        TradePlan plan = signal.orderDetails() != null
+                && signal.orderDetails().entryStopPrice() != null
+                && signal.orderDetails().initialStopPrice() != null
+                ? tradeSetupService.create(
+                        signal.symbol(),
+                        direction,
+                        BigDecimal.valueOf(signal.orderDetails().entryStopPrice()),
+                        BigDecimal.valueOf(signal.orderDetails().initialStopPrice()))
+                : tradeSetupService.create(signal.symbol(), direction);
         OrderSide side = direction == TradeDirection.LONG
                 ? OrderSide.BUY
                 : OrderSide.SELL;
@@ -299,6 +364,10 @@ public class PaperOrderExecutionService {
                 .map(target -> (Object) target.price())
                 .findFirst()
                 .orElse("-");
+    }
+
+    private String normalizeSymbol(String symbol) {
+        return symbol == null ? "" : symbol.trim().toUpperCase(Locale.ROOT);
     }
 
     private void pauseBetweenAttachedOrders() {

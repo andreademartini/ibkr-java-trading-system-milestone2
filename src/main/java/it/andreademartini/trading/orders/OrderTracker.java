@@ -247,6 +247,29 @@ public class OrderTracker implements IbkrEventListener {
                 .toList();
     }
 
+    public List<Integer> activeOrderIdsForTrade(String tradeId) {
+        if (!hasTradeId(tradeId)) {
+            return List.of();
+        }
+        return orders.values().stream()
+                .filter(TrackedOrder::isActive)
+                .filter(order -> tradeId.equals(order.tradeId()))
+                .sorted(Comparator.comparingInt(TrackedOrder::orderId))
+                .map(TrackedOrder::orderId)
+                .toList();
+    }
+
+    public boolean hasFilledEntryForTrade(String tradeId) {
+        if (!hasTradeId(tradeId)) {
+            return false;
+        }
+        return orders.values().stream()
+                .filter(order -> tradeId.equals(order.tradeId()))
+                .filter(order -> isEntryRole(order.role()))
+                .anyMatch(order -> order.filled().compareTo(BigDecimal.ZERO) > 0
+                        || order.isFilled());
+    }
+
     private void reconcileTrade(TrackedOrder previous, TrackedOrder updated) {
         if (!hasTradeId(updated.tradeId())) {
             return;

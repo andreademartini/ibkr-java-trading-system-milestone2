@@ -13,6 +13,8 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.andreademartini.trading.strategy.StrategyTradeMode;
+
 @Validated
 @ConfigurationProperties(prefix = "trading")
 public class TradingSystemProperties {
@@ -44,8 +46,8 @@ public class TradingSystemProperties {
     @Valid
     private final MarketDataProperties marketData = new MarketDataProperties();
 
-    @Valid
-    private final StrategyProperties strategy = new StrategyProperties();
+        @Valid
+        private final StrategyProperties strategy = new StrategyProperties();
 
     @Valid
     private final RiskProperties risk = new RiskProperties();
@@ -385,6 +387,9 @@ public class TradingSystemProperties {
         @NotNull
         private Duration signalCooldown = Duration.ofMinutes(1);
 
+        @Valid
+        private final JoeRossProperties joeRoss123RhTte = new JoeRossProperties();
+
         public StrategyType getType() {
             return type;
         }
@@ -441,6 +446,247 @@ public class TradingSystemProperties {
             this.signalCooldown = signalCooldown;
         }
 
+        public JoeRossProperties getJoeRoss123RhTte() {
+            return joeRoss123RhTte;
+        }
+
+        /** Configuration alias preserving the requested joe-ross-123-rh-tte key. */
+        public JoeRossProperties getJoeRoss_123RhTte() {
+            return joeRoss123RhTte;
+        }
+
+    }
+
+    public static class JoeRossProperties {
+
+        private boolean enabled = true;
+
+        @NotNull
+        private StrategyTradeMode direction = StrategyTradeMode.LONG_SHORT;
+
+        @DecimalMin("0.00000001")
+        private double minimumTick = 0.01;
+
+        /** Extra distance beyond Point 2 required before accepting the violation. */
+        @Min(0)
+        private int point2BreakoutBufferTicks = 0;
+
+        @Valid
+        private final SwingProperties swing = new SwingProperties();
+
+        @Valid
+        private final RossHookProperties rossHook = new RossHookProperties();
+
+        @Valid
+        private final TteProperties tte = new TteProperties();
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public StrategyTradeMode getDirection() {
+            return direction;
+        }
+
+        public void setDirection(StrategyTradeMode direction) {
+            this.direction = direction;
+        }
+
+        public double getMinimumTick() {
+            return minimumTick;
+        }
+
+        public void setMinimumTick(double minimumTick) {
+            this.minimumTick = minimumTick;
+        }
+
+        public int getPoint2BreakoutBufferTicks() {
+            return point2BreakoutBufferTicks;
+        }
+
+        public void setPoint2BreakoutBufferTicks(int point2BreakoutBufferTicks) {
+            this.point2BreakoutBufferTicks = point2BreakoutBufferTicks;
+        }
+
+        public SwingProperties getSwing() {
+            return swing;
+        }
+
+        public RossHookProperties getRossHook() {
+            return rossHook;
+        }
+
+        public TteProperties getTte() {
+            return tte;
+        }
+    }
+
+    public static class SwingProperties {
+
+        @Min(1)
+        private int pivotStrength = 2;
+
+        public int getPivotStrength() {
+            return pivotStrength;
+        }
+
+        public void setPivotStrength(int pivotStrength) {
+            this.pivotStrength = pivotStrength;
+        }
+    }
+
+    public static class RossHookProperties {
+
+        private boolean require123 = true;
+
+        public boolean isRequire123() {
+            return require123;
+        }
+
+        public void setRequire123(boolean require123) {
+            this.require123 = require123;
+        }
+
+        public boolean isRequire_123() {
+            return require123;
+        }
+
+        public void setRequire_123(boolean require123) {
+            this.require123 = require123;
+        }
+    }
+
+    public static class TteProperties {
+
+        private boolean enabled = true;
+
+        @Min(1)
+        private int maxBarsAfterRossHook = 3;
+
+        @Min(0)
+        private int entryBufferTicks = 1;
+
+        @Min(0)
+        private int stopBufferTicks = 1;
+
+        @Valid
+        private final MinimumRoomProperties minimumRoom = new MinimumRoomProperties();
+
+        private boolean allowAfterThreeBarsOnDoubleTriple = false;
+
+        @Min(0)
+        private int doubleTripleToleranceTicks = 1;
+
+        private boolean rejectGapOverEntry = true;
+
+        private boolean fallbackToRossHookBreakout = false;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public int getMaxBarsAfterRossHook() {
+            return maxBarsAfterRossHook;
+        }
+
+        public void setMaxBarsAfterRossHook(int maxBarsAfterRossHook) {
+            this.maxBarsAfterRossHook = maxBarsAfterRossHook;
+        }
+
+        public int getEntryBufferTicks() {
+            return entryBufferTicks;
+        }
+
+        public void setEntryBufferTicks(int entryBufferTicks) {
+            this.entryBufferTicks = entryBufferTicks;
+        }
+
+        public int getStopBufferTicks() {
+            return stopBufferTicks;
+        }
+
+        public void setStopBufferTicks(int stopBufferTicks) {
+            this.stopBufferTicks = stopBufferTicks;
+        }
+
+        public MinimumRoomProperties getMinimumRoom() {
+            return minimumRoom;
+        }
+
+        public boolean isAllowAfterThreeBarsOnDoubleTriple() {
+            return allowAfterThreeBarsOnDoubleTriple;
+        }
+
+        public void setAllowAfterThreeBarsOnDoubleTriple(boolean value) {
+            this.allowAfterThreeBarsOnDoubleTriple = value;
+        }
+
+        public int getDoubleTripleToleranceTicks() {
+            return doubleTripleToleranceTicks;
+        }
+
+        public void setDoubleTripleToleranceTicks(int value) {
+            this.doubleTripleToleranceTicks = value;
+        }
+
+        public boolean isRejectGapOverEntry() {
+            return rejectGapOverEntry;
+        }
+
+        public void setRejectGapOverEntry(boolean rejectGapOverEntry) {
+            this.rejectGapOverEntry = rejectGapOverEntry;
+        }
+
+        public boolean isFallbackToRossHookBreakout() {
+            return fallbackToRossHookBreakout;
+        }
+
+        public void setFallbackToRossHookBreakout(boolean value) {
+            this.fallbackToRossHookBreakout = value;
+        }
+    }
+
+    public static class MinimumRoomProperties {
+
+        private boolean enabled = true;
+
+        @NotBlank
+        private String type = "R";
+
+        @DecimalMin("0.0")
+        private double value = 0.5;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public double getValue() {
+            return value;
+        }
+
+        public void setValue(double value) {
+            this.value = value;
+        }
     }
 
     public static class RiskProperties {

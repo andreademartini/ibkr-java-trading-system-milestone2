@@ -61,6 +61,39 @@ public class TradingStockStrategyEntity {
     @Column(nullable = false)
     private int maxPoints;
 
+    @Column
+    private Integer pivotStrength;
+
+    @Column
+    private Double minimumTick;
+
+    @Column
+    private Integer tteMaxBars;
+
+    @Column
+    private Integer entryBufferTicks;
+
+    @Column
+    private Integer stopBufferTicks;
+
+    @Column
+    private Boolean minimumRoomEnabled;
+
+    @Column(length = 8)
+    private String minimumRoomType;
+
+    @Column
+    private Double minimumRoomValue;
+
+    @Column
+    private Boolean allowDoubleTriple;
+
+    @Column
+    private Integer doubleTripleToleranceTicks;
+
+    @Column
+    private Boolean rejectGapOverEntry;
+
     @Column(nullable = false)
     private int sortOrder;
 
@@ -88,6 +121,17 @@ public class TradingStockStrategyEntity {
             String timeframe,
             String outputSize,
             int maxPoints,
+            int pivotStrength,
+            double minimumTick,
+            int tteMaxBars,
+            int entryBufferTicks,
+            int stopBufferTicks,
+            boolean minimumRoomEnabled,
+            String minimumRoomType,
+            double minimumRoomValue,
+            boolean allowDoubleTriple,
+            int doubleTripleToleranceTicks,
+            boolean rejectGapOverEntry,
             int sortOrder,
             Instant now) {
         this.id = id;
@@ -106,6 +150,17 @@ public class TradingStockStrategyEntity {
         this.timeframe = timeframe;
         this.outputSize = outputSize;
         this.maxPoints = maxPoints;
+        this.pivotStrength = pivotStrength;
+        this.minimumTick = minimumTick;
+        this.tteMaxBars = tteMaxBars;
+        this.entryBufferTicks = entryBufferTicks;
+        this.stopBufferTicks = stopBufferTicks;
+        this.minimumRoomEnabled = minimumRoomEnabled;
+        this.minimumRoomType = minimumRoomType;
+        this.minimumRoomValue = minimumRoomValue;
+        this.allowDoubleTriple = allowDoubleTriple;
+        this.doubleTripleToleranceTicks = doubleTripleToleranceTicks;
+        this.rejectGapOverEntry = rejectGapOverEntry;
         this.sortOrder = sortOrder;
         this.createdAt = now;
         this.updatedAt = now;
@@ -171,5 +226,39 @@ public class TradingStockStrategyEntity {
 
     public int getMaxPoints() {
         return maxPoints;
+    }
+
+    public int getPivotStrength() { return pivotStrength == null ? 2 : pivotStrength; }
+
+    public double getMinimumTick() { return minimumTick == null ? 0.01 : minimumTick; }
+
+    public int getTteMaxBars() { return tteMaxBars == null ? 3 : tteMaxBars; }
+
+    public int getEntryBufferTicks() { return entryBufferTicks == null ? 1 : entryBufferTicks; }
+
+    public int getStopBufferTicks() { return stopBufferTicks == null ? 1 : stopBufferTicks; }
+
+    public boolean isMinimumRoomEnabled() {
+        return minimumRoomEnabled == null || minimumRoomEnabled;
+    }
+
+    public String getMinimumRoomType() {
+        return minimumRoomType == null || minimumRoomType.isBlank() ? "R" : minimumRoomType;
+    }
+
+    public double getMinimumRoomValue() {
+        return minimumRoomValue == null ? 0.5 : minimumRoomValue;
+    }
+
+    public boolean isAllowDoubleTriple() {
+        return allowDoubleTriple != null && allowDoubleTriple;
+    }
+
+    public int getDoubleTripleToleranceTicks() {
+        return doubleTripleToleranceTicks == null ? 1 : doubleTripleToleranceTicks;
+    }
+
+    public boolean isRejectGapOverEntry() {
+        return rejectGapOverEntry == null || rejectGapOverEntry;
     }
 }

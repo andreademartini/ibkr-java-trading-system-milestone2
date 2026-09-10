@@ -41,7 +41,10 @@ public class SignalService {
             recentSignals.removeLast();
         }
 
-        if (execute && signal.action() != SignalAction.HOLD) {
+        boolean pendingOrderCancellation = signal.orderDetails() != null
+                && signal.orderDetails().cancelPending();
+        if (execute && (signal.action() != SignalAction.HOLD
+                || pendingOrderCancellation)) {
             orderExecutionService.executeSignal(signal);
         }
     }

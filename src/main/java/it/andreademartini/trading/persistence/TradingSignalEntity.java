@@ -33,6 +33,21 @@ public class TradingSignalEntity {
     @Column(nullable = false, length = 500)
     private String reason;
 
+    @Column
+    private Double entryStopPrice;
+
+    @Column
+    private Double initialStopPrice;
+
+    @Column
+    private Boolean rejectGapOverEntry;
+
+    @Column
+    private Integer activeAfterBarIndex;
+
+    @Column(length = 8000)
+    private String strategyMetadataJson;
+
     @Column(nullable = false)
     private Instant createdAt;
 
@@ -47,6 +62,11 @@ public class TradingSignalEntity {
             long quantity,
             String source,
             String reason,
+            Double entryStopPrice,
+            Double initialStopPrice,
+            Boolean rejectGapOverEntry,
+            Integer activeAfterBarIndex,
+            String strategyMetadataJson,
             Instant createdAt) {
         this.id = id;
         this.symbol = symbol;
@@ -55,10 +75,35 @@ public class TradingSignalEntity {
         this.quantity = quantity;
         this.source = source;
         this.reason = reason;
+        this.entryStopPrice = entryStopPrice;
+        this.initialStopPrice = initialStopPrice;
+        this.rejectGapOverEntry = rejectGapOverEntry;
+        this.activeAfterBarIndex = activeAfterBarIndex;
+        this.strategyMetadataJson = strategyMetadataJson;
         this.createdAt = createdAt;
     }
 
     public String getId() {
         return id;
+    }
+
+    public Double getEntryStopPrice() {
+        return entryStopPrice;
+    }
+
+    public Double getInitialStopPrice() {
+        return initialStopPrice;
+    }
+
+    public Boolean getRejectGapOverEntry() {
+        return rejectGapOverEntry;
+    }
+
+    public Integer getActiveAfterBarIndex() {
+        return activeAfterBarIndex;
+    }
+
+    public String getStrategyMetadataJson() {
+        return strategyMetadataJson;
     }
 }

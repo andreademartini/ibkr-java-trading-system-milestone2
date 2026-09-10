@@ -64,6 +64,7 @@ p {
 
 .top-actions,
 .button-row,
+.toolbar-button-row,
 .panel-heading,
 .segmented {
     display: flex;
@@ -135,6 +136,7 @@ button:disabled,
 .topbar .link-button,
 .panel-heading > button,
 .button-row button:first-child,
+.toolbar-button-row button:first-child,
 .button-row .primary-action {
     background: var(--accent);
     border-color: var(--accent);
@@ -145,6 +147,7 @@ button:disabled,
 .topbar .link-button:hover,
 .panel-heading > button:hover,
 .button-row button:first-child:hover,
+.toolbar-button-row button:first-child:hover,
 .button-row .primary-action:hover {
     background: var(--accent-dark);
 }
@@ -211,7 +214,7 @@ button.danger {
 }
 
 .action-grid {
-    grid-template-columns: minmax(300px, 0.42fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .panel {
@@ -330,6 +333,39 @@ textarea:focus {
 
 .inline-row {
     margin-top: 0;
+}
+
+.stock-toolbar {
+    display: grid;
+    grid-template-columns: minmax(180px, 260px) minmax(260px, 1fr) auto auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.stock-toolbar .stock-entry {
+    margin-bottom: 0;
+}
+
+.toolbar-button-row {
+    flex-wrap: wrap;
+}
+
+.toolbar-danger {
+    justify-self: end;
+}
+
+.strategy-select-field {
+    margin-bottom: 14px;
+}
+
+.empty-state {
+    margin-top: 12px;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    background: #fbfcfc;
+    color: var(--muted);
+    font-weight: 650;
 }
 
 .guard-row {
@@ -670,6 +706,22 @@ tbody tr:hover {
     fill: var(--danger);
 }
 
+.chart .stop-marker {
+    fill: #fff;
+    stroke: #b45309;
+    stroke-width: 2;
+}
+
+.chart .marker-label {
+    fill: #17343a;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.chart .stop-label {
+    fill: #92400e;
+}
+
 #toast {
     position: fixed;
     right: 18px;
@@ -760,6 +812,14 @@ tbody tr:hover {
     .form-grid.compact {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .stock-toolbar {
+        grid-template-columns: minmax(180px, 1fr) minmax(260px, 2fr);
+    }
+
+    .toolbar-danger {
+        justify-self: start;
+    }
 }
 
 @media (max-width: 680px) {
@@ -774,7 +834,8 @@ tbody tr:hover {
     }
 
     .form-grid,
-    .form-grid.compact {
+    .form-grid.compact,
+    .stock-toolbar {
         grid-template-columns: 1fr;
     }
 
@@ -785,5 +846,13 @@ tbody tr:hover {
     .panel-heading {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .toolbar-button-row,
+    .toolbar-button-row button,
+    .toolbar-danger,
+    .panel-heading .button-row,
+    .panel-heading .button-row button {
+        width: 100%;
     }
 }

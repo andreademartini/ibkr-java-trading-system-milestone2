@@ -70,7 +70,10 @@ function fillSelect(select, values) {
 }
 
 function setValue(id, value) {
-    $(id).value = value ?? "";
+    const element = $(id);
+    if (element) {
+        element.value = value ?? "";
+    }
 }
 
 function num(id) {
@@ -92,8 +95,10 @@ function selectedProfile() {
     if (!stock) {
         return null;
     }
-    return stock.strategies.find((profile) => profile.id === state.selectedProfileId)
-        || stock.strategies[0];
+    const strategies = stock.strategies || [];
+    return strategies.find((profile) => profile.id === state.selectedProfileId)
+        || strategies[0]
+        || null;
 }
 
 function flattenStocks(stocks) {
@@ -147,7 +152,18 @@ function defaultStrategy(symbol, index = 1) {
         slippagePercent: 0,
         timeframe: "DAILY",
         outputSize: "compact",
-        maxPoints: 100
+        maxPoints: 100,
+        pivotStrength: 2,
+        minimumTick: 0.01,
+        tteMaxBars: 3,
+        entryBufferTicks: 1,
+        stopBufferTicks: 1,
+        minimumRoomEnabled: true,
+        minimumRoomType: "R",
+        minimumRoomValue: 0.5,
+        allowDoubleTriple: false,
+        doubleTripleToleranceTicks: 1,
+        rejectGapOverEntry: true
     };
 }
 
@@ -168,12 +184,16 @@ function defaultStock(symbol) {
 function defaultPrimaryExchange(symbol) {
     const normalized = (symbol || "").trim().toUpperCase();
     const nasdaq = new Set([
-        "AAPL", "AMD", "AMZN", "GOOG", "GOOGL", "INTC",
-        "META", "MSFT", "NFLX", "NVDA", "QQQ", "TSLA"
+        "AAPL", "AMD", "AMZN", "AVGO", "GOOG", "GOOGL", "INTC",
+        "META", "MSFT", "NFLX", "NVDA", "QQQ", "SMH", "TSLA"
     ]);
-    const arca = new Set(["DIA", "IWM", "SPY"]);
+    const nyse = new Set(["BA", "BAC", "CAT", "CVX", "DIS", "GS", "JPM", "KO", "NKE", "XOM"]);
+    const arca = new Set(["DIA", "IWM", "SPY", "XLE", "XLF", "XLI", "XLK", "XLY"]);
     if (nasdaq.has(normalized)) {
         return "NASDAQ";
+    }
+    if (nyse.has(normalized)) {
+        return "NYSE";
     }
     if (arca.has(normalized)) {
         return "ARCA";
@@ -268,60 +288,112 @@ function renderStatus() {
     $("last-refresh").textContent = `Ultimo refresh ${new Date().toLocaleTimeString("it-IT")}`;
 }
 
-function renderProfiles() {
-    $("stock-list").innerHTML = state.stocks.map((stock) => `
-        <button class="profile-card ${stock.id === state.selectedStockId ? "selected" : ""}"
-                type="button"
-                data-stock-id="${stock.id}">
-            <strong>${stock.symbol}</strong>
-            <span>${stock.name || stock.symbol}</span>
-            <small>${stock.securityType || "STK"} ${stock.exchange || "SMART"}${stock.primaryExchange ? ` / ${stock.primaryExchange}` : ""} ${stock.currency || "USD"} - ${(stock.strategies || []).length} strategie</small>
-        </button>
-    `).join("");
+function appendOption(select, value, label) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    select.appendChild(option);
+}
 
-    document.querySelectorAll("[data-stock-id]").forEach((button) => {
-        button.addEventListener("click", () => {
-            saveSelectedFormInMemory();
-            state.selectedStockId = button.dataset.stockId;
-            const stock = selectedStock();
-            state.selectedProfileId = stock?.strategies[0]?.id || null;
-            applyProfileToForm(selectedProfile());
-            renderProfiles();
-            loadStoredHistoryForSelectedProfile({
-                silent: true,
-                switchTab: true
-            }).catch((error) => toast(error.message, true, 9000));
-        });
-    });
+function renderStockSelect() {
+    const select = $("stock-select");
+    if (!select) {
+        return;
+    }
+    select.innerHTML = "";
+    const stock = selectedStock();
+    if (state.stocks.length === 0) {
+        appendOption(select, "", "Nessuno stock configurato");
+        select.disabled = true;
+        return;
+    }
+    state.stocks.forEach((item) => appendOption(select, item.id, item.symbol));
+    select.disabled = false;
+    select.value = stock?.id || "";
+}
 
+function renderStrategySelect() {
+    const select = $("strategy-select");
+    if (!select) {
+        return;
+    }
     const stock = selectedStock();
     const strategies = stock?.strategies || [];
-    $("strategy-list").innerHTML = strategies.map((profile) => `
-        <button class="profile-card strategy-card ${profile.id === state.selectedProfileId ? "selected" : ""}"
-                type="button"
-                data-profile-id="${profile.id}">
-            <strong>${profile.name}</strong>
-            <span>${profile.strategy}</span>
-            <small>${tradeDirectionLabel(profile.tradeDirection)} - F${profile.fastPeriod} / S${profile.slowPeriod} - ${profile.timeframe}</small>
-        </button>
-    `).join("");
+    const profile = selectedProfile();
+    select.innerHTML = "";
+    if (strategies.length === 0) {
+        appendOption(select, "", "Nessuna strategia");
+        select.disabled = true;
+        return;
+    }
+    strategies.forEach((item) => appendOption(select, item.id, item.name));
+    select.disabled = false;
+    select.value = profile?.id || "";
+}
 
-    document.querySelectorAll("[data-profile-id]").forEach((button) => {
-        button.addEventListener("click", () => {
-            saveSelectedFormInMemory();
-            state.selectedProfileId = button.dataset.profileId;
-            applyProfileToForm(selectedProfile());
-            renderProfiles();
-            loadStoredHistoryForSelectedProfile({
-                silent: true,
-                switchTab: true
-            }).catch((error) => toast(error.message, true, 9000));
-        });
+function renderProfileControls() {
+    const emptyState = $("stock-empty-state");
+    if (emptyState) {
+        emptyState.hidden = state.stocks.length > 0;
+    }
+    const deleteStockButton = $("delete-stock-button");
+    if (deleteStockButton) {
+        deleteStockButton.disabled = state.stocks.length === 0;
+    }
+    const deleteStrategyButton = $("delete-strategy-button");
+    if (deleteStrategyButton) {
+        deleteStrategyButton.disabled = !selectedProfile();
+    }
+}
+
+function renderProfiles() {
+    renderStockSelect();
+    renderStrategySelect();
+    renderProfileControls();
+}
+
+async function selectStockById(stockId) {
+    if (!stockId || stockId === state.selectedStockId) {
+        return;
+    }
+    if (!state.stocks.some((stock) => stock.id === stockId)) {
+        renderProfiles();
+        return;
+    }
+    saveSelectedFormInMemory();
+    state.selectedStockId = stockId;
+    const stock = selectedStock();
+    state.selectedProfileId = (stock?.strategies || [])[0]?.id || null;
+    applyProfileToForm(selectedProfile());
+    renderProfiles();
+    await loadStoredHistoryForSelectedProfile({
+        silent: true,
+        switchTab: true
+    });
+}
+
+async function selectProfileById(profileId) {
+    if (!profileId || profileId === state.selectedProfileId) {
+        return;
+    }
+    const stock = selectedStock();
+    if (!(stock?.strategies || []).some((profile) => profile.id === profileId)) {
+        renderProfiles();
+        return;
+    }
+    saveSelectedFormInMemory();
+    state.selectedProfileId = profileId;
+    applyProfileToForm(selectedProfile());
+    renderProfiles();
+    await loadStoredHistoryForSelectedProfile({
+        silent: true,
+        switchTab: true
     });
 }
 
 function applyProfileToForm(profile) {
     if (!profile) {
+        clearProfileForm();
         return;
     }
     const stock = selectedStock();
@@ -336,6 +408,18 @@ function applyProfileToForm(profile) {
     setValue("profile-trade-direction", profile.tradeDirection || "LONG_SHORT");
     setValue("profile-fast", profile.fastPeriod);
     setValue("profile-slow", profile.slowPeriod);
+    setValue("profile-pivot-strength", profile.pivotStrength ?? 2);
+    setValue("profile-minimum-tick", profile.minimumTick ?? 0.01);
+    setValue("profile-tte-max-bars", profile.tteMaxBars ?? 3);
+    setValue("profile-entry-buffer-ticks", profile.entryBufferTicks ?? 1);
+    setValue("profile-stop-buffer-ticks", profile.stopBufferTicks ?? 1);
+    setValue("profile-minimum-room-enabled", String(profile.minimumRoomEnabled ?? true));
+    setValue("profile-minimum-room-type", profile.minimumRoomType || "R");
+    setValue("profile-minimum-room-value", profile.minimumRoomValue ?? 0.5);
+    setValue("profile-allow-double-triple", String(profile.allowDoubleTriple ?? false));
+    setValue("profile-double-triple-tolerance", profile.doubleTripleToleranceTicks ?? 1);
+    setValue("profile-reject-gap", String(profile.rejectGapOverEntry ?? true));
+    toggleStrategyFields();
     setValue("profile-quantity", profile.quantity);
     setValue("profile-capital", profile.initialCapital);
     setValue("profile-commission", profile.commissionPerOrder);
@@ -353,6 +437,40 @@ function applyProfileToForm(profile) {
     if (!$("historical-to").value) {
         setValue("historical-to", todayIsoDate());
     }
+}
+
+function clearProfileForm() {
+    [
+        "profile-name",
+        "profile-symbol",
+        "stock-security-type",
+        "stock-exchange",
+        "stock-primary-exchange",
+        "stock-currency",
+        "profile-fast",
+        "profile-slow",
+        "profile-pivot-strength",
+        "profile-minimum-tick",
+        "profile-tte-max-bars",
+        "profile-entry-buffer-ticks",
+        "profile-stop-buffer-ticks",
+        "profile-minimum-room-value",
+        "profile-double-triple-tolerance",
+        "profile-quantity",
+        "profile-capital",
+        "profile-commission",
+        "profile-slippage",
+        "profile-max-points",
+        "signal-price",
+        "signal-reason",
+        "simulate-prices"
+    ].forEach((id) => setValue(id, ""));
+    setValue("profile-strategy", "");
+    setValue("profile-trade-direction", "LONG_SHORT");
+    setValue("profile-timeframe", "DAILY");
+    setValue("profile-output-size", "compact");
+    setValue("signal-action", "BUY");
+    setValue("signal-execute", "false");
 }
 
 function collectProfileFromForm() {
@@ -373,8 +491,27 @@ function collectProfileFromForm() {
         slippagePercent: num("profile-slippage"),
         timeframe: $("profile-timeframe").value,
         outputSize: $("profile-output-size").value,
-        maxPoints: num("profile-max-points")
+        maxPoints: num("profile-max-points"),
+        pivotStrength: num("profile-pivot-strength"),
+        minimumTick: num("profile-minimum-tick"),
+        tteMaxBars: num("profile-tte-max-bars"),
+        entryBufferTicks: num("profile-entry-buffer-ticks"),
+        stopBufferTicks: num("profile-stop-buffer-ticks"),
+        minimumRoomEnabled: $("profile-minimum-room-enabled").value === "true",
+        minimumRoomType: "R",
+        minimumRoomValue: num("profile-minimum-room-value"),
+        allowDoubleTriple: $("profile-allow-double-triple").value === "true",
+        doubleTripleToleranceTicks: num("profile-double-triple-tolerance"),
+        rejectGapOverEntry: $("profile-reject-gap").value === "true"
     };
+}
+
+function toggleStrategyFields() {
+    const joeRoss = $("profile-strategy")?.value === "JOE_ROSS_123_RH_TTE";
+    document.querySelectorAll(".ma-strategy-field")
+        .forEach((field) => field.hidden = joeRoss);
+    document.querySelectorAll(".joe-ross-strategy-field")
+        .forEach((field) => field.hidden = !joeRoss);
 }
 
 function collectStockFromForm() {
@@ -598,7 +735,15 @@ function renderHistory() {
     const message = state.history.message ? ` - ${state.history.message}` : "";
     $("history-summary").textContent =
         `${state.history.symbol} ${state.history.timeframe} ${state.history.bars.length} barre - fonte ${source}${loadedAt}${message}`;
-    $("history-body").innerHTML = state.history.bars.map((bar) => `
+    const rows = [...state.history.bars].sort((first, second) => {
+        const firstTime = Date.parse(first.timestamp || first.label || "");
+        const secondTime = Date.parse(second.timestamp || second.label || "");
+        if (Number.isFinite(firstTime) && Number.isFinite(secondTime)) {
+            return secondTime - firstTime;
+        }
+        return String(second.label || "").localeCompare(String(first.label || ""));
+    });
+    $("history-body").innerHTML = rows.map((bar) => `
         <tr>
             <td>${bar.index}</td>
             <td>${bar.label}</td>
@@ -803,9 +948,46 @@ function renderSimulationMetrics(simulation) {
         ["Avg trade", formatNumber(metrics.averageTrade)],
         ["Exposure", `${formatNumber(metrics.exposurePercent)}%`],
         ["Buy & hold", `${formatNumber(metrics.buyAndHoldReturnPercent)}%`],
-        ["Direzione", tradeDirectionLabel(parameters.tradeDirection)],
-        ["Parametri", `F${parameters.fastPeriod} / S${parameters.slowPeriod} / Q${parameters.quantity}`]
+        ["Direzione", tradeDirectionLabel(parameters.tradeDirection)]
     ];
+    if (parameters.strategy !== "JOE_ROSS_123_RH_TTE") {
+        items.push(["Parametri",
+            `F${parameters.fastPeriod} / S${parameters.slowPeriod} / Q${parameters.quantity}`]);
+    }
+    const joe = simulation.joeRossStatistics;
+    if (joe) {
+        items.push(
+            ["1-2-3", formatNumber(joe.patterns123Found)],
+            ["Breakout P2", formatNumber(joe.point2Breakouts)],
+            ["Ross Hook", formatNumber(joe.rossHooksFormed)],
+            ["TTE valide", formatNumber(joe.validTteCandidates)],
+            ["TTE trigger", formatNumber(joe.tteTriggered)],
+            ["TTE scadute", formatNumber(joe.tteExpired)],
+            ["Room reject", formatNumber(joe.tteRejectedInsufficientRoom)],
+            ["Gap reject", formatNumber(joe.tteRejectedGap)],
+            ["RH missed", formatNumber(joe.tteMissedRossHookBroken)],
+            ["Setup invalidati", formatNumber(joe.setupsInvalidated)],
+            ["Trade LONG", formatNumber(joe.longTradesTriggered)],
+            ["Trade SHORT", formatNumber(joe.shortTradesTriggered)]
+        );
+    }
+    if (simulation.trades.length > 0) {
+        const average = (field) => simulation.trades
+            .map((trade) => Number(trade[field]))
+            .filter(Number.isFinite)
+            .reduce((sum, value, _index, values) => sum + value / values.length, 0);
+        items.push(
+            ["Average R", formatNumber(simulation.trades
+                .reduce((sum, trade) => sum + (trade.effectiveRisk
+                    ? trade.netPnl / trade.effectiveRisk : 0), 0)
+                / simulation.trades.length)],
+            ["Average MFE R", formatNumber(average("mfeR"))],
+            ["Average MAE R", formatNumber(average("maeR"))],
+            ["Average bars in trade", formatNumber(simulation.trades
+                .reduce((sum, trade) => sum + Math.max(0, trade.exitIndex - trade.entryIndex + 1), 0)
+                / simulation.trades.length)]
+        );
+    }
     $("simulation-metrics").innerHTML = items.map(([label, value]) => `
         <div class="mini-metric"><span>${label}</span><strong>${value}</strong></div>
     `).join("");
@@ -819,11 +1001,50 @@ function renderPriceChart(simulation) {
         low: point.low ?? point.price,
         close: point.close ?? point.price
     }));
-    const markers = simulation.signals.map((signal) => {
+    const signalMarkers = simulation.signals
+        .filter((signal) => signal.action !== "HOLD"
+            && signal.source !== "JOE_ROSS_123_RH_TTE")
+        .map((signal) => {
         const point = nearestPricePoint(simulation.priceSeries, signal.occurredAt);
         return point ? { x: point.index, y: point.close ?? point.price, type: signal.action } : null;
     }).filter(Boolean);
-    $("price-chart").innerHTML = ohlcChart(bars, markers);
+    const joeMarkers = (simulation.joeRossEvents || []).map((event) => {
+        const label = joeRossMarkerLabel(event.type);
+        return label ? {
+            x: event.barIndex,
+            y: event.price,
+            type: event.direction === "SHORT" ? "SELL" : "BUY",
+            label
+        } : null;
+    }).filter(Boolean);
+    const stopMarkers = (simulation.trades || [])
+        .filter((trade) => Number.isFinite(Number(trade.initialStopPrice)))
+        .map((trade) => ({
+            x: trade.entryIndex,
+            y: Number(trade.initialStopPrice),
+            type: "STOP",
+            label: "STOP"
+        }));
+    $("price-chart").innerHTML = ohlcChart(
+        bars,
+        [...signalMarkers, ...joeMarkers, ...stopMarkers]);
+}
+
+function joeRossMarkerLabel(type) {
+    return {
+        JOE_ROSS_POINT1_FOUND: "P1",
+        JOE_ROSS_POINT2_FOUND: "P2",
+        JOE_ROSS_POINT3_FOUND: "P3",
+        POINT2_BREAKOUT: "P2 BO",
+        ROSS_HOOK_CREATED: "RH",
+        TTE_BAR_1_CREATED: "TTE1",
+        TTE_BAR_2_CREATED: "TTE2",
+        TTE_BAR_3_CREATED: "TTE3",
+        TTE_ENTRY_CANDIDATE: "TTE STOP",
+        TTE_TRIGGERED: "ENTRY",
+        TTE_EXPIRED: "EXPIRED",
+        SETUP_INVALIDATED: "INVALID"
+    }[type] || null;
 }
 
 function renderEquityChart(simulation) {
@@ -870,9 +1091,10 @@ function lineChart(points, lineClass, markers) {
         const className = marker.type === "SELL" ? "sell-marker" : "buy-marker";
         const x = scaleX(marker.x).toFixed(2);
         const y = scaleY(marker.y).toFixed(2);
-        return marker.type === "SELL"
+        const shape = marker.type === "SELL"
             ? `<path class="${className}" d="M ${x} ${Number(y) + 6} l 6 -12 h -12 z"></path>`
             : `<path class="${className}" d="M ${x} ${Number(y) - 6} l 6 12 h -12 z"></path>`;
+        return `${shape}${marker.label ? `<text class="marker-label" x="${Number(x) + 7}" y="${Number(y) - 7}">${marker.label}</text>` : ""}`;
     }).join("");
     return `
         <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img">
@@ -923,12 +1145,25 @@ function ohlcChart(bars, markers) {
         `;
     }).join("");
     const markerSvg = markers.map((marker) => {
-        const className = marker.type === "SELL" ? "sell-marker" : "buy-marker";
         const x = scaleX(marker.x).toFixed(2);
         const y = scaleY(marker.y).toFixed(2);
-        return marker.type === "SELL"
+        const label = marker.label || "";
+        if (marker.type === "STOP") {
+            return `<g>
+                <circle class="stop-marker" cx="${x}" cy="${y}" r="4"></circle>
+                <text class="marker-label stop-label" text-anchor="middle"
+                    x="${x}" y="${Number(y) + 15}">${label}</text>
+            </g>`;
+        }
+        const className = marker.type === "SELL" ? "sell-marker" : "buy-marker";
+        const shape = marker.type === "SELL"
             ? `<path class="${className}" d="M ${x} ${Number(y) + 6} l 6 -12 h -12 z"></path>`
             : `<path class="${className}" d="M ${x} ${Number(y) - 6} l 6 12 h -12 z"></path>`;
+        const labelY = marker.type === "SELL" ? Number(y) + 18 : Number(y) - 10;
+        return `<g>${shape}
+            ${label ? `<text class="marker-label" text-anchor="middle"
+                x="${x}" y="${labelY}">${label}</text>` : ""}
+        </g>`;
     }).join("");
     return `
         <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img">
@@ -1303,7 +1538,17 @@ async function simulateStrategy() {
             initialCapital: profile.initialCapital,
             commissionPerOrder: profile.commissionPerOrder,
             slippagePercent: profile.slippagePercent,
-            publishSignals: false
+            publishSignals: false,
+            pivotStrength: profile.pivotStrength,
+            minimumTick: profile.minimumTick,
+            tteMaxBars: profile.tteMaxBars,
+            entryBufferTicks: profile.entryBufferTicks,
+            stopBufferTicks: profile.stopBufferTicks,
+            minimumRoomEnabled: profile.minimumRoomEnabled,
+            minimumRoomValue: profile.minimumRoomValue,
+            allowDoubleTriple: profile.allowDoubleTriple,
+            doubleTripleToleranceTicks: profile.doubleTripleToleranceTicks,
+            rejectGapOverEntry: profile.rejectGapOverEntry
         })
     });
     setResultTab("simulation");
@@ -1394,6 +1639,15 @@ function initEvents() {
     bind("save-profiles-button", saveProfiles);
     bind("delete-stock-button", deleteStock);
     bind("delete-strategy-button", deleteStrategy);
+    $("stock-select")?.addEventListener("change", (event) => {
+        selectStockById(event.target.value)
+            .catch((error) => toast(error.message, true, 9000));
+    });
+    $("strategy-select")?.addEventListener("change", (event) => {
+        selectProfileById(event.target.value)
+            .catch((error) => toast(error.message, true, 9000));
+    });
+    $("profile-strategy")?.addEventListener("change", toggleStrategyFields);
     bindStooqFileImport();
     bind("import-stooq-directory-button", importStooqDirectory);
     bind("download-history-button", downloadHistory);

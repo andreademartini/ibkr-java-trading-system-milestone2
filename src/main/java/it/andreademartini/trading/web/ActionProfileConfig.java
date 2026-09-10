@@ -19,5 +19,16 @@ public record ActionProfileConfig(
         StrategyTradeMode tradeDirection,
         String timeframe,
         String outputSize,
-        Integer maxPoints) {
+        Integer maxPoints,
+        Integer pivotStrength,
+        Double minimumTick,
+        Integer tteMaxBars,
+        Integer entryBufferTicks,
+        Integer stopBufferTicks,
+        Boolean minimumRoomEnabled,
+        String minimumRoomType,
+        Double minimumRoomValue,
+        Boolean allowDoubleTriple,
+        Integer doubleTripleToleranceTicks,
+        Boolean rejectGapOverEntry) {
 }

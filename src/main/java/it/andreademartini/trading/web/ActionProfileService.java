@@ -17,10 +17,43 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class ActionProfileService {
+
+    private static final List<DefaultUniverseInstrument> DEFAULT_UNIVERSE = List.of(
+            new DefaultUniverseInstrument("AAPL", "Azione", "Tecnologia", "liquidissima, ottima per test", "NASDAQ"),
+            new DefaultUniverseInstrument("MSFT", "Azione", "Tecnologia", "liquidita elevata", "NASDAQ"),
+            new DefaultUniverseInstrument("NVDA", "Azione", "Semiconductor/AI", "forte momentum", "NASDAQ"),
+            new DefaultUniverseInstrument("AMZN", "Azione", "Consumer/Cloud", "movimenti ampi", "NASDAQ"),
+            new DefaultUniverseInstrument("META", "Azione", "Tecnologia", "buon trend/momentum", "NASDAQ"),
+            new DefaultUniverseInstrument("GOOGL", "Azione", "Tecnologia", "molto liquida", "NASDAQ"),
+            new DefaultUniverseInstrument("TSLA", "Azione", "Auto/Tech", "volatilita elevata", "NASDAQ"),
+            new DefaultUniverseInstrument("AMD", "Azione", "Semiconductor", "buona per breakout", "NASDAQ"),
+            new DefaultUniverseInstrument("AVGO", "Azione", "Semiconductor", "trend forti", "NASDAQ"),
+            new DefaultUniverseInstrument("NFLX", "Azione", "Media/Tech", "volatilita interessante", "NASDAQ"),
+            new DefaultUniverseInstrument("JPM", "Azione", "Banche", "settore diverso dal tech", "NYSE"),
+            new DefaultUniverseInstrument("BAC", "Azione", "Banche", "molto liquida", "NYSE"),
+            new DefaultUniverseInstrument("GS", "Azione", "Finanziari", "buoni movimenti", "NYSE"),
+            new DefaultUniverseInstrument("XOM", "Azione", "Energia", "utile per diversificare", "NYSE"),
+            new DefaultUniverseInstrument("CVX", "Azione", "Energia", "buona liquidita", "NYSE"),
+            new DefaultUniverseInstrument("CAT", "Azione", "Industriale", "ciclica", "NYSE"),
+            new DefaultUniverseInstrument("BA", "Azione", "Industriale", "volatilita elevata", "NYSE"),
+            new DefaultUniverseInstrument("DIS", "Azione", "Media", "liquidita elevata", "NYSE"),
+            new DefaultUniverseInstrument("NKE", "Azione", "Consumer", "pattern tecnici frequenti", "NYSE"),
+            new DefaultUniverseInstrument("KO", "Azione", "Consumer defensive", "meno volatile", "NYSE"),
+            new DefaultUniverseInstrument("SPY", "ETF", "S&P 500", "benchmark principale", "ARCA"),
+            new DefaultUniverseInstrument("QQQ", "ETF", "Nasdaq-100", "tecnologia/growth", "NASDAQ"),
+            new DefaultUniverseInstrument("IWM", "ETF", "Russell 2000", "small cap", "ARCA"),
+            new DefaultUniverseInstrument("DIA", "ETF", "Dow Jones", "large cap industrial", "ARCA"),
+            new DefaultUniverseInstrument("XLK", "ETF", "Technology", "ottimo per spread con tech", "ARCA"),
+            new DefaultUniverseInstrument("XLF", "ETF", "Financials", "spread con banche", "ARCA"),
+            new DefaultUniverseInstrument("XLE", "ETF", "Energy", "spread con oil stocks", "ARCA"),
+            new DefaultUniverseInstrument("SMH", "ETF", "Semiconductor", "ottimo con NVDA/AMD/AVGO", "NASDAQ"),
+            new DefaultUniverseInstrument("XLI", "ETF", "Industrials", "utile con CAT/BA", "ARCA"),
+            new DefaultUniverseInstrument("XLY", "ETF", "Consumer discretionary", "utile con AMZN/TSLA/NKE", "ARCA"));
 
     private final TradingStockRepository repository;
     private final TradingSystemProperties properties;
@@ -34,8 +67,7 @@ public class ActionProfileService {
 
     @Transactional
     public ActionProfilesResponse response() {
-        ensureDefaultStock();
-        return responseFrom(repository.findAllByOrderBySymbolAsc());
+        return responseFrom(ensureDefaultUniverse());
     }
 
     @Transactional
@@ -133,6 +165,8 @@ public class ActionProfileService {
         StrategyType strategy = profile.strategy() == null
                 ? properties.getStrategy().getType()
                 : profile.strategy();
+        TradingSystemProperties.JoeRossProperties joe =
+                properties.getStrategy().getJoeRoss123RhTte();
         return new TradingStockStrategyEntity(
                 blankToDefault(profile.id(), UUID.randomUUID().toString()),
                 blankToDefault(profile.name(), symbol + " " + strategy),
@@ -158,6 +192,37 @@ public class ActionProfileService {
                 profile.maxPoints() == null
                         ? 100
                         : Math.max(1, Math.min(5_000, profile.maxPoints())),
+                profile.pivotStrength() == null
+                        ? joe.getSwing().getPivotStrength()
+                        : Math.max(1, profile.pivotStrength()),
+                profile.minimumTick() == null
+                        ? joe.getMinimumTick()
+                        : Math.max(0.00000001, profile.minimumTick()),
+                profile.tteMaxBars() == null
+                        ? joe.getTte().getMaxBarsAfterRossHook()
+                        : Math.max(1, profile.tteMaxBars()),
+                profile.entryBufferTicks() == null
+                        ? joe.getTte().getEntryBufferTicks()
+                        : Math.max(0, profile.entryBufferTicks()),
+                profile.stopBufferTicks() == null
+                        ? joe.getTte().getStopBufferTicks()
+                        : Math.max(0, profile.stopBufferTicks()),
+                profile.minimumRoomEnabled() == null
+                        ? joe.getTte().getMinimumRoom().isEnabled()
+                        : profile.minimumRoomEnabled(),
+                "R",
+                profile.minimumRoomValue() == null
+                        ? joe.getTte().getMinimumRoom().getValue()
+                        : Math.max(0, profile.minimumRoomValue()),
+                profile.allowDoubleTriple() == null
+                        ? joe.getTte().isAllowAfterThreeBarsOnDoubleTriple()
+                        : profile.allowDoubleTriple(),
+                profile.doubleTripleToleranceTicks() == null
+                        ? joe.getTte().getDoubleTripleToleranceTicks()
+                        : Math.max(0, profile.doubleTripleToleranceTicks()),
+                profile.rejectGapOverEntry() == null
+                        ? joe.getTte().isRejectGapOverEntry()
+                        : profile.rejectGapOverEntry(),
                 sortOrder,
                 now);
     }
@@ -208,37 +273,69 @@ public class ActionProfileService {
                 direction(entity.getTradeDirection()),
                 entity.getTimeframe(),
                 entity.getOutputSize(),
-                entity.getMaxPoints());
+                entity.getMaxPoints(),
+                entity.getPivotStrength(),
+                entity.getMinimumTick(),
+                entity.getTteMaxBars(),
+                entity.getEntryBufferTicks(),
+                entity.getStopBufferTicks(),
+                entity.isMinimumRoomEnabled(),
+                entity.getMinimumRoomType(),
+                entity.getMinimumRoomValue(),
+                entity.isAllowDoubleTriple(),
+                entity.getDoubleTripleToleranceTicks(),
+                entity.isRejectGapOverEntry());
     }
 
-    private void ensureDefaultStock() {
-        if (repository.count() > 0) {
-            return;
+    private List<TradingStockEntity> ensureDefaultUniverse() {
+        List<TradingStockEntity> existing = repository.findAllByOrderBySymbolAsc();
+        Set<String> existingSymbols = existing.stream()
+                .map(TradingStockEntity::getSymbol)
+                .map(this::normalizeSymbol)
+                .collect(java.util.stream.Collectors.toSet());
+
+        List<ActionStockConfig> missing = DEFAULT_UNIVERSE.stream()
+                .filter(instrument -> !existingSymbols.contains(instrument.symbol()))
+                .map(this::defaultUniverseStock)
+                .toList();
+        if (missing.isEmpty()) {
+            return existing;
         }
 
-        TradingSystemProperties.InstrumentProperties instrument =
-                properties.getMarketData().getInstruments().isEmpty()
-                        ? new TradingSystemProperties.InstrumentProperties()
-                        : properties.getMarketData().getInstruments().get(0);
-        String symbol = normalizeSymbol(instrument.getSymbol());
-        ActionStockConfig stock = new ActionStockConfig(
-                UUID.randomUUID().toString(),
-                symbol,
-                symbol,
-                blankToDefault(instrument.getSecurityType(), "STK"),
-                blankToDefault(instrument.getExchange(), "SMART"),
-                blankToDefault(instrument.getCurrency(), "USD"),
-                blankToDefault(instrument.getPrimaryExchange(), defaultPrimaryExchange(symbol)),
-                List.of(defaultStrategy(symbol)));
-        repository.save(entity(stock));
+        repository.saveAll(missing.stream()
+                .map(this::entity)
+                .toList());
         repository.flush();
+        return repository.findAllByOrderBySymbolAsc();
+    }
+
+    private ActionStockConfig defaultUniverseStock(
+            DefaultUniverseInstrument instrument) {
+        return new ActionStockConfig(
+                UUID.randomUUID().toString(),
+                instrument.symbol(),
+                instrument.displayName(),
+                "STK",
+                "SMART",
+                "USD",
+                instrument.primaryExchange(),
+                List.of(defaultStrategy(instrument.symbol(), instrument)));
     }
 
     private ActionProfileConfig defaultStrategy(String symbol) {
+        return defaultStrategy(symbol, null);
+    }
+
+    private ActionProfileConfig defaultStrategy(
+            String symbol,
+            DefaultUniverseInstrument instrument) {
         TradingSystemProperties.StrategyProperties strategy = properties.getStrategy();
+        String name = instrument == null
+                ? symbol + " crossover"
+                : symbol + " crossover - " + instrument.note();
         return new ActionProfileConfig(
                 UUID.randomUUID().toString(),
-                symbol + " crossover",
+                name,
                 symbol,
                 properties.getMarketData().getProvider(),
                 strategy.getType(),
@@ -251,7 +348,20 @@ public class ActionProfileService {
                 StrategyTradeMode.LONG_SHORT,
                 "DAILY",
                 "compact",
-                100);
+                100,
+                strategy.getJoeRoss123RhTte().getSwing().getPivotStrength(),
+                strategy.getJoeRoss123RhTte().getMinimumTick(),
+                strategy.getJoeRoss123RhTte().getTte().getMaxBarsAfterRossHook(),
+                strategy.getJoeRoss123RhTte().getTte().getEntryBufferTicks(),
+                strategy.getJoeRoss123RhTte().getTte().getStopBufferTicks(),
+                strategy.getJoeRoss123RhTte().getTte().getMinimumRoom().isEnabled(),
+                "R",
+                strategy.getJoeRoss123RhTte().getTte().getMinimumRoom().getValue(),
+                strategy.getJoeRoss123RhTte().getTte()
+                        .isAllowAfterThreeBarsOnDoubleTriple(),
+                strategy.getJoeRoss123RhTte().getTte()
+                        .getDoubleTripleToleranceTicks(),
+                strategy.getJoeRoss123RhTte().getTte().isRejectGapOverEntry());
     }
 
     private MarketDataProvider provider(MarketDataProvider provider) {
@@ -296,10 +406,26 @@ public class ActionProfileService {
 
     private String defaultPrimaryExchange(String symbol) {
         return switch (normalizeSymbol(symbol)) {
-            case "AAPL", "AMD", "AMZN", "GOOG", "GOOGL", "INTC", "META",
-                    "MSFT", "NFLX", "NVDA", "QQQ", "TSLA" -> "NASDAQ";
-            case "DIA", "IWM", "SPY" -> "ARCA";
+            case "AAPL", "AMD", "AMZN", "AVGO", "GOOG", "GOOGL", "INTC",
+                    "META", "MSFT", "NFLX", "NVDA", "QQQ", "SMH",
+                    "TSLA" -> "NASDAQ";
+            case "BA", "BAC", "CAT", "CVX", "DIS", "GS", "JPM", "KO",
+                    "NKE", "XOM" -> "NYSE";
+            case "DIA", "IWM", "SPY", "XLE", "XLF", "XLI", "XLK",
+                    "XLY" -> "ARCA";
             default -> "";
         };
+    }
+
+    private record DefaultUniverseInstrument(
+            String symbol,
+            String type,
+            String sector,
+            String note,
+            String primaryExchange) {
+
+        private String displayName() {
+            return symbol + " - " + type + " - " + sector;
+        }
     }
 }
