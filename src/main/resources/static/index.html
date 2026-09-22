@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Azioni e strategie</title>
-    <link rel="stylesheet" href="/app.css?v=stock-toolbar-20260903">
+    <link rel="stylesheet" href="/app.css?v=strategy-workspace-20260916-1">
+    <link rel="stylesheet" href="/trading-chart.css?v=20260916-1">
 </head>
 <body>
 <header class="topbar">
@@ -14,6 +15,7 @@
     </div>
     <nav class="top-actions">
         <a class="link-button active-link" href="/">Azioni</a>
+        <a class="link-button" href="/research.html">Pattern Research</a>
         <a class="link-button" href="/provider.html">Connessione IBKR</a>
         <a class="link-button" href="/config.html">Configurazione</a>
         <a class="link-button" href="/api/paper/status" target="_blank">JSON status</a>
@@ -61,141 +63,295 @@
                 </label>
                 <div class="toolbar-button-row">
                     <button id="add-stock-button" type="button">+ Aggiungi</button>
-                    <button id="save-profiles-button" type="button">Salva profili</button>
                 </div>
-                <button id="delete-stock-button" class="danger toolbar-danger" type="button">Elimina stock</button>
+                <button id="delete-stock-button" class="danger-outline toolbar-danger" type="button">Elimina stock</button>
             </div>
             <div id="stock-empty-state" class="empty-state" hidden>Nessuno stock configurato</div>
         </section>
 
-        <section class="panel">
-            <div class="panel-heading">
-                <h2>Stock e dati mercato</h2>
-            </div>
+        <section id="strategy-workspace" class="panel strategy-workspace" data-strategy-family="moving-average">
+            <header class="strategy-page-header">
+                <div class="strategy-title-block">
+                    <span class="eyebrow">Configurazione strategia</span>
+                    <div class="strategy-title-row">
+                        <h2 id="selected-profile-name">Nessun profilo selezionato</h2>
+                        <span id="strategy-type-badge" class="strategy-badge">-</span>
+                    </div>
+                    <div class="strategy-meta-row">
+                        <span id="strategy-symbol-badge" class="neutral-badge">Simbolo -</span>
+                        <span id="strategy-active-badge" class="status-badge">Stato globale -</span>
+                        <span id="save-state-badge" class="save-state saved" role="status" aria-live="polite">Salvata</span>
+                    </div>
+                </div>
+                <div class="strategy-header-actions">
+                    <button id="add-strategy-button" class="primary-action" type="button">+ Nuova strategia</button>
+                    <button id="duplicate-strategy-button" type="button">Duplica strategia</button>
+                    <button id="delete-strategy-button" class="danger-outline" type="button">Elimina strategia</button>
+                </div>
+            </header>
 
-            <div class="form-grid compact">
+            <div id="stock-fields" class="form-grid compact strategy-field-group" data-strategy-section="general">
                 <label>
-                    Simbolo stock
+                    Simbolo o strumento associato
                     <input id="profile-symbol" autocomplete="off">
+                    <span class="field-note">Ticker dello stock; viene normalizzato in maiuscolo.</span>
+                    <span id="profile-symbol-error" class="field-error" aria-live="polite"></span>
                 </label>
                 <label>
-                    Security type
+                    Tipo titolo
                     <input id="stock-security-type" autocomplete="off">
+                    <span class="field-note">Nome tecnico: security type. Predefinito STK.</span>
                 </label>
                 <label>
-                    Exchange
+                    Mercato di instradamento
                     <input id="stock-exchange" autocomplete="off">
+                    <span class="field-note">Exchange usato dal provider; predefinito SMART.</span>
                 </label>
                 <label>
-                    Primary exchange
+                    Mercato primario
                     <input id="stock-primary-exchange" autocomplete="off">
+                    <span class="field-note">Primary exchange del titolo, ad esempio NASDAQ o NYSE.</span>
                 </label>
                 <label>
                     Valuta
                     <input id="stock-currency" autocomplete="off">
+                    <span class="field-note">Codice ISO, ad esempio USD.</span>
                 </label>
             </div>
 
-            <div class="panel-heading sub-heading">
-                <h2>Strategia selezionata</h2>
-                <div class="button-row inline-row">
-                    <button id="add-strategy-button" type="button">Nuova strategia</button>
-                    <button id="delete-strategy-button" class="danger" type="button">Elimina strategia</button>
+            <div class="profile-switcher">
+                <div class="profile-switcher-heading">
+                    <div><h3>Profili strategia</h3><span class="field-note">Seleziona un profilo da configurare.</span></div>
+                    <span id="profile-count" class="count-badge">0</span>
                 </div>
+                <label class="strategy-select-field mobile-profile-select">
+                    Profilo strategia
+                    <select id="strategy-select"></select>
+                </label>
+                <div id="strategy-profile-list" class="profile-list strategy-list" role="list"></div>
             </div>
 
-            <label class="strategy-select-field">
-                Profilo strategia
-                <select id="strategy-select"></select>
-            </label>
+            <div class="strategy-tabs" role="tablist" aria-label="Parametri della strategia">
+                <button class="strategy-tab active" type="button" role="tab" aria-selected="true" aria-controls="strategy-form" data-strategy-tab="general">Generale</button>
+                <button class="strategy-tab" type="button" role="tab" aria-selected="false" aria-controls="strategy-form" data-strategy-tab="pattern">Pattern e segnali</button>
+                <button class="strategy-tab joe-ross-tab" type="button" role="tab" aria-selected="false" aria-controls="strategy-form" data-strategy-tab="entry">Entrata</button>
+                <button class="strategy-tab" type="button" role="tab" aria-selected="false" aria-controls="strategy-form" data-strategy-tab="risk">Stop e rischio</button>
+                <button class="strategy-tab" type="button" role="tab" aria-selected="false" aria-controls="strategy-form" data-strategy-tab="exits">Uscite e target</button>
+            </div>
 
-            <div class="form-grid compact">
-                <label>
-                    Nome strategia
+            <div id="strategy-tab-intro" class="tab-intro" aria-live="polite"></div>
+
+            <div id="strategy-form" class="form-grid compact strategy-form" role="tabpanel">
+                <label class="strategy-field-group" data-strategy-section="general">
+                    Nome del profilo
                     <input id="profile-name" autocomplete="off">
+                    <span class="field-note">Nome univoco tra i profili dello stock selezionato.</span>
+                    <span id="profile-name-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label>
-                    Strategia
+                <label class="strategy-field-group" data-strategy-section="general">
+                    Tipo di strategia
                     <select id="profile-strategy"></select>
+                    <span id="strategy-description" class="field-note">Seleziona l’algoritmo da configurare.</span>
                 </label>
-                <label class="ma-strategy-field">
-                    Media veloce
-                    <input id="profile-fast" type="number" min="2" step="1">
+                <label class="strategy-field-group" data-strategy-section="general">
+                    Stato operativo globale
+                    <select id="profile-active-status" disabled>
+                        <option value="true">Attiva</option>
+                        <option value="false">Disattiva</option>
+                    </select>
+                    <span class="field-note">Lo stato è globale nell’API attuale e si modifica dalla pagina Configurazione.</span>
                 </label>
-                <label class="ma-strategy-field">
-                    Media lenta
-                    <input id="profile-slow" type="number" min="3" step="1">
+                <label class="ma-strategy-field strategy-field-group" data-strategy-section="pattern">
+                    Media veloce (periodi)
+                    <input id="profile-fast" type="number" min="1" step="1">
+                    <span class="field-note">Numero di barre della media più reattiva; deve essere maggiore di zero.</span>
+                    <span id="profile-fast-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label class="joe-ross-strategy-field" hidden>
-                    Pivot strength
+                <label class="ma-strategy-field strategy-field-group" data-strategy-section="pattern">
+                    Media lenta (periodi)
+                    <input id="profile-slow" type="number" min="2" step="1">
+                    <span class="field-note">Deve essere maggiore della media veloce.</span>
+                    <span id="profile-slow-error" class="field-error" aria-live="polite"></span>
+                </label>
+                <label class="joe-ross-strategy-field strategy-field-group" data-strategy-section="pattern" hidden>
+                    Forza del pivot
                     <input id="profile-pivot-strength" type="number" min="1" step="1">
+                    <span class="field-note">Barre per lato usate per confermare il pivot; predefinito 2.</span>
+                    <span id="profile-pivot-strength-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label class="joe-ross-strategy-field" hidden>
-                    Minimum tick
+                <div class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="pattern" hidden>
+                    <strong>BOLLINGER POINT 1 FILTER</strong>
+                    <span class="field-note">Il Point 1 deve toccare o superare la banda esterna calcolata sulla sua barra.</span>
+                </div>
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="pattern" hidden>
+                    Enabled
+                    <select id="profile-bollinger-enabled">
+                        <option value="true">true</option>
+                        <option value="false">false</option>
+                    </select>
+                </label>
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="pattern" hidden>
+                    Period
+                    <input id="profile-bollinger-period" type="number" min="2" step="1">
+                    <span id="profile-bollinger-period-error" class="field-error" aria-live="polite"></span>
+                </label>
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="pattern" hidden>
+                    Standard Deviation
+                    <input id="profile-bollinger-standard-deviation" type="number" min="0" step="0.1">
+                    <span id="profile-bollinger-standard-deviation-error" class="field-error" aria-live="polite"></span>
+                </label>
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="pattern" hidden>
+                    Point 1 Price Mode
+                    <select id="profile-point1-price-mode">
+                        <option value="EXTREME">EXTREME (LOW / HIGH)</option>
+                        <option value="CLOSE">CLOSE</option>
+                    </select>
+                </label>
+                <div class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="risk" hidden>
+                    <strong>POINT 2 TARGET SIZING</strong>
+                    <span class="field-note">Determina la quantità affinché il profitto teorico a Point 2 corrisponda alla percentuale configurata del capitale.</span>
+                </div>
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="risk" hidden>
+                    Enabled
+                    <select id="profile-point2-target-sizing-enabled">
+                        <option value="true">true</option>
+                        <option value="false">false</option>
+                    </select>
+                </label>
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="risk" hidden>
+                    Profitto target al Point 2 (%)
+                    <input id="profile-point2-target-profit-percent" type="number" min="0.00000001" step="0.1">
+                    <span id="profile-point2-target-profit-percent-error" class="field-error" aria-live="polite"></span>
+                </label>
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="risk" hidden>
+                    Distanza minima P3 → Point 2
+                    <input id="profile-minimum-point2-distance" type="number" min="0" step="0.0001">
+                </label>
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="exit" hidden>
+                    TP1 Quantity (%)
+                    <input id="profile-tp1-position-percent" type="number" min="0" max="100" step="1">
+                    <span id="profile-tp1-position-percent-error" class="field-error" aria-live="polite"></span>
+                </label>
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="exit" hidden>
+                    TP2 Quantity (%)
+                    <input id="profile-tp2-position-percent" type="number" min="0" max="100" step="1">
+                    <span id="profile-tp2-position-percent-error" class="field-error" aria-live="polite"></span>
+                </label>
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="exit" hidden>
+                    TP3 Quantity (%)
+                    <input id="profile-tp3-position-percent" type="number" min="0" max="100" step="1">
+                    <span class="field-note">Il residuo degli arrotondamenti viene assegnato a TP3. Le percentuali devono sommare a 100.</span>
+                    <span id="profile-tp3-position-percent-error" class="field-error" aria-live="polite"></span>
+                </label>
+                <label class="joe-ross-strategy-field strategy-field-group" data-strategy-section="entry" hidden>
+                    Tick minimo
                     <input id="profile-minimum-tick" type="number" min="0.00000001" step="0.0001">
+                    <span class="field-note">Variazione minima di prezzo dello strumento; deve essere maggiore di zero.</span>
+                    <span id="profile-minimum-tick-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label class="joe-ross-strategy-field" hidden>
-                    TTE max bars
-                    <input id="profile-tte-max-bars" type="number" min="1" step="1">
+                <label class="joe-ross-strategy-field strategy-field-group" data-strategy-section="pattern" hidden>
+                    Numero massimo di barre per l’ingresso TTE
+                    <input id="profile-tte-max-bars" type="number" min="1" max="3" step="1">
+                    <span class="field-note">Prime barre della correzione che forma il Point 3; predefinito 3.</span>
+                    <span id="profile-tte-max-bars-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label class="joe-ross-strategy-field" hidden>
-                    Entry buffer ticks
+                <label class="joe-ross-strategy-field strategy-field-group" data-strategy-section="entry" hidden>
+                    Buffer di ingresso (tick)
                     <input id="profile-entry-buffer-ticks" type="number" min="0" step="1">
+                    <span class="field-note">Tick aggiunti al livello di attivazione; valore non negativo.</span>
+                    <span id="profile-entry-buffer-ticks-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label class="joe-ross-strategy-field" hidden>
-                    Stop buffer ticks
+                <label class="joe-ross-strategy-field strategy-field-group" data-strategy-section="risk" hidden>
+                    Buffer dello stop (tick)
                     <input id="profile-stop-buffer-ticks" type="number" min="0" step="1">
+                    <span class="field-note">Tick aggiunti oltre lo stop tecnico; valore non negativo.</span>
+                    <span id="profile-stop-buffer-ticks-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label class="joe-ross-strategy-field" hidden>
-                    Minimum room
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="risk" hidden>
+                    Modalità dello stop iniziale
+                    <select id="profile-initial-stop-mode">
+                        <option value="TTE_BAR">Barra TTE</option>
+                        <option value="POINT_3">Point 3 osservato</option>
+                    </select>
+                    <span class="field-note">Usa il minimo/massimo della barra TTE oppure il Point 3 noto al momento del candidate.</span>
+                </label>
+                <label class="joe-ross-strategy-field strategy-field-group" data-strategy-section="entry" hidden>
+                    Verifica spazio minimo
                     <select id="profile-minimum-room-enabled">
                         <option value="true">Abilitato</option>
                         <option value="false">Disabilitato</option>
                     </select>
+                    <span class="field-note">Filtra l’ingresso in base allo spazio ancora disponibile fino al Point 2.</span>
                 </label>
-                <label class="joe-ross-strategy-field" hidden>
-                    Minimum room type
-                    <select id="profile-minimum-room-type"><option value="R">R</option></select>
+                <label class="joe-ross-strategy-field strategy-field-group" data-strategy-section="entry" hidden>
+                    Unità dello spazio minimo
+                    <select id="profile-minimum-room-type">
+                        <option value="R">Multipli di rischio (R)</option>
+                        <option value="PRICE">Distanza di prezzo</option>
+                    </select>
+                    <span class="field-note">Con R il valore è rapportato al rischio iniziale; PRICE usa la distanza assoluta.</span>
                 </label>
-                <label class="joe-ross-strategy-field" hidden>
-                    Minimum room value
+                <label class="joe-ross-strategy-field strategy-field-group" data-strategy-section="entry" hidden>
+                    Spazio minimo richiesto
                     <input id="profile-minimum-room-value" type="number" min="0" step="0.05">
+                    <span class="field-note">Distanza minima in multipli di R; valore non negativo.</span>
+                    <span id="profile-minimum-room-value-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label class="joe-ross-strategy-field" hidden>
-                    Double/triple dopo barra 3
+                <label class="joe-ross-strategy-field strategy-field-group" data-strategy-section="pattern" hidden>
+                    Pattern doppio/triplo dopo barra 3
                     <select id="profile-allow-double-triple">
                         <option value="false">No</option>
-                        <option value="true">Si</option>
+                        <option value="true">Riservato per una versione futura</option>
                     </select>
+                    <span class="field-note">Nella versione corrente la TTE termina comunque dopo la terza barra.</span>
                 </label>
-                <label class="joe-ross-strategy-field" hidden>
-                    Double/triple tolerance ticks
+                <label class="joe-ross-strategy-field strategy-field-group" data-strategy-section="pattern" hidden>
+                    Tolleranza doppio/triplo (tick)
                     <input id="profile-double-triple-tolerance" type="number" min="0" step="1">
+                    <span class="field-note">Scostamento massimo ammesso; valore non negativo.</span>
+                    <span id="profile-double-triple-tolerance-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label class="joe-ross-strategy-field" hidden>
-                    Reject gap over entry
+                <label class="joe-ross-strategy-field legacy-joe-ross-field strategy-field-group" data-strategy-section="entry" hidden>
+                    Rifiuta gap oltre l’ingresso
                     <select id="profile-reject-gap">
                         <option value="true">Si</option>
                         <option value="false">No</option>
                     </select>
+                    <span class="field-note">Evita ingressi quando l’apertura supera già il prezzo previsto.</span>
                 </label>
-                <label class="ma-strategy-field">
-                    Quantita
+                <label class="joe-ross-strategy-field point3-tte-field strategy-field-group" data-strategy-section="entry" hidden>
+                    Fallback al breakout del Point 2
+                    <select id="profile-fallback-point2">
+                        <option value="false">No — solo TTE</option>
+                        <option value="true">Riservato (non operativo)</option>
+                    </select>
+                    <span class="field-note">Resta disabilitato: un breakout diretto del Point 2 non apre un trade.</span>
+                </label>
+                <label class="strategy-field-group" data-strategy-section="risk">
+                    Quantità della posizione
                     <input id="profile-quantity" type="number" min="1" step="1">
+                    <span class="field-note">Numero di unità simulate per operazione; minimo 1.</span>
+                    <span id="profile-quantity-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label>
+                <label class="strategy-field-group" data-strategy-section="risk">
                     Capitale iniziale
                     <input id="profile-capital" type="number" min="1" step="100">
+                    <span class="field-note">Capitale iniziale della simulazione, nella valuta dello stock.</span>
+                    <span id="profile-capital-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label>
-                    Commissione
+                <label class="strategy-field-group" data-strategy-section="risk">
+                    Commissione per ordine
                     <input id="profile-commission" type="number" min="0" step="0.01">
+                    <span class="field-note">Costo fisso applicato nella simulazione; valore non negativo.</span>
+                    <span id="profile-commission-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label>
-                    Slippage %
-                    <input id="profile-slippage" type="number" min="0" step="0.01">
+                <label class="strategy-field-group" data-strategy-section="risk">
+                    Slippage (%)
+                    <input id="profile-slippage" type="number" min="0" max="100" step="0.01">
+                    <span class="field-note">Scostamento percentuale stimato; valore tra 0 e 100.</span>
+                    <span id="profile-slippage-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label>
+                <label class="strategy-field-group" data-strategy-section="general">
                     Timeframe storico
                     <select id="profile-timeframe">
                         <option value="DAILY">Daily</option>
@@ -206,26 +362,28 @@
                         <option value="60min">60 min</option>
                     </select>
                 </label>
-                <label>
+                <label class="strategy-field-group" data-strategy-section="general">
                     Output storico
                     <select id="profile-output-size">
                         <option value="compact">Compact</option>
                         <option value="full">Full</option>
                     </select>
                 </label>
-                <label>
+                <label class="strategy-field-group" data-strategy-section="general">
                     Max barre
                     <input id="profile-max-points" type="number" min="1" max="5000" step="1">
+                    <span class="field-note">Numero di barre per dati e simulazione; da 1 a 5.000.</span>
+                    <span id="profile-max-points-error" class="field-error" aria-live="polite"></span>
                 </label>
-                <label>
+                <label class="strategy-field-group" data-strategy-section="general">
                     Storico da
                     <input id="historical-from" type="date">
                 </label>
-                <label>
+                <label class="strategy-field-group" data-strategy-section="general">
                     Storico a
                     <input id="historical-to" type="date">
                 </label>
-                <label>
+                <label class="strategy-field-group" data-strategy-section="general">
                     Direzione segnale strategia
                     <select id="profile-trade-direction">
                         <option value="LONG_SHORT">Long e short</option>
@@ -234,6 +392,13 @@
                     </select>
                     <span class="field-note">Questa e la scelta Long e short: abilita BUY per long e SELL per short nella simulazione.</span>
                 </label>
+                <div id="global-risk-summary" class="global-config-card strategy-field-group" data-strategy-section="risk"></div>
+                <div id="global-target-summary" class="global-config-card strategy-field-group" data-strategy-section="exits"></div>
+            </div>
+
+            <details class="advanced-section manual-signal-section">
+                <summary>Pubblica un segnale manuale</summary>
+                <div class="form-grid compact">
                 <label>
                     Azione segnale manuale
                     <select id="signal-action">
@@ -258,7 +423,11 @@
                     Reason
                     <input id="signal-reason" autocomplete="off">
                 </label>
-            </div>
+                </div>
+                <div class="button-row">
+                    <button id="publish-signal-button" type="button">Pubblica segnale manuale</button>
+                </div>
+            </details>
 
             <label class="full-label">
                 Close manuali fallback simulazione
@@ -272,18 +441,25 @@
                        for="stooq-csv-file"
                        role="button"
                        tabindex="0">Carica e importa CSV STOOQ</label>
-                <button id="import-stooq-directory-button" type="button">Importa directory STOOQ</button>
-                <button id="download-history-button" type="button">Scarica storico IBKR</button>
-                <button id="update-history-button" type="button">Aggiorna storico IBKR</button>
-                <button id="download-simulate-button" type="button">Scarica IBKR e simula</button>
+                <button id="download-history-button" type="button">Scarica/aggiorna storico IBKR</button>
                 <button id="simulate-button" type="button">Simula serie</button>
                 <button id="export-excel-button" type="button" disabled>Scarica Excel simulazione</button>
-                <button id="publish-signal-button" type="button">Pubblica segnale</button>
             </div>
 
             <div class="button-row guard-row">
                 <button id="activate-kill-button" class="danger" type="button">Attiva kill switch</button>
                 <button id="deactivate-kill-button" type="button">Disattiva kill switch</button>
+            </div>
+
+            <div class="sticky-save-bar" aria-label="Azioni di salvataggio">
+                <div>
+                    <strong id="save-bar-title">Nessuna modifica da salvare</strong>
+                    <span id="save-error-message" class="save-feedback" role="alert"></span>
+                </div>
+                <div class="button-row inline-row">
+                    <button id="cancel-profile-changes-button" type="button" disabled>Annulla modifiche</button>
+                    <button id="save-profiles-button" class="primary-action" type="button" disabled>Salva modifiche</button>
+                </div>
             </div>
         </section>
     </section>
@@ -388,11 +564,70 @@
         <div class="result-tab" id="result-simulation">
             <div id="simulation-summary" class="simulation-summary"></div>
             <div id="simulation-metrics" class="metric-grid"></div>
-            <div class="chart-grid">
-                <div>
-                    <h3>Serie storica e segnali</h3>
-                    <div id="price-chart" class="chart"></div>
+            <section id="chart-controls" class="trade-chart-workspace" hidden
+                     aria-label="Analisi grafica del backtest">
+                <header class="trade-chart-header">
+                    <div>
+                        <span class="trade-chart-eyebrow">Analisi visuale del trade</span>
+                        <h3 id="trade-chart-title">Grafico prezzi e trade</h3>
+                        <div class="trade-chart-context" aria-label="Contesto grafico">
+                            <strong id="chart-symbol">-</strong>
+                            <span id="chart-strategy">-</span>
+                            <span id="chart-timeframe">-</span>
+                            <span id="chart-trade-position">Nessun trade</span>
+                        </div>
+                    </div>
+                    <nav class="trade-navigation" aria-label="Navigazione tra trade">
+                        <button id="chart-previous-trade" type="button">← Trade precedente</button>
+                        <button id="chart-fit-trade" class="primary-action" type="button">Fit trade</button>
+                        <button id="chart-next-trade" type="button">Trade successivo →</button>
+                    </nav>
+                </header>
+
+                <div class="trade-chart-toolbar">
+                    <div class="chart-range-selector" role="group" aria-label="Intervallo visibile">
+                        <button type="button" data-chart-range="1M">1M</button>
+                        <button type="button" data-chart-range="3M">3M</button>
+                        <button type="button" data-chart-range="6M">6M</button>
+                        <button type="button" data-chart-range="1Y">1Y</button>
+                        <button type="button" data-chart-range="ALL">Tutto</button>
+                        <button type="button" data-chart-range="TRADE" class="active">Trade</button>
+                    </div>
+                    <div class="chart-filter-list" aria-label="Elementi visibili sul grafico">
+                        <label><input id="chart-filter-patterns" type="checkbox" checked> P1/P2/P3</label>
+                        <label><input id="chart-filter-tte" type="checkbox" checked> TTE</label>
+                        <label><input id="chart-filter-entries" type="checkbox" checked> Entry / Exit</label>
+                        <label><input id="chart-filter-stops" type="checkbox" checked> Stop</label>
+                        <label><input id="chart-filter-take-profits" type="checkbox" checked> Take Profit</label>
+                        <label><input id="chart-filter-volume" type="checkbox" checked> Volume</label>
+                        <label id="chart-filter-bollinger-label"><input id="chart-filter-indicators" type="checkbox" checked> Bollinger Bands</label>
+                        <label><input id="chart-filter-debug" type="checkbox"> Strategy Debug</label>
+                    </div>
                 </div>
+
+                <div class="chart-legend" aria-label="Legenda grafico">
+                    <span><i class="legend-pattern"></i>P1/P2/P3</span>
+                    <span><i class="legend-tte"></i>TTE</span>
+                    <span><i class="legend-entry"></i>Entry / Exit</span>
+                    <span><i class="legend-stop-line"></i>Stop progressivo</span>
+                    <span><i class="legend-tp-line"></i>Take Profit</span>
+                    <span id="chart-bollinger-legend"><i class="legend-bollinger-line"></i>Bollinger Bands</span>
+                </div>
+
+                <div id="price-chart" class="trading-chart-frame">
+                    <div id="trading-chart-canvas" class="trading-chart-canvas"
+                         role="img" aria-label="Grafico interattivo OHLC, volume e trade"></div>
+                    <div id="trading-chart-tooltip" class="trading-chart-tooltip" hidden></div>
+                </div>
+                <p class="chart-interaction-help">Rotella per lo zoom · trascina per spostarti · doppio clic per mostrare tutto</p>
+
+                <div id="trade-event-detail" class="trade-event-detail" hidden></div>
+                <div id="trade-event-timeline" class="trade-event-timeline"
+                     aria-label="Timeline eventi del trade"></div>
+                <section id="trade-info-panel" class="trade-info-panel"
+                         aria-label="Informazioni sul trade selezionato"></section>
+            </section>
+            <div class="chart-stack">
                 <div>
                     <h3>Andamento capitale</h3>
                     <div id="equity-chart" class="chart"></div>
@@ -432,7 +667,48 @@
     </section>
 </main>
 
+<dialog id="unsaved-changes-dialog" class="app-dialog" aria-labelledby="unsaved-dialog-title">
+    <div class="dialog-content">
+        <span class="dialog-icon" aria-hidden="true">!</span>
+        <div>
+            <h2 id="unsaved-dialog-title">Modifiche non salvate</h2>
+            <p>Vuoi salvare le modifiche prima di continuare?</p>
+        </div>
+    </div>
+    <div class="dialog-actions">
+        <button id="stay-on-page-button" type="button">Resta nella pagina</button>
+        <button id="discard-and-continue-button" type="button">Scarta modifiche</button>
+        <button id="save-and-continue-button" class="primary-action" type="button">Salva e continua</button>
+    </div>
+</dialog>
+
+<dialog id="new-strategy-dialog" class="app-dialog" aria-labelledby="new-strategy-dialog-title">
+    <form id="new-strategy-form">
+        <div class="dialog-content">
+            <div>
+                <h2 id="new-strategy-dialog-title">Nuova strategia</h2>
+                <p>Crea un profilo con valori predefiniti validi. Rimarrà non salvato fino alla conferma nella barra in fondo.</p>
+            </div>
+        </div>
+        <div class="dialog-form">
+            <label>Nome del profilo
+                <input id="new-strategy-name" autocomplete="off" required>
+                <span id="new-strategy-name-error" class="field-error" aria-live="polite"></span>
+            </label>
+            <label>Tipo di strategia
+                <select id="new-strategy-type" required></select>
+            </label>
+        </div>
+        <div class="dialog-actions">
+            <button id="cancel-new-strategy-button" type="button">Annulla</button>
+            <button class="primary-action" type="submit">Crea strategia</button>
+        </div>
+    </form>
+</dialog>
+
 <div id="toast" role="status" aria-live="polite"></div>
-<script src="/app.js?v=stock-toolbar-history-desc-simulation-order-20260903"></script>
+<script src="/vendor/lightweight-charts.standalone.production.js?v=5.2.1"></script>
+<script src="/trading-chart.js?v=20260916-1"></script>
+<script src="/app.js?v=strategy-workspace-20260916-1"></script>
 </body>
 </html>

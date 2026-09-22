@@ -23,6 +23,9 @@ import it.andreademartini.trading.marketdata.MarketDataService;
 import it.andreademartini.trading.orders.ProgressiveStopLossService;
 import it.andreademartini.trading.orders.StopAdjustmentResult;
 import it.andreademartini.trading.risk.KillSwitchService;
+import it.andreademartini.trading.risk.JoeRossPoint2PositionSizingResult;
+import it.andreademartini.trading.risk.JoeRossPoint2PositionSizingService;
+import it.andreademartini.trading.risk.JoeRossPoint2TakeProfitService;
 import it.andreademartini.trading.risk.PositionSizingResult;
 import it.andreademartini.trading.risk.PositionSizingService;
 import it.andreademartini.trading.risk.RiskRejectedException;
@@ -46,6 +49,18 @@ import it.andreademartini.trading.strategy.joeross.JoeRossEvent;
 import it.andreademartini.trading.strategy.joeross.JoeRossPatternStatistics;
 import it.andreademartini.trading.strategy.joeross.JoeRossParameters;
 import it.andreademartini.trading.strategy.joeross.JoeRossSignalAdapter;
+import it.andreademartini.trading.strategy.joeross.InitialStopMode;
+import it.andreademartini.trading.strategy.joeross.JoeRoss123TteBarResult;
+import it.andreademartini.trading.strategy.joeross.JoeRoss123TteParameters;
+import it.andreademartini.trading.strategy.joeross.JoeRoss123TteSignalAdapter;
+import it.andreademartini.trading.strategy.joeross.JoeRoss123TteStrategy;
+import it.andreademartini.trading.strategy.joeross.JoeRoss123TteStatistics;
+import it.andreademartini.trading.strategy.joeross.JoeRossTakeProfitParameters;
+import it.andreademartini.trading.strategy.joeross.BollingerBandsValue;
+import it.andreademartini.trading.strategy.joeross.BollingerPoint1Check;
+import it.andreademartini.trading.strategy.joeross.BollingerPoint1FilterParameters;
+import it.andreademartini.trading.strategy.joeross.BollingerSource;
+import it.andreademartini.trading.strategy.joeross.Point1PriceMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -85,6 +100,8 @@ public class TradingWorkbenchController {
     private final KillSwitchService killSwitchService;
     private final PositionSizingService positionSizingService;
     private final TakeProfitAllocationService takeProfitAllocationService;
+    private final JoeRossPoint2PositionSizingService joeRossPositionSizingService;
+    private final JoeRossPoint2TakeProfitService joeRossTakeProfitService;
     private final ProgressiveStopLossService progressiveStopLossService;
     private final BacktestRunRegistry backtestRunRegistry;
 
@@ -114,6 +131,10 @@ public class TradingWorkbenchController {
         this.killSwitchService = killSwitchService;
         this.positionSizingService = positionSizingService;
         this.takeProfitAllocationService = takeProfitAllocationService;
+        this.joeRossPositionSizingService =
+                new JoeRossPoint2PositionSizingService(positionSizingService);
+        this.joeRossTakeProfitService =
+                new JoeRossPoint2TakeProfitService(takeProfitAllocationService);
         this.progressiveStopLossService = progressiveStopLossService;
         this.backtestRunRegistry = backtestRunRegistry;
     }
@@ -278,11 +299,19 @@ public class TradingWorkbenchController {
                 simulationProperties(request);
         TradingStrategy strategy = createStrategy(request.strategy(), strategyProperties);
 
-        JoeRossAnalysis joeRossAnalysis = strategy instanceof JoeRoss123RossHookTteStrategy joeRoss
-                ? analyzeJoeRoss(symbol, joeRoss, priceSeries, strategyProperties.getQuantity())
-                : JoeRossAnalysis.empty();
+        JoeRossAnalysis joeRossAnalysis;
+        if (strategy instanceof JoeRoss123TteStrategy joeRoss) {
+            joeRossAnalysis = analyzeJoeRoss(
+                    symbol, joeRoss, priceSeries, strategyProperties.getQuantity());
+        } else if (strategy instanceof JoeRoss123RossHookTteStrategy legacy) {
+            joeRossAnalysis = analyzeJoeRoss(
+                    symbol, legacy, priceSeries, strategyProperties.getQuantity());
+        } else {
+            joeRossAnalysis = JoeRossAnalysis.empty();
+        }
         List<TradingSignal> signals = new ArrayList<>(joeRossAnalysis.signals());
-        if (!(strategy instanceof JoeRoss123RossHookTteStrategy)) {
+        if (!(strategy instanceof JoeRoss123RossHookTteStrategy)
+                && !(strategy instanceof JoeRoss123TteStrategy)) {
             for (PricePoint point : priceSeries) {
                 strategy.onPrice(symbol, point.close(), point.timestamp())
                         .ifPresent(signals::add);
@@ -325,7 +354,65 @@ public class TradingWorkbenchController {
                 backtest.evaluationParameters(),
                 publishSignals,
                 joeRossAnalysis.events(),
-                joeRossAnalysis.statistics());
+                joeRossStatistics(joeRossAnalysis.statistics(), backtest),
+                joeRossAnalysis.bollingerBands(),
+                joeRossAnalysis.bollingerPoint1Checks(),
+                joeRossAnalysis.bollingerParameters());
+    }
+
+    private Object joeRossStatistics(Object statistics, BacktestResult backtest) {
+        if (!(statistics instanceof JoeRoss123TteStatistics value)) {
+            return statistics;
+        }
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("point1Candidates", value.point1Candidates());
+        result.put("point1AcceptedByBollinger", value.point1AcceptedByBollinger());
+        result.put("point1RejectedByBollinger", value.point1RejectedByBollinger());
+        result.put("patterns123Found", value.patterns123Found());
+        result.put("point3CorrectionsStarted", value.point3CorrectionsStarted());
+        result.put("tteBar1Candidates", value.tteBar1Candidates());
+        result.put("tteBar2Candidates", value.tteBar2Candidates());
+        result.put("tteBar3Candidates", value.tteBar3Candidates());
+        result.put("tteTriggeredBar1", value.tteTriggeredBar1());
+        result.put("tteTriggeredBar2", value.tteTriggeredBar2());
+        result.put("tteTriggeredBar3", value.tteTriggeredBar3());
+        result.put("tteTriggered", value.tteTriggered());
+        result.put("tteExpired", value.tteExpired());
+        result.put("tteMissedPoint2Breakout", value.tteMissedPoint2Breakout());
+        result.put("tteRejectedInsufficientRoom", value.tteRejectedInsufficientRoom());
+        result.put("setupsInvalidated", value.setupsInvalidated());
+        result.put("longTradesTriggered", value.longTradesTriggered());
+        result.put("shortTradesTriggered", value.shortTradesTriggered());
+        result.put("averageTargetProfitPercent",
+                averageStrategyMetadata(backtest.trades(), "targetProfitPercent"));
+        result.put("averageExpectedProfitAtPoint2",
+                averageStrategyMetadata(backtest.trades(), "expectedProfitAtPoint2"));
+        result.put("averageActualRiskPercent",
+                averageStrategyMetadata(backtest.trades(), "actualStopRiskPercent"));
+        result.put("averageQuantity", backtest.trades().stream()
+                .mapToLong(TradeResult::quantity).average().orElse(0));
+        long point2Hits = backtest.trades().stream().filter(trade -> trade.events().stream()
+                .anyMatch(event -> event.eventType().equals("TP1_FILLED"))).count();
+        result.put("tradesReachingPoint2", point2Hits);
+        result.put("point2HitRate", backtest.trades().isEmpty() ? 0.0
+                : point2Hits * 100.0 / backtest.trades().size());
+        result.put("profitFactor", backtest.metrics().profitFactor());
+        result.put("winRate", backtest.metrics().winRatePercent());
+        result.put("averageR", backtest.trades().stream()
+                .mapToDouble(trade -> trade.effectiveRisk() == 0.0
+                        ? 0.0 : trade.netPnl() / trade.effectiveRisk())
+                .average().orElse(0.0));
+        result.put("averageMfe", backtest.trades().stream()
+                .mapToDouble(TradeResult::mfe).average().orElse(0.0));
+        result.put("averageMae", backtest.trades().stream()
+                .mapToDouble(TradeResult::mae).average().orElse(0.0));
+        return Map.copyOf(result);
+    }
+
+    private double averageStrategyMetadata(List<TradeResult> trades, String key) {
+        return trades.stream().map(trade -> trade.strategyData().get(key))
+                .filter(value -> value != null && !value.isBlank())
+                .mapToDouble(Double::parseDouble).average().orElse(0.0);
     }
 
     private JoeRossAnalysis analyzeJoeRoss(
@@ -350,7 +437,29 @@ public class TradingWorkbenchController {
             signals.addAll(JoeRossSignalAdapter.toSignals(
                     symbol, bar, result, displayQuantity));
         }
-        return new JoeRossAnalysis(signals, events, strategy.statistics());
+        return new JoeRossAnalysis(signals, events, strategy.statistics(),
+                List.of(), List.of(), null);
+    }
+
+    private JoeRossAnalysis analyzeJoeRoss(
+            String symbol,
+            JoeRoss123TteStrategy strategy,
+            List<PricePoint> priceSeries,
+            long displayQuantity) {
+        List<TradingSignal> signals = new ArrayList<>();
+        List<JoeRossEvent> events = new ArrayList<>();
+        for (PricePoint point : priceSeries) {
+            HistoricalBar bar = new HistoricalBar(
+                    point.index(), point.timestamp(), point.label(),
+                    point.open(), point.high(), point.low(), point.close(), point.volume());
+            JoeRoss123TteBarResult result = strategy.onBar(bar);
+            events.addAll(result.events());
+            signals.addAll(JoeRoss123TteSignalAdapter.toSignals(
+                    symbol, bar, result, displayQuantity));
+        }
+        return new JoeRossAnalysis(signals, events, strategy.statistics(),
+                strategy.bollingerBands(), strategy.bollingerPoint1Checks(),
+                strategy.bollingerPoint1FilterParameters());
     }
 
     private BacktestExportRun exportRun(
@@ -828,6 +937,99 @@ public class TradingWorkbenchController {
                 ? source.getQuantity()
                 : request.quantity());
         strategy.setSignalCooldown(source.getSignalCooldown());
+        TradingSystemProperties.JoeRoss123TteProperties sourcePoint3Tte =
+                source.getJoeRoss123Tte();
+        TradingSystemProperties.JoeRoss123TteProperties point3Tte =
+                strategy.getJoeRoss123Tte();
+        point3Tte.setEnabled(sourcePoint3Tte.isEnabled());
+        point3Tte.setDirection(request.tradeDirection() == null
+                ? sourcePoint3Tte.getDirection() : request.tradeDirection());
+        point3Tte.setMinimumTick(request.minimumTick() == null
+                ? sourcePoint3Tte.getMinimumTick() : request.minimumTick());
+        point3Tte.getSwing().setPivotStrength(request.pivotStrength() == null
+                ? sourcePoint3Tte.getSwing().getPivotStrength() : request.pivotStrength());
+        point3Tte.getBollingerPoint1Filter().setEnabled(
+                request.bollingerPoint1FilterEnabled() == null
+                        ? sourcePoint3Tte.getBollingerPoint1Filter().isEnabled()
+                        : request.bollingerPoint1FilterEnabled());
+        point3Tte.getBollingerPoint1Filter().setPeriod(
+                request.bollingerPeriod() == null
+                        ? sourcePoint3Tte.getBollingerPoint1Filter().getPeriod()
+                        : request.bollingerPeriod());
+        point3Tte.getBollingerPoint1Filter().setStandardDeviation(
+                request.bollingerStandardDeviation() == null
+                        ? sourcePoint3Tte.getBollingerPoint1Filter()
+                                .getStandardDeviation()
+                        : request.bollingerStandardDeviation());
+        point3Tte.getBollingerPoint1Filter().setSource(
+                request.bollingerSource() == null
+                        ? sourcePoint3Tte.getBollingerPoint1Filter().getSource()
+                        : request.bollingerSource());
+        point3Tte.getBollingerPoint1Filter().setPoint1PriceMode(
+                request.point1PriceMode() == null
+                        ? sourcePoint3Tte.getBollingerPoint1Filter()
+                                .getPoint1PriceMode()
+                        : request.point1PriceMode());
+        point3Tte.getPoint2TargetSizing().setEnabled(
+                request.point2TargetSizingEnabled() == null
+                        ? sourcePoint3Tte.getPoint2TargetSizing().isEnabled()
+                        : request.point2TargetSizingEnabled());
+        point3Tte.getPoint2TargetSizing().setTargetProfitPercent(
+                request.point2TargetProfitPercent() == null
+                        ? sourcePoint3Tte.getPoint2TargetSizing().getTargetProfitPercent()
+                        : request.point2TargetProfitPercent());
+        point3Tte.getPoint2TargetSizing().setMinimumPoint2Distance(
+                request.minimumPoint2Distance() == null
+                        ? sourcePoint3Tte.getPoint2TargetSizing().getMinimumPoint2Distance()
+                        : request.minimumPoint2Distance());
+        point3Tte.getTakeProfit().setTp1PercentPosition(
+                request.tp1PositionPercent() == null
+                        ? sourcePoint3Tte.getTakeProfit().getTp1PercentPosition()
+                        : request.tp1PositionPercent());
+        point3Tte.getTakeProfit().setTp2PercentPosition(
+                request.tp2PositionPercent() == null
+                        ? sourcePoint3Tte.getTakeProfit().getTp2PercentPosition()
+                        : request.tp2PositionPercent());
+        point3Tte.getTakeProfit().setTp3PercentPosition(
+                request.tp3PositionPercent() == null
+                        ? sourcePoint3Tte.getTakeProfit().getTp3PercentPosition()
+                        : request.tp3PositionPercent());
+        point3Tte.getTte().setEnabled(true);
+        point3Tte.getTte().setMaxBars(request.tteMaxBars() == null
+                ? sourcePoint3Tte.getTte().getMaxBars() : request.tteMaxBars());
+        point3Tte.getTte().setEntryBufferTicks(request.entryBufferTicks() == null
+                ? sourcePoint3Tte.getTte().getEntryBufferTicks()
+                : request.entryBufferTicks());
+        point3Tte.getTte().setStopBufferTicks(request.stopBufferTicks() == null
+                ? sourcePoint3Tte.getTte().getStopBufferTicks()
+                : request.stopBufferTicks());
+        point3Tte.getTte().setInitialStopMode(request.initialStopMode() == null
+                ? sourcePoint3Tte.getTte().getInitialStopMode()
+                : request.initialStopMode());
+        point3Tte.getTte().getMinimumRoomToPoint2().setEnabled(
+                request.minimumRoomEnabled() == null
+                        ? sourcePoint3Tte.getTte().getMinimumRoomToPoint2().isEnabled()
+                        : request.minimumRoomEnabled());
+        point3Tte.getTte().getMinimumRoomToPoint2().setType(
+                request.minimumRoomType() == null
+                        ? sourcePoint3Tte.getTte().getMinimumRoomToPoint2().getType()
+                        : request.minimumRoomType());
+        point3Tte.getTte().getMinimumRoomToPoint2().setValue(
+                request.minimumRoomValue() == null
+                        ? sourcePoint3Tte.getTte().getMinimumRoomToPoint2().getValue()
+                        : request.minimumRoomValue());
+        point3Tte.getTte().setAllowAfterThreeBarsOnDoubleTriple(
+                request.allowDoubleTriple() == null
+                        ? sourcePoint3Tte.getTte().isAllowAfterThreeBarsOnDoubleTriple()
+                        : request.allowDoubleTriple());
+        point3Tte.getTte().setDoubleTripleToleranceTicks(
+                request.doubleTripleToleranceTicks() == null
+                        ? sourcePoint3Tte.getTte().getDoubleTripleToleranceTicks()
+                        : request.doubleTripleToleranceTicks());
+        point3Tte.getTte().setFallbackToPoint2Breakout(
+                request.fallbackToPoint2Breakout() != null
+                        && request.fallbackToPoint2Breakout());
+
         TradingSystemProperties.JoeRossProperties sourceJoe =
                 source.getJoeRoss123RhTte();
         TradingSystemProperties.JoeRossProperties joe =
@@ -877,6 +1079,10 @@ public class TradingWorkbenchController {
             case MANUAL_ONLY -> new ManualOnlyStrategy();
             case MOVING_AVERAGE_CROSSOVER ->
                     new MovingAverageCrossoverStrategy(strategyProperties);
+            case JOE_ROSS_123_TTE -> new JoeRoss123TteStrategy(
+                    JoeRoss123TteParameters.from(
+                            strategyProperties.getJoeRoss123Tte()),
+                    strategyProperties.getJoeRoss123Tte().getDirection());
             case JOE_ROSS_123_RH_TTE -> new JoeRoss123RossHookTteStrategy(
                     JoeRossParameters.from(strategyProperties.getJoeRoss123RhTte()),
                     strategyProperties.getJoeRoss123RhTte().getDirection());
@@ -1169,6 +1375,12 @@ public class TradingWorkbenchController {
         }
 
         if (position.remainingQuantity == 0) {
+            if (isJoeRoss123Tte(position.strategyMetadata)) {
+                position.events.add(new TradeEventResult(
+                        "TRADE_CLOSED", point.index(), point.timestamp(),
+                        position.exitNotional / position.exitedQuantity, 0, 0, null,
+                        0.0, 0.0, 0.0, position.exitReason));
+            }
             recordClosedTrade(position, trades);
             return null;
         }
@@ -1208,6 +1420,14 @@ public class TradingWorkbenchController {
                     0.0,
                     0.0,
                     "remainingQuantity = 0 | " + result.reason()));
+            if (isJoeRoss123Tte(position.strategyMetadata)) {
+                position.events.add(new TradeEventResult(
+                        "STOP_CANCELLED", point.index(), point.timestamp(),
+                        result.oldStopPrice() == null
+                                ? 0.0 : result.oldStopPrice().doubleValue(),
+                        0, 0, null, 0.0, 0.0, 0.0,
+                        "remainingQuantity = 0 | " + result.reason()));
+            }
             return;
         }
 
@@ -1245,6 +1465,18 @@ public class TradingWorkbenchController {
                 formatPrice(oldStopPrice) + " -> "
                         + formatPrice(position.currentStopPrice)
                         + " | " + result.reason()));
+        if (result.stopPriceChanged()
+                && isJoeRoss123Tte(position.strategyMetadata)) {
+            String joeRossEvent = target.targetNumber() == 1
+                    ? "STOP_MOVED_TO_ENTRY" : "STOP_MOVED_TO_TP1";
+            position.events.add(new TradeEventResult(
+                    joeRossEvent, point.index(), point.timestamp(),
+                    position.currentStopPrice, position.activeStopQuantity,
+                    position.remainingQuantity, position.currentStopPrice,
+                    0.0, 0.0, 0.0,
+                    formatPrice(oldStopPrice) + " -> "
+                            + formatPrice(position.currentStopPrice)));
+        }
     }
 
     private TradeStopState tradeStopState(BacktestPosition position) {
@@ -1320,21 +1552,46 @@ public class TradingWorkbenchController {
                 .multiply(BigDecimal.valueOf(2), MATH);
 
         try {
-            PositionSizingResult sizing = positionSizingService.calculate(
-                    money(tradingCapital),
-                    money(risk.getRiskPerTradePercent()),
-                    entryPrice,
-                    stopLossPrice,
-                    transactionCostsPerShare,
-                    fixedTransactionCosts,
-                    maxNotional(direction, risk),
-                    risk.isUseLeverage(),
-                    risk.getMaxQuantityPerOrder());
-            List<TakeProfitAllocation> takeProfits =
-                    takeProfitAllocationService.allocate(
-                            sizing.quantity(),
-                            entryPrice,
-                            direction);
+            Map<String, String> strategyMetadata = orderDetails == null
+                    ? new LinkedHashMap<>()
+                    : new LinkedHashMap<>(orderDetails.metadata());
+            boolean joeRoss = isJoeRoss123Tte(strategyMetadata);
+            PositionSizingResult sizing;
+            JoeRossPoint2PositionSizingResult joeRossSizing = null;
+            if (joeRoss && metadataBoolean(strategyMetadata,
+                    "point2TargetSizingEnabled", true)) {
+                joeRossSizing = joeRossPositionSizingService.calculate(
+                        money(tradingCapital),
+                        metadataMoney(strategyMetadata, "targetProfitPercent", 2.0),
+                        entryPrice,
+                        metadataMoney(strategyMetadata, "point2Delta", 0.0),
+                        metadataMoney(strategyMetadata, "minimumPoint2Distance", 0.0),
+                        stopLossPrice,
+                        money(risk.getRiskPerTradePercent()),
+                        transactionCostsPerShare,
+                        fixedTransactionCosts,
+                        maxNotional(direction, risk),
+                        risk.isUseLeverage(),
+                        risk.getMaxQuantityPerOrder());
+                sizing = joeRossSizing.positionSizing();
+                addJoeRossSizingMetadata(strategyMetadata, joeRossSizing);
+            } else {
+                sizing = positionSizingService.calculate(
+                        money(tradingCapital), money(risk.getRiskPerTradePercent()),
+                        entryPrice, stopLossPrice, transactionCostsPerShare,
+                        fixedTransactionCosts, maxNotional(direction, risk),
+                        risk.isUseLeverage(), risk.getMaxQuantityPerOrder());
+            }
+            List<TakeProfitAllocation> takeProfits = joeRoss
+                    ? joeRossTakeProfitService.allocate(sizing.quantity(), entryPrice,
+                            metadataMoney(strategyMetadata, "point2Price", 0.0),
+                            metadataMoney(strategyMetadata, "point2Delta", 0.0),
+                            direction, joeRossTakeProfitParameters(strategyMetadata))
+                    : takeProfitAllocationService.allocate(
+                            sizing.quantity(), entryPrice, direction);
+            if (joeRoss) {
+                addJoeRossTakeProfitMetadata(strategyMetadata, takeProfits);
+            }
             return new BacktestPendingEntry(
                     direction,
                     signal == null ? null : signal.occurredAt(),
@@ -1355,7 +1612,7 @@ public class TradingWorkbenchController {
                     orderDetails == null
                             ? activationPoint.index()
                             : orderDetails.activeAfterBarIndex(),
-                    orderDetails == null ? Map.of() : orderDetails.metadata());
+                    strategyMetadata);
         } catch (IllegalArgumentException | RiskRejectedException rejected) {
             return null;
         }
@@ -1392,6 +1649,68 @@ public class TradingWorkbenchController {
             double slippagePercent) {
         double fillPrice = entryFillPrice(pendingEntry, point, slippagePercent);
         long quantity = pendingEntry.quantity();
+        BigDecimal maximumRisk = pendingEntry.maximumRisk();
+        BigDecimal riskPerShare = pendingEntry.riskPerShare();
+        BigDecimal effectiveRisk = pendingEntry.effectiveRisk();
+        BigDecimal capitalRequired = pendingEntry.capitalRequired();
+        List<TakeProfitAllocation> takeProfits = pendingEntry.takeProfits();
+        Map<String, String> effectiveStrategyMetadata = new LinkedHashMap<>(
+                pendingEntry.strategyMetadata());
+        boolean gapFill = pendingEntry.direction() == TradeDirection.LONG
+                ? point.open() > pendingEntry.entryPrice().doubleValue()
+                : point.open() < pendingEntry.entryPrice().doubleValue();
+        if (gapFill) {
+            TradingSystemProperties.RiskProperties risk = properties.getRisk();
+            BigDecimal actualEntry = money(fillPrice);
+            try {
+                Map<String, String> metadata = effectiveStrategyMetadata;
+                boolean joeRoss = isJoeRoss123Tte(metadata);
+                BigDecimal costs = simulationTransactionCostsPerShare(
+                        actualEntry, pendingEntry.stopLossPrice(), slippagePercent);
+                BigDecimal fixedCosts = money(commissionPerOrder)
+                        .multiply(BigDecimal.valueOf(2), MATH);
+                PositionSizingResult sizing;
+                if (joeRoss && metadataBoolean(metadata,
+                        "point2TargetSizingEnabled", true)) {
+                    JoeRossPoint2PositionSizingResult result =
+                            joeRossPositionSizingService.calculate(
+                                    pendingEntry.tradingCapital(),
+                                    metadataMoney(metadata, "targetProfitPercent", 2.0),
+                                    actualEntry,
+                                    metadataMoney(metadata, "point2Delta", 0.0),
+                                    metadataMoney(metadata, "minimumPoint2Distance", 0.0),
+                                    pendingEntry.stopLossPrice(), pendingEntry.riskPercent(),
+                                    costs, fixedCosts, maxNotional(pendingEntry.direction(), risk),
+                                    risk.isUseLeverage(), risk.getMaxQuantityPerOrder());
+                    sizing = result.positionSizing();
+                    addJoeRossSizingMetadata(metadata, result);
+                } else {
+                    sizing = positionSizingService.calculate(
+                            pendingEntry.tradingCapital(), pendingEntry.riskPercent(),
+                            actualEntry, pendingEntry.stopLossPrice(), costs, fixedCosts,
+                            maxNotional(pendingEntry.direction(), risk), risk.isUseLeverage(),
+                            risk.getMaxQuantityPerOrder());
+                }
+                quantity = sizing.quantity();
+                maximumRisk = sizing.maximumRisk();
+                riskPerShare = sizing.totalRiskPerShare();
+                effectiveRisk = sizing.effectiveRisk();
+                capitalRequired = sizing.notional();
+                takeProfits = joeRoss
+                        ? joeRossTakeProfitService.allocate(quantity, actualEntry,
+                                metadataMoney(metadata, "point2Price", 0.0),
+                                metadataMoney(metadata, "point2Delta", 0.0),
+                                pendingEntry.direction(),
+                                joeRossTakeProfitParameters(metadata))
+                        : takeProfitAllocationService.allocate(
+                                quantity, actualEntry, pendingEntry.direction());
+                if (joeRoss) {
+                    addJoeRossTakeProfitMetadata(metadata, takeProfits);
+                }
+            } catch (IllegalArgumentException | RiskRejectedException rejected) {
+                return null;
+            }
+        }
         if (pendingEntry.direction() == TradeDirection.LONG) {
             if (!properties.getRisk().isUseLeverage()
                     && fillPrice * quantity + commissionPerOrder > account.cash) {
@@ -1401,10 +1720,14 @@ public class TradingWorkbenchController {
         } else {
             account.cash += fillPrice * quantity - commissionPerOrder;
         }
-        Map<String, String> strategyMetadata = new LinkedHashMap<>(
-                pendingEntry.strategyMetadata());
+        Map<String, String> strategyMetadata = effectiveStrategyMetadata;
         if (!strategyMetadata.isEmpty()) {
             strategyMetadata.put("quantity", String.valueOf(quantity));
+            if (StrategyType.JOE_ROSS_123_TTE.name().equals(
+                    strategyMetadata.get("strategy"))) {
+                strategyMetadata.put("tteEntryPrice", String.valueOf(fillPrice));
+                strategyMetadata.put("actualEntryPrice", String.valueOf(fillPrice));
+            }
             strategyMetadata.put("setupStatus", "TRADE_OPEN");
         }
         return new BacktestPosition(
@@ -1420,11 +1743,11 @@ public class TradingWorkbenchController {
                 pendingEntry.stopLossPrice().doubleValue(),
                 pendingEntry.tradingCapital().doubleValue(),
                 pendingEntry.riskPercent().doubleValue(),
-                pendingEntry.maximumRisk().doubleValue(),
-                pendingEntry.riskPerShare().doubleValue(),
-                pendingEntry.effectiveRisk().doubleValue(),
-                pendingEntry.capitalRequired().doubleValue(),
-                pendingEntry.takeProfits(),
+                maximumRisk.doubleValue(),
+                riskPerShare.doubleValue(),
+                effectiveRisk.doubleValue(),
+                capitalRequired.doubleValue(),
+                takeProfits,
                 commissionPerOrder,
                 strategyMetadata);
     }
@@ -1460,8 +1783,10 @@ public class TradingWorkbenchController {
         position.exitAt = point.timestamp();
         position.exitReason = exitReason;
         double netPnl = grossPnl - commissionPerOrder;
+        boolean joeRossTakeProfit = exitReason.startsWith("TP")
+                && isJoeRoss123Tte(position.strategyMetadata);
         position.events.add(new TradeEventResult(
-                exitEventType(exitReason),
+                joeRossTakeProfit ? exitReason + "_FILLED" : exitEventType(exitReason),
                 point.index(),
                 point.timestamp(),
                 fillPrice,
@@ -1471,7 +1796,76 @@ public class TradingWorkbenchController {
                 grossPnl,
                 netPnl,
                 eventReturnPercent(netPnl, position.entryPrice, quantity),
-                exitReason));
+                joeRossTakeProfit && "TP1".equals(exitReason)
+                        ? "JOE_ROSS_POINT2_TARGET" : exitReason));
+    }
+
+    private boolean isJoeRoss123Tte(Map<String, String> metadata) {
+        return StrategyType.JOE_ROSS_123_TTE.name().equals(metadata.get("strategy"));
+    }
+
+    private BigDecimal metadataMoney(
+            Map<String, String> metadata, String key, double fallback) {
+        String value = metadata.get(key);
+        return value == null || value.isBlank() ? money(fallback) : new BigDecimal(value);
+    }
+
+    private boolean metadataBoolean(
+            Map<String, String> metadata, String key, boolean fallback) {
+        String value = metadata.get(key);
+        return value == null || value.isBlank() ? fallback : Boolean.parseBoolean(value);
+    }
+
+    private void addJoeRossSizingMetadata(
+            Map<String, String> metadata,
+            JoeRossPoint2PositionSizingResult result) {
+        metadata.put("targetProfitPercent", result.targetProfitPercent().toPlainString());
+        metadata.put("targetSizingPercent", result.targetProfitPercent().toPlainString());
+        metadata.put("targetProfitAmount", result.targetProfitAmount().toPlainString());
+        metadata.put("distanceToPoint2", result.distanceToPoint2().toPlainString());
+        metadata.put("delta", result.point2Delta().toPlainString());
+        metadata.put("point2Delta", result.point2Delta().toPlainString());
+        metadata.put("quantityCalculatedFromPoint2",
+                String.valueOf(result.quantityCalculatedFromPoint2()));
+        metadata.put("calculatedQuantity",
+                String.valueOf(result.positionSizing().quantity()));
+        metadata.put("expectedProfitAtPoint2",
+                result.expectedProfitAtPoint2().toPlainString());
+        metadata.put("initialStopPrice", result.initialStopPrice().toPlainString());
+        metadata.put("actualRiskPerShare", result.actualRiskPerShare().toPlainString());
+        metadata.put("actualOrderRiskPerShare",
+                result.actualRiskPerShare().toPlainString());
+        metadata.put("actualStopRiskAmount",
+                result.actualStopRiskAmount().toPlainString());
+        metadata.put("actualOrderRiskAmount",
+                result.actualStopRiskAmount().toPlainString());
+        metadata.put("actualStopRiskPercent",
+                result.actualStopRiskPercent().toPlainString());
+        BigDecimal point3Range = metadataMoney(
+                metadata, "point3RangeRiskPerShare", 0.0);
+        metadata.put("point3RangeRiskAmount", point3Range
+                .multiply(BigDecimal.valueOf(result.positionSizing().quantity()), MATH)
+                .toPlainString());
+    }
+
+    private JoeRossTakeProfitParameters joeRossTakeProfitParameters(
+            Map<String, String> metadata) {
+        return new JoeRossTakeProfitParameters(
+                metadataMoney(metadata, "tp1Percent", 60.0).doubleValue(),
+                metadataMoney(metadata, "tp2Percent", 20.0).doubleValue(),
+                metadataMoney(metadata, "tp3Percent", 20.0).doubleValue());
+    }
+
+    private void addJoeRossTakeProfitMetadata(
+            Map<String, String> metadata,
+            List<TakeProfitAllocation> takeProfits) {
+        for (TakeProfitAllocation target : takeProfits) {
+            String prefix = "tp" + target.targetNumber();
+            metadata.put(prefix + "Price", target.price().toPlainString());
+            metadata.put(prefix + "Quantity", String.valueOf(target.quantity()));
+            metadata.put(prefix + "Percent",
+                    target.positionPercent().toPlainString());
+        }
     }
 
     private void recordClosedTrade(
@@ -1775,7 +2169,9 @@ public class TradingWorkbenchController {
         return new WorkbenchConfigResponse(
                 Arrays.asList(MarketDataProvider.values()),
                 Arrays.asList(MarketDataMode.values()),
-                Arrays.asList(StrategyType.values()),
+                Arrays.stream(StrategyType.values())
+                        .filter(type -> type != StrategyType.JOE_ROSS_123_RH_TTE)
+                        .toList(),
                 Arrays.asList(TradingMode.values()),
                 new IbkrConfigResponse(
                         ibkr.getHost(),
@@ -2013,7 +2409,94 @@ public class TradingWorkbenchController {
             Double minimumRoomValue,
             Boolean allowDoubleTriple,
             Integer doubleTripleToleranceTicks,
-            Boolean rejectGapOverEntry) {
+            Boolean rejectGapOverEntry,
+            String minimumRoomType,
+            InitialStopMode initialStopMode,
+            Boolean fallbackToPoint2Breakout,
+            Boolean bollingerPoint1FilterEnabled,
+            Integer bollingerPeriod,
+            Double bollingerStandardDeviation,
+            BollingerSource bollingerSource,
+            Point1PriceMode point1PriceMode,
+            Boolean point2TargetSizingEnabled,
+            Double point2TargetProfitPercent,
+            Double minimumPoint2Distance,
+            Double tp1PositionPercent,
+            Double tp2PositionPercent,
+            Double tp3PositionPercent) {
+
+        public StrategySimulationRequest(
+                String symbol,
+                MarketDataProvider provider,
+                StrategyType strategy,
+                StrategyTradeMode tradeDirection,
+                List<Double> prices,
+                List<SimulationBarRequest> bars,
+                Integer fastPeriod,
+                Integer slowPeriod,
+                Long quantity,
+                Double initialCapital,
+                Double commissionPerOrder,
+                Double slippagePercent,
+                Boolean publishSignals,
+                Integer pivotStrength,
+                Double minimumTick,
+                Integer tteMaxBars,
+                Integer entryBufferTicks,
+                Integer stopBufferTicks,
+                Boolean minimumRoomEnabled,
+                Double minimumRoomValue,
+                Boolean allowDoubleTriple,
+                Integer doubleTripleToleranceTicks,
+                Boolean rejectGapOverEntry,
+                String minimumRoomType,
+                InitialStopMode initialStopMode,
+                Boolean fallbackToPoint2Breakout) {
+            this(symbol, provider, strategy, tradeDirection, prices, bars,
+                    fastPeriod, slowPeriod, quantity, initialCapital,
+                    commissionPerOrder, slippagePercent, publishSignals,
+                    pivotStrength, minimumTick, tteMaxBars, entryBufferTicks,
+                    stopBufferTicks, minimumRoomEnabled, minimumRoomValue,
+                    allowDoubleTriple, doubleTripleToleranceTicks,
+                    rejectGapOverEntry, minimumRoomType, initialStopMode,
+                    fallbackToPoint2Breakout, null, null, null, null, null,
+                    null, null, null, null, null, null);
+        }
+
+        public StrategySimulationRequest(
+                String symbol,
+                MarketDataProvider provider,
+                StrategyType strategy,
+                StrategyTradeMode tradeDirection,
+                List<Double> prices,
+                List<SimulationBarRequest> bars,
+                Integer fastPeriod,
+                Integer slowPeriod,
+                Long quantity,
+                Double initialCapital,
+                Double commissionPerOrder,
+                Double slippagePercent,
+                Boolean publishSignals,
+                Integer pivotStrength,
+                Double minimumTick,
+                Integer tteMaxBars,
+                Integer entryBufferTicks,
+                Integer stopBufferTicks,
+                Boolean minimumRoomEnabled,
+                Double minimumRoomValue,
+                Boolean allowDoubleTriple,
+                Integer doubleTripleToleranceTicks,
+                Boolean rejectGapOverEntry) {
+            this(symbol, provider, strategy, tradeDirection, prices, bars,
+                    fastPeriod, slowPeriod, quantity, initialCapital,
+                    commissionPerOrder, slippagePercent, publishSignals,
+                    pivotStrength, minimumTick, tteMaxBars, entryBufferTicks,
+                    stopBufferTicks, minimumRoomEnabled, minimumRoomValue,
+                    allowDoubleTriple, doubleTripleToleranceTicks,
+                    rejectGapOverEntry, null, null, null,
+                    null, null, null, null, null, null, null, null,
+                    null, null, null);
+        }
 
         public StrategySimulationRequest(
                 String symbol,
@@ -2032,7 +2515,9 @@ public class TradingWorkbenchController {
             this(symbol, provider, strategy, tradeDirection, prices, bars,
                     fastPeriod, slowPeriod, quantity, initialCapital,
                     commissionPerOrder, slippagePercent, publishSignals,
-                    null, null, null, null, null, null, null, null, null, null);
+                    null, null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null, null, null, null, null,
+                    null, null, null, null, null);
         }
     }
 
@@ -2093,10 +2578,16 @@ public class TradingWorkbenchController {
             EvaluationParameters evaluationParameters,
             boolean publishedSignals,
             List<JoeRossEvent> joeRossEvents,
-            JoeRossPatternStatistics joeRossStatistics) {
+            Object joeRossStatistics,
+            List<BollingerBandsValue> bollingerBands,
+            List<BollingerPoint1Check> bollingerPoint1Checks,
+            BollingerPoint1FilterParameters bollingerPoint1Filter) {
 
         public StrategySimulationResponse {
             joeRossEvents = joeRossEvents == null ? List.of() : List.copyOf(joeRossEvents);
+            bollingerBands = bollingerBands == null ? List.of() : List.copyOf(bollingerBands);
+            bollingerPoint1Checks = bollingerPoint1Checks == null
+                    ? List.of() : List.copyOf(bollingerPoint1Checks);
         }
 
         public StrategySimulationResponse(
@@ -2126,6 +2617,9 @@ public class TradingWorkbenchController {
                     metrics,
                     evaluationParameters,
                     publishedSignals,
+                    List.of(),
+                    null,
+                    List.of(),
                     List.of(),
                     null);
         }
@@ -2340,15 +2834,22 @@ public class TradingWorkbenchController {
     private record JoeRossAnalysis(
             List<TradingSignal> signals,
             List<JoeRossEvent> events,
-            JoeRossPatternStatistics statistics) {
+            Object statistics,
+            List<BollingerBandsValue> bollingerBands,
+            List<BollingerPoint1Check> bollingerPoint1Checks,
+            BollingerPoint1FilterParameters bollingerParameters) {
 
         private JoeRossAnalysis {
             signals = signals == null ? List.of() : List.copyOf(signals);
             events = events == null ? List.of() : List.copyOf(events);
+            bollingerBands = bollingerBands == null ? List.of() : List.copyOf(bollingerBands);
+            bollingerPoint1Checks = bollingerPoint1Checks == null
+                    ? List.of() : List.copyOf(bollingerPoint1Checks);
         }
 
         private static JoeRossAnalysis empty() {
-            return new JoeRossAnalysis(List.of(), List.of(), null);
+            return new JoeRossAnalysis(
+                    List.of(), List.of(), null, List.of(), List.of(), null);
         }
     }
 
@@ -2491,6 +2992,10 @@ public class TradingWorkbenchController {
                     "INITIAL_STOP"));
             if (isJoeRossTrade()) {
                 this.events.add(new TradeEventResult(
+                        "INITIAL_STOP", entryIndex, entryAt, stopLossPrice,
+                        quantity, quantity, stopLossPrice,
+                        0.0, 0.0, 0.0, "P3_BUFFERED_STOP"));
+                this.events.add(new TradeEventResult(
                         "TRADE_OPENED",
                         entryIndex,
                         entryAt,
@@ -2501,7 +3006,7 @@ public class TradingWorkbenchController {
                         0.0,
                         -entryCommission,
                         eventReturnPercent(-entryCommission, entryPrice, quantity),
-                        "JOE_ROSS_123_RH_TTE"));
+                        strategyMetadata.get("strategy")));
             }
         }
 
@@ -2519,8 +3024,9 @@ public class TradingWorkbenchController {
         }
 
         private boolean isJoeRossTrade() {
-            return StrategyType.JOE_ROSS_123_RH_TTE.name().equals(
-                    strategyMetadata.get("strategy"));
+            String strategy = strategyMetadata.get("strategy");
+            return StrategyType.JOE_ROSS_123_TTE.name().equals(strategy)
+                    || StrategyType.JOE_ROSS_123_RH_TTE.name().equals(strategy);
         }
 
         private void addJoeRossSetupEvents() {
@@ -2531,6 +3037,22 @@ public class TradingWorkbenchController {
                     "point1Time", "point1Price", "P1");
             addSetupEvent("JOE_ROSS_POINT2_FOUND", "point2BarIndex",
                     "point2Time", "point2Price", "P2");
+            if (StrategyType.JOE_ROSS_123_TTE.name().equals(
+                    strategyMetadata.get("strategy"))) {
+                addSetupEvent("POINT3_CONFIRMED", "point3BarIndex",
+                        "point3Time", "point3Price", "P3 confirmed on completed bar");
+                String number = strategyMetadata.getOrDefault("tteBarNumber", "1");
+                addSetupEvent("TTE_BAR_" + number + "_CREATED", "tteBarIndex",
+                        "tteBarTime", "tteEntryCandidate", "TTE" + number);
+                addSetupEvent("TTE_ENTRY_CANDIDATE", "tteBarIndex",
+                        "tteBarTime", "tteEntryCandidate", "stop="
+                                + strategyMetadata.get("initialStopPrice"));
+                events.add(new TradeEventResult(
+                        "TTE_TRIGGERED", entryIndex, entryAt, entryPrice,
+                        quantity, quantity, initialStopPrice, 0.0, 0.0, 0.0,
+                        "tteBar=" + number));
+                return;
+            }
             addSetupEvent("JOE_ROSS_POINT3_FOUND", "point3BarIndex",
                     "point3Time", "point3Price", "P3");
             addSetupEvent("JOE_ROSS_123_COMPLETED", "point3BarIndex",

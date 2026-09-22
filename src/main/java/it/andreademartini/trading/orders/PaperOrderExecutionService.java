@@ -270,15 +270,25 @@ public class PaperOrderExecutionService {
     private PaperOrderRequest createAutomaticEntry(
             TradingSignal signal,
             TradeDirection direction) {
-        TradePlan plan = signal.orderDetails() != null
+        TradePlan plan;
+        if (signal.orderDetails() != null
                 && signal.orderDetails().entryStopPrice() != null
-                && signal.orderDetails().initialStopPrice() != null
-                ? tradeSetupService.create(
-                        signal.symbol(),
-                        direction,
-                        BigDecimal.valueOf(signal.orderDetails().entryStopPrice()),
-                        BigDecimal.valueOf(signal.orderDetails().initialStopPrice()))
-                : tradeSetupService.create(signal.symbol(), direction);
+                && signal.orderDetails().initialStopPrice() != null) {
+            boolean point2Target = "JOE_ROSS_123_TTE".equals(
+                    signal.orderDetails().metadata().get("strategy"));
+            plan = point2Target
+                    ? tradeSetupService.create(
+                            signal.symbol(), direction,
+                            BigDecimal.valueOf(signal.orderDetails().entryStopPrice()),
+                            BigDecimal.valueOf(signal.orderDetails().initialStopPrice()),
+                            signal.orderDetails().metadata())
+                    : tradeSetupService.create(
+                            signal.symbol(), direction,
+                            BigDecimal.valueOf(signal.orderDetails().entryStopPrice()),
+                            BigDecimal.valueOf(signal.orderDetails().initialStopPrice()));
+        } else {
+            plan = tradeSetupService.create(signal.symbol(), direction);
+        }
         OrderSide side = direction == TradeDirection.LONG
                 ? OrderSide.BUY
                 : OrderSide.SELL;

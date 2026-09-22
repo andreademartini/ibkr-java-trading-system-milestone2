@@ -21,6 +21,8 @@ public class BacktestExcelExportService {
     private final SummarySheetWriter summarySheetWriter;
     private final TradesSheetWriter tradesSheetWriter;
     private final TradeSheetWriter tradeSheetWriter;
+    private final JoeRossSetupEventsSheetWriter setupEventsSheetWriter =
+            new JoeRossSetupEventsSheetWriter();
 
     public BacktestExcelExportService(
             ExcelExportProperties properties,
@@ -42,6 +44,7 @@ public class BacktestExcelExportService {
             ExcelStyleFactory styles = new ExcelStyleFactory(workbook, properties);
             summarySheetWriter.write(workbook, run, styles);
             tradesSheetWriter.write(workbook, run, styles);
+            setupEventsSheetWriter.write(workbook, run, styles);
             for (BacktestExportTrade trade : run.trades()) {
                 tradeSheetWriter.write(workbook, run, trade, styles);
             }

@@ -13,6 +13,10 @@ import it.andreademartini.trading.strategy.joeross.JoeRoss123RossHookTteStrategy
 import it.andreademartini.trading.strategy.joeross.JoeRossParameters;
 import it.andreademartini.trading.strategy.joeross.JoeRossBarResult;
 import it.andreademartini.trading.strategy.joeross.JoeRossSignalAdapter;
+import it.andreademartini.trading.strategy.joeross.JoeRoss123TteBarResult;
+import it.andreademartini.trading.strategy.joeross.JoeRoss123TteParameters;
+import it.andreademartini.trading.strategy.joeross.JoeRoss123TteSignalAdapter;
+import it.andreademartini.trading.strategy.joeross.JoeRoss123TteStrategy;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +35,8 @@ public class StrategyEngine {
     private TradingStrategy strategy;
     private StrategyType activeStrategyType;
     private final Map<String, JoeRoss123RossHookTteStrategy> joeRossBySymbol =
+            new HashMap<>();
+    private final Map<String, JoeRoss123TteStrategy> joeRossTteBySymbol =
             new HashMap<>();
 
     public StrategyEngine(
@@ -72,6 +78,7 @@ public class StrategyEngine {
             activeStrategyType = properties.getStrategy().getType();
             strategy = createStrategy(activeStrategyType);
             joeRossBySymbol.clear();
+            joeRossTteBySymbol.clear();
         }
     }
 
@@ -81,37 +88,49 @@ public class StrategyEngine {
      * existing signal, risk and PAPER-order safety chain.
      */
     public List<TradingSignal> onBar(String symbol, HistoricalBar bar) {
+        StrategyType configuredType = properties.getStrategy().getType();
         if (!properties.getStrategy().isEnabled()
-                || properties.getStrategy().getType()
-                != StrategyType.JOE_ROSS_123_RH_TTE) {
+                || (configuredType != StrategyType.JOE_ROSS_123_TTE
+                && configuredType != StrategyType.JOE_ROSS_123_RH_TTE)) {
             return List.of();
         }
 
         String normalizedSymbol = normalizeSymbol(symbol);
-        JoeRossBarResult result;
         synchronized (strategyLock) {
-            if (activeStrategyType != StrategyType.JOE_ROSS_123_RH_TTE) {
-                activeStrategyType = StrategyType.JOE_ROSS_123_RH_TTE;
+            if (activeStrategyType != configuredType) {
+                activeStrategyType = configuredType;
                 strategy = createStrategy(activeStrategyType);
                 joeRossBySymbol.clear();
+                joeRossTteBySymbol.clear();
+            }
+            if (configuredType == StrategyType.JOE_ROSS_123_TTE) {
+                JoeRoss123TteStrategy joeRoss = joeRossTteBySymbol.computeIfAbsent(
+                        normalizedSymbol, ignored -> createJoeRoss123TteStrategy());
+                JoeRoss123TteBarResult result = joeRoss.onBar(bar);
+                List<TradingSignal> signals = JoeRoss123TteSignalAdapter.toSignals(
+                        normalizedSymbol, bar, result,
+                        properties.getStrategy().getQuantity());
+                publish(signals);
+                return signals;
             }
             JoeRoss123RossHookTteStrategy joeRoss = joeRossBySymbol.computeIfAbsent(
                     normalizedSymbol,
                     ignored -> createJoeRossStrategy());
-            result = joeRoss.onBar(bar);
+            JoeRossBarResult result = joeRoss.onBar(bar);
+            List<TradingSignal> signals = JoeRossSignalAdapter.toSignals(
+                    normalizedSymbol, bar, result,
+                    properties.getStrategy().getQuantity());
+            publish(signals);
+            return signals;
         }
+    }
 
-        List<TradingSignal> signals = JoeRossSignalAdapter.toSignals(
-                normalizedSymbol,
-                bar,
-                result,
-                properties.getStrategy().getQuantity());
+    private void publish(List<TradingSignal> signals) {
         for (TradingSignal signal : signals) {
             signalService.publish(
                     signal,
                     properties.getStrategy().isAutoExecuteSignals());
         }
-        return signals;
     }
 
     private TradingStrategy currentStrategy() {
@@ -130,8 +149,16 @@ public class StrategyEngine {
             case MANUAL_ONLY -> new ManualOnlyStrategy();
             case MOVING_AVERAGE_CROSSOVER ->
                     new MovingAverageCrossoverStrategy(properties.getStrategy());
+            case JOE_ROSS_123_TTE -> createJoeRoss123TteStrategy();
             case JOE_ROSS_123_RH_TTE -> createJoeRossStrategy();
         };
+    }
+
+    private JoeRoss123TteStrategy createJoeRoss123TteStrategy() {
+        return new JoeRoss123TteStrategy(
+                JoeRoss123TteParameters.from(
+                        properties.getStrategy().getJoeRoss123Tte()),
+                properties.getStrategy().getJoeRoss123Tte().getDirection());
     }
 
     private JoeRoss123RossHookTteStrategy createJoeRossStrategy() {

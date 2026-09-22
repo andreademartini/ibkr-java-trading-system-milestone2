@@ -1,4 +1,4 @@
-@host = http://localhost:8080
+@host = http://localhost:8081
 
 ### Stato generale
 GET {{host}}/api/paper/status

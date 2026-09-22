@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.time.Instant;
 
 @Component
 public class TradesSheetWriter {
@@ -52,7 +53,43 @@ public class TradesSheetWriter {
             "MFE",
             "MAE",
             "MFE R",
-            "MAE R"
+            "MAE R",
+            "Point 1",
+            "Point 2",
+            "Point 3",
+            "Point 3 Date",
+            "TTE Bar Number",
+            "TTE Bar Open",
+            "TTE Bar High",
+            "TTE Bar Low",
+            "TTE Bar Close",
+            "TTE Candidate",
+            "TTE Entry",
+            "TTE Initial Stop",
+            "Room To Point2",
+            "TP1 Source",
+            "Target Profit %",
+            "Target Profit Amount",
+            "Distance Entry To Point2",
+            "Calculated Quantity",
+            "Expected Profit At Point2",
+            "Actual Stop Risk Amount",
+            "Actual Stop Risk %",
+            "Point 2 Date",
+            "Point 3 High",
+            "Point 3 Low",
+            "Delta",
+            "Delta Formula",
+            "Actual Entry Price",
+            "Entry Buffer Ticks",
+            "Point 3 Range Risk Per Share",
+            "Point 3 Range Risk Amount",
+            "Actual Order Risk Per Share",
+            "Actual Order Risk Amount",
+            "TP1 %",
+            "TP2 %",
+            "TP3 %",
+            "Progressive Stop Events"
     };
 
     public void write(
@@ -135,7 +172,92 @@ public class TradesSheetWriter {
         ExcelSheetSupport.cell(row, column++, trade.mfe(), styles.price());
         ExcelSheetSupport.cell(row, column++, trade.mae(), styles.price());
         ExcelSheetSupport.cell(row, column++, trade.mfeR(), styles.money());
-        ExcelSheetSupport.cell(row, column, trade.maeR(), styles.money());
+        ExcelSheetSupport.cell(row, column++, trade.maeR(), styles.money());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "point1Price"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "point2Price"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "point3Price"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyInstant(trade, "point3Time"), styles.dateTime());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "tteBarNumber"), styles.integer());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "tteBarOpen"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "tteBarHigh"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "tteBarLow"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "tteBarClose"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "tteEntryCandidate"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "tteEntryPrice"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "initialStopPrice"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "roomToPoint2"), styles.price());
+        ExcelSheetSupport.cell(row, column++, trade.strategyData().get("tp1Source"), styles.text());
+        Double targetPercent = strategyNumber(trade, "targetProfitPercent");
+        ExcelSheetSupport.cell(row, column++, targetPercent == null ? null : targetPercent / 100.0,
+                styles.percent());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "targetProfitAmount"), styles.money());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "distanceToPoint2"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "quantityCalculatedFromPoint2"), styles.integer());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "expectedProfitAtPoint2"), styles.money());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "actualStopRiskAmount"), styles.money());
+        Double actualRiskPercent = strategyNumber(trade, "actualStopRiskPercent");
+        ExcelSheetSupport.cell(row, column++, actualRiskPercent == null ? null : actualRiskPercent / 100.0,
+                styles.percent());
+        ExcelSheetSupport.cell(row, column++, strategyInstant(trade, "point2Date"), styles.dateTime());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "point3High"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "point3Low"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "delta"), styles.price());
+        ExcelSheetSupport.cell(row, column++, trade.strategyData().get("deltaFormula"), styles.text());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "actualEntryPrice"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "entryTickBuffer"), styles.integer());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "point3RangeRiskPerShare"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "point3RangeRiskAmount"), styles.money());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "actualOrderRiskPerShare"), styles.price());
+        ExcelSheetSupport.cell(row, column++, strategyNumber(trade, "actualOrderRiskAmount"), styles.money());
+        column = writeStrategyPercent(row, column, trade, "tp1Percent", styles);
+        column = writeStrategyPercent(row, column, trade, "tp2Percent", styles);
+        column = writeStrategyPercent(row, column, trade, "tp3Percent", styles);
+        ExcelSheetSupport.cell(row, column, progressiveStopEvents(trade), styles.text());
+    }
+
+    private int writeStrategyPercent(
+            Row row,
+            int column,
+            BacktestExportTrade trade,
+            String key,
+            ExcelStyleFactory styles) {
+        Double value = strategyNumber(trade, key);
+        ExcelSheetSupport.cell(row, column, value == null ? null : value / 100.0,
+                styles.percent());
+        return column + 1;
+    }
+
+    private String progressiveStopEvents(BacktestExportTrade trade) {
+        return trade.events().stream()
+                .filter(event -> event.eventType() != null
+                        && (event.eventType().contains("STOP_MOVED")
+                        || event.eventType().contains("STOP_CANCEL")))
+                .map(event -> event.eventType() + " @ " + event.price())
+                .collect(java.util.stream.Collectors.joining("; "));
+    }
+
+    private Instant strategyInstant(BacktestExportTrade trade, String key) {
+        String value = trade.strategyData().get(key);
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Instant.parse(value);
+        } catch (RuntimeException ignored) {
+            return null;
+        }
+    }
+
+    private Double strategyNumber(BacktestExportTrade trade, String key) {
+        String value = trade.strategyData().get(key);
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Double.valueOf(value);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 
     private void writeTakeProfitCells(
@@ -176,7 +298,9 @@ public class TradesSheetWriter {
             BacktestExportTrade trade,
             TakeProfitAllocation target) {
         long filled = trade.events().stream()
-                .filter(event -> event.eventType().equals("EXIT - TP" + target.targetNumber()))
+                .filter(event -> event.eventType().equals("EXIT - TP" + target.targetNumber())
+                        || event.eventType().equals(
+                        "TP" + target.targetNumber() + "_FILLED"))
                 .mapToLong(BacktestExportTradeEvent::quantity)
                 .sum();
         if (filled <= 0) {

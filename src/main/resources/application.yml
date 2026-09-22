@@ -19,7 +19,7 @@ spring:
     banner-mode: off
 
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:8081}
 
 historical-data:
   provider: STOOQ
@@ -71,30 +71,40 @@ trading:
     slow-period: ${STRATEGY_SLOW_PERIOD:20}
     quantity: ${STRATEGY_QUANTITY:1}
     signal-cooldown: ${STRATEGY_SIGNAL_COOLDOWN:1m}
-    joe-ross-123-rh-tte:
+    joe-ross-123-tte:
       enabled: ${JOE_ROSS_ENABLED:true}
       direction: ${JOE_ROSS_DIRECTION:LONG_SHORT}
       # Instrument-specific backtest parameter; do not assume a universal 0.01 tick.
       minimum-tick: ${JOE_ROSS_MINIMUM_TICK:0.01}
-      # Optional distance beyond P2; zero keeps the base High>P2 / Low<P2 rule.
-      point2-breakout-buffer-ticks: ${JOE_ROSS_POINT2_BREAKOUT_BUFFER_TICKS:0}
       swing:
         pivot-strength: ${JOE_ROSS_PIVOT_STRENGTH:2}
-      ross-hook:
-        require-123: true
+      bollinger-point1-filter:
+        enabled: ${JOE_ROSS_BOLLINGER_POINT1_ENABLED:true}
+        period: ${JOE_ROSS_BOLLINGER_PERIOD:20}
+        standard-deviation: ${JOE_ROSS_BOLLINGER_STANDARD_DEVIATION:2.0}
+        source: ${JOE_ROSS_BOLLINGER_SOURCE:CLOSE}
+        point1-price-mode: ${JOE_ROSS_BOLLINGER_POINT1_PRICE_MODE:EXTREME}
+      point2-target-sizing:
+        enabled: ${JOE_ROSS_POINT2_TARGET_SIZING_ENABLED:true}
+        target-percent: ${JOE_ROSS_POINT2_TARGET_PROFIT_PERCENT:2.0}
+        minimum-point2-distance: ${JOE_ROSS_MINIMUM_POINT2_DISTANCE:0.0}
+      take-profit:
+        tp1-percent-position: ${JOE_ROSS_TP1_POSITION_PERCENT:60}
+        tp2-percent-position: ${JOE_ROSS_TP2_POSITION_PERCENT:20}
+        tp3-percent-position: ${JOE_ROSS_TP3_POSITION_PERCENT:20}
       tte:
         enabled: true
-        max-bars-after-ross-hook: ${JOE_ROSS_TTE_MAX_BARS:3}
+        max-correction-bars: ${JOE_ROSS_TTE_MAX_BARS:3}
         entry-buffer-ticks: ${JOE_ROSS_ENTRY_BUFFER_TICKS:1}
         stop-buffer-ticks: ${JOE_ROSS_STOP_BUFFER_TICKS:1}
-        minimum-room:
-          enabled: ${JOE_ROSS_MINIMUM_ROOM_ENABLED:true}
+        initial-stop-mode: ${JOE_ROSS_INITIAL_STOP_MODE:TTE_BAR}
+        fallback-to-point2-breakout: false
+        minimum-room-to-point2:
+          enabled: ${JOE_ROSS_MINIMUM_ROOM_ENABLED:false}
           type: R
           value: ${JOE_ROSS_MINIMUM_ROOM_R:0.5}
         allow-after-three-bars-on-double-triple: ${JOE_ROSS_ALLOW_DOUBLE_TRIPLE:false}
         double-triple-tolerance-ticks: ${JOE_ROSS_DOUBLE_TRIPLE_TOLERANCE_TICKS:1}
-        reject-gap-over-entry: ${JOE_ROSS_REJECT_GAP:true}
-        fallback-to-ross-hook-breakout: false
 
   risk:
     trading-capital: ${RISK_TRADING_CAPITAL:10000}

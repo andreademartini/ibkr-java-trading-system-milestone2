@@ -92,6 +92,29 @@ class TradingWorkbenchControllerSimulationTest {
     }
 
     @Test
+    void joeRossPoint2SizingCannotChangeMovingAverageResults() {
+        TradingWorkbenchController.StrategySimulationResponse before =
+                controller.simulateStrategy(request(StrategyTradeMode.LONG_SHORT));
+
+        properties.getStrategy().getJoeRoss123Tte().getPoint2TargetSizing()
+                .setTargetProfitPercent(99.0);
+        properties.getStrategy().getJoeRoss123Tte().getPoint2TargetSizing()
+                .setMinimumPoint2Distance(1_000.0);
+        TradingWorkbenchController.StrategySimulationResponse after =
+                controller.simulateStrategy(request(StrategyTradeMode.LONG_SHORT));
+
+        assertThat(after.trades()).hasSameSizeAs(before.trades());
+        for (int index = 0; index < before.trades().size(); index++) {
+            TradingWorkbenchController.TradeResult expected = before.trades().get(index);
+            TradingWorkbenchController.TradeResult actual = after.trades().get(index);
+            assertThat(actual.quantity()).isEqualTo(expected.quantity());
+            assertThat(actual.initialStopPrice()).isEqualTo(expected.initialStopPrice());
+            assertThat(actual.takeProfits()).isEqualTo(expected.takeProfits());
+            assertThat(actual.netPnl()).isEqualTo(expected.netPnl());
+        }
+    }
+
+    @Test
     void closedTradesExposeEntryAndExitEvents() {
         TradingWorkbenchController.StrategySimulationResponse response =
                 controller.simulateStrategy(request(StrategyTradeMode.LONG_SHORT));

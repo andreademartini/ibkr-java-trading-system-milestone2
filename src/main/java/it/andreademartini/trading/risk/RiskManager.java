@@ -228,8 +228,10 @@ public class RiskManager {
         BigDecimal configuredMaximumRisk = BigDecimal.valueOf(risk.getTradingCapital())
                 .multiply(BigDecimal.valueOf(risk.getRiskPerTradePercent()), MATH)
                 .divide(BigDecimal.valueOf(100), MATH);
-        if (plan.maximumRisk().compareTo(configuredMaximumRisk) > 0
-                || plan.effectiveRisk().compareTo(configuredMaximumRisk) > 0) {
+        boolean stopRiskSized = plan.positionSizingMode()
+                != PositionSizingMode.JOE_ROSS_POINT2_DELTA;
+        if (stopRiskSized && (plan.maximumRisk().compareTo(configuredMaximumRisk) > 0
+                || plan.effectiveRisk().compareTo(configuredMaximumRisk) > 0)) {
             reject("Rischio effettivo superiore al rischio massimo configurato");
         }
 

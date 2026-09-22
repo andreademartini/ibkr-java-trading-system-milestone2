@@ -94,6 +94,45 @@ public class TradingStockStrategyEntity {
     @Column
     private Boolean rejectGapOverEntry;
 
+    @Column(length = 16)
+    private String initialStopMode;
+
+    @Column
+    private Boolean fallbackToPoint2Breakout;
+
+    @Column
+    private Boolean bollingerPoint1FilterEnabled;
+
+    @Column
+    private Integer bollingerPeriod;
+
+    @Column
+    private Double bollingerStandardDeviation;
+
+    @Column(length = 16)
+    private String bollingerSource;
+
+    @Column(length = 16)
+    private String point1PriceMode;
+
+    @Column
+    private Boolean point2TargetSizingEnabled;
+
+    @Column
+    private Double point2TargetProfitPercent;
+
+    @Column
+    private Double minimumPoint2Distance;
+
+    @Column
+    private Double tp1PositionPercent;
+
+    @Column
+    private Double tp2PositionPercent;
+
+    @Column
+    private Double tp3PositionPercent;
+
     @Column(nullable = false)
     private int sortOrder;
 
@@ -132,6 +171,19 @@ public class TradingStockStrategyEntity {
             boolean allowDoubleTriple,
             int doubleTripleToleranceTicks,
             boolean rejectGapOverEntry,
+            String initialStopMode,
+            boolean fallbackToPoint2Breakout,
+            boolean bollingerPoint1FilterEnabled,
+            int bollingerPeriod,
+            double bollingerStandardDeviation,
+            String bollingerSource,
+            String point1PriceMode,
+            boolean point2TargetSizingEnabled,
+            double point2TargetProfitPercent,
+            double minimumPoint2Distance,
+            double tp1PositionPercent,
+            double tp2PositionPercent,
+            double tp3PositionPercent,
             int sortOrder,
             Instant now) {
         this.id = id;
@@ -161,6 +213,19 @@ public class TradingStockStrategyEntity {
         this.allowDoubleTriple = allowDoubleTriple;
         this.doubleTripleToleranceTicks = doubleTripleToleranceTicks;
         this.rejectGapOverEntry = rejectGapOverEntry;
+        this.initialStopMode = initialStopMode;
+        this.fallbackToPoint2Breakout = fallbackToPoint2Breakout;
+        this.bollingerPoint1FilterEnabled = bollingerPoint1FilterEnabled;
+        this.bollingerPeriod = bollingerPeriod;
+        this.bollingerStandardDeviation = bollingerStandardDeviation;
+        this.bollingerSource = bollingerSource;
+        this.point1PriceMode = point1PriceMode;
+        this.point2TargetSizingEnabled = point2TargetSizingEnabled;
+        this.point2TargetProfitPercent = point2TargetProfitPercent;
+        this.minimumPoint2Distance = minimumPoint2Distance;
+        this.tp1PositionPercent = tp1PositionPercent;
+        this.tp2PositionPercent = tp2PositionPercent;
+        this.tp3PositionPercent = tp3PositionPercent;
         this.sortOrder = sortOrder;
         this.createdAt = now;
         this.updatedAt = now;
@@ -260,5 +325,60 @@ public class TradingStockStrategyEntity {
 
     public boolean isRejectGapOverEntry() {
         return rejectGapOverEntry == null || rejectGapOverEntry;
+    }
+
+    public String getInitialStopMode() {
+        return initialStopMode == null || initialStopMode.isBlank()
+                ? "TTE_BAR" : initialStopMode;
+    }
+
+    public boolean isFallbackToPoint2Breakout() {
+        return fallbackToPoint2Breakout != null && fallbackToPoint2Breakout;
+    }
+
+    public boolean isBollingerPoint1FilterEnabled() {
+        return bollingerPoint1FilterEnabled == null || bollingerPoint1FilterEnabled;
+    }
+
+    public int getBollingerPeriod() {
+        return bollingerPeriod == null ? 20 : bollingerPeriod;
+    }
+
+    public double getBollingerStandardDeviation() {
+        return bollingerStandardDeviation == null ? 2.0 : bollingerStandardDeviation;
+    }
+
+    public String getBollingerSource() {
+        return bollingerSource == null || bollingerSource.isBlank()
+                ? "CLOSE" : bollingerSource;
+    }
+
+    public String getPoint1PriceMode() {
+        return point1PriceMode == null || point1PriceMode.isBlank()
+                ? "EXTREME" : point1PriceMode;
+    }
+
+    public boolean isPoint2TargetSizingEnabled() {
+        return point2TargetSizingEnabled == null || point2TargetSizingEnabled;
+    }
+
+    public double getPoint2TargetProfitPercent() {
+        return point2TargetProfitPercent == null ? 2.0 : point2TargetProfitPercent;
+    }
+
+    public double getMinimumPoint2Distance() {
+        return minimumPoint2Distance == null ? 0.0 : minimumPoint2Distance;
+    }
+
+    public double getTp1PositionPercent() {
+        return tp1PositionPercent == null ? 60.0 : tp1PositionPercent;
+    }
+
+    public double getTp2PositionPercent() {
+        return tp2PositionPercent == null ? 20.0 : tp2PositionPercent;
+    }
+
+    public double getTp3PositionPercent() {
+        return tp3PositionPercent == null ? 20.0 : tp3PositionPercent;
     }
 }

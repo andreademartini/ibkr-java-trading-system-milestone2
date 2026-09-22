@@ -208,7 +208,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=ibgateway
 Apri nel browser:
 
 ```text
-http://localhost:8080/api/paper/status
+http://localhost:8081/api/paper/status
 ```
 
 Dovresti vedere:
@@ -231,13 +231,13 @@ Interactive Brokers e' l'unica fonte dati configurata dal progetto.
 La dashboard locale e' disponibile su:
 
 ```text
-http://localhost:8080/
+http://localhost:8081/
 ```
 
 La pagina di configurazione TWS / IB Gateway e' disponibile su:
 
 ```text
-http://localhost:8080/provider.html
+http://localhost:8081/provider.html
 ```
 
 Per scaricare storico da IBKR, TWS o IB Gateway deve essere connesso e lo
@@ -270,7 +270,7 @@ Non inserire l'account live.
 Controlla:
 
 ```text
-GET http://localhost:8080/api/paper/status
+GET http://localhost:8081/api/paper/status
 ```
 
 Prima di inviare ordini deve risultare:
@@ -653,53 +653,96 @@ saltato. I valori esistenti non vengono sovrascritti automaticamente.
 
 ---
 
-## 13. Strategia Joe Ross 1-2-3 / Ross Hook / TTE
+## 13. Strategia Joe Ross 1-2-3 / TTE sul Point 3
 
-La strategia `JOE_ROSS_123_RH_TTE` usa esclusivamente barre OHLC chiuse e
-impone la sequenza completa `1-2-3 -> breakout P2 -> primo Ross Hook ->
-correzione -> TTE`. Non apre posizioni direttamente su P2 o sul Ross Hook.
+La strategia `JOE_ROSS_123_TTE` usa esclusivamente barre OHLC chiuse e segue
+la sequenza `P1 -> P2 -> correzione che forma P3 -> TTE -> ingresso`. Non
+attende il breakout di P2 e non usa il Ross Hook: l'ingresso TTE è anticipato
+e può avvenire mentre il Point 3 è ancora in formazione.
 
-I pivot sono causali: con `pivot-strength: N`, il pivot della barra `i` viene
-emesso una sola volta alla chiusura della barra `i + N`. Il breakout di P2
-diventa valutabile soltanto dalla barra successiva alla conferma di P3, quindi
-l'OHLC della barra di conferma non viene riutilizzato retroattivamente.
+I pivot P1 e P2 sono causali: con `pivot-strength: N`, il pivot della barra
+`i` viene emesso una sola volta alla chiusura della barra `i + N`. Dopo la
+conferma di P2, ogni candidato viene calcolato soltanto alla chiusura della
+relativa barra TTE ed è attivo esclusivamente sulla barra successiva. Se non
+viene eseguito, il candidato viene cancellato e sostituito alla chiusura della
+nuova barra, fino a un massimo di tre barre TTE. P3 è esattamente la barra TTE
+il cui candidato viene rotto; il marker P3 resta quindi sulla barra precedente
+rispetto all'ENTRY, senza revisioni con barre future.
 
 ```yaml
 trading:
   strategy:
-    type: JOE_ROSS_123_RH_TTE
-    joe-ross-123-rh-tte:
+    type: JOE_ROSS_123_TTE
+    joe-ross-123-tte:
       enabled: true
       direction: LONG_SHORT
       minimum-tick: 0.01
-      point2-breakout-buffer-ticks: 0
       swing:
         pivot-strength: 2
-      ross-hook:
-        require-123: true
       tte:
         enabled: true
-        max-bars-after-ross-hook: 3
+        max-correction-bars: 3
         entry-buffer-ticks: 1
         stop-buffer-ticks: 1
-        minimum-room:
-          enabled: true
+        initial-stop-mode: TTE_BAR
+        fallback-to-point2-breakout: false
+        minimum-room-to-point2:
+          enabled: false
           type: R
           value: 0.5
         allow-after-three-bars-on-double-triple: false
         double-triple-tolerance-ticks: 1
-        reject-gap-over-entry: true
-        fallback-to-ross-hook-breakout: false
 ```
 
 Il backtest usa `STOP_FIRST` come politica conservativa predefinita nelle
-barre ambigue. Nel percorso PAPER ogni nuovo candidato TTE sostituisce il
-bracket non eseguito precedente; dopo un fill, stop e take profit protettivi
-non vengono cancellati. `StrategyEngine.onBar(...)` è il punto di ingresso per
-un futuro adapter IBKR di barre real-time chiuse e continua a passare da
-`SignalService`, position sizing, `RiskManager` e dalle protezioni PAPER.
+barre ambigue. Un gap oltre il candidato viene eseguito all'apertura, con lo
+slippage configurato e un nuovo calcolo del position sizing. Nel percorso
+PAPER ogni candidato TTE sostituisce il bracket non eseguito precedente; dopo
+un fill, stop e take profit protettivi non vengono cancellati.
+`StrategyEngine.onBar(...)` continua a passare da `SignalService`, position
+sizing, `RiskManager` e dalle protezioni PAPER.
 
-## 14. Limiti attuali
+Il sizing di `JOE_ROSS_123_TTE` usa esclusivamente
+`floor(capital * targetPercent / delta)`, dove il delta SHORT è
+`P3 low - P2 low` e il delta LONG è `P2 high - P3 high`. Il tick del prezzo
+di ingresso non entra nel delta. Il rischio della barra P3 e quello effettivo
+tra entry e stop sono esportati come metriche separate e non riducono la
+quantity calcolata. Le altre strategie conservano il position sizing
+preesistente.
+
+Il tipo `JOE_ROSS_123_RH_TTE` rimane nell'enum soltanto come compatibilità
+deprecata per i profili già persistiti. Non compare tra le opzioni per creare
+nuovi profili e non viene convertito automaticamente nella nuova strategia.
+
+## 14. Pattern Research OHLC
+
+La pagina `/research.html` esegue analisi quantitative separate dal trading
+operativo. `PatternResearchEngine` legge serie daily complete tramite
+`HistoricalDataService`, applica detector OHLC causali e simula l'ingresso
+all'open della barra successiva. Il modulo non usa `StrategyEngine`, non crea
+segnali operativi e non chiama servizi PAPER o LIVE.
+
+Sono disponibili Bullish/Bearish Engulfing, Hammer, Shooting Star,
+Bullish/Bearish Harami, Piercing Pattern e Dark Cloud Cover. La strategia
+`JOE_ROSS_123_TTE` può essere aggiunta come benchmark tramite un adapter che
+consuma la state machine esistente senza modificarla.
+
+Ogni run salva configurazione, warning e occorrenze nel database. Gli endpoint
+sono:
+
+- `POST /api/research/patterns/run`;
+- `GET /api/research/patterns/{id}`;
+- `GET /api/research/patterns/{id}/summary`;
+- `GET /api/research/patterns/{id}/trades`;
+- `GET /api/research/patterns/{id}/export/excel`.
+
+Lo split IS/OOS è cronologico. La risoluzione predefinita delle barre che
+toccano stop e target è `STOP_FIRST`. Win rate, profit factor, expectancy,
+sample size e stability rimangono metriche separate; non viene prodotto un
+pattern score arbitrario. L'Excel contiene `PATTERN_SUMMARY`,
+`SYMBOL_BREAKDOWN`, `IN_SAMPLE`, `OUT_OF_SAMPLE`, `TRADES` e `CONFIGURATION`.
+
+## 15. Limiti attuali
 
 Questa milestone non include ancora:
 

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import it.andreademartini.trading.strategy.joeross.JoeRossEventType;
 import it.andreademartini.trading.strategy.TradeDirection;
+import it.andreademartini.trading.config.StrategyType;
 
 @Component
 public class SummarySheetWriter {
@@ -63,33 +64,149 @@ public class SummarySheetWriter {
             rowIndex++;
             ExcelSheetSupport.sectionTitle(
                     sheet, rowIndex++, "JOE ROSS PATTERN STATISTICS", 2, styles.section());
-            rowIndex = patternMetric(sheet, rowIndex, "1-2-3 found", run,
-                    JoeRossEventType.JOE_ROSS_123_COMPLETED, styles);
-            rowIndex = patternMetric(sheet, rowIndex, "Point2 breakouts", run,
-                    JoeRossEventType.POINT2_BREAKOUT, styles);
-            rowIndex = patternMetric(sheet, rowIndex, "Ross Hooks", run,
-                    JoeRossEventType.ROSS_HOOK_CREATED, styles);
-            rowIndex = patternMetric(sheet, rowIndex, "Valid TTE candidates", run,
-                    JoeRossEventType.TTE_ENTRY_CANDIDATE, styles);
-            rowIndex = patternMetric(sheet, rowIndex, "TTE triggered", run,
-                    JoeRossEventType.TTE_TRIGGERED, styles);
-            rowIndex = patternMetric(sheet, rowIndex, "TTE expired", run,
-                    JoeRossEventType.TTE_EXPIRED, styles);
-            rowIndex = patternMetric(sheet, rowIndex, "TTE rejected room", run,
-                    JoeRossEventType.TTE_REJECTED_INSUFFICIENT_ROOM, styles);
-            rowIndex = patternMetric(sheet, rowIndex, "TTE rejected gap", run,
-                    JoeRossEventType.TTE_REJECTED_GAP, styles);
-            rowIndex = patternMetric(sheet, rowIndex, "TTE missed RH broken", run,
-                    JoeRossEventType.TTE_MISSED_RH_BROKEN, styles);
-            rowIndex = patternMetric(sheet, rowIndex, "Setups invalidated", run,
-                    JoeRossEventType.SETUP_INVALIDATED, styles);
-            rowIndex = directionalPatternMetric(sheet, rowIndex, "Long trades triggered", run,
-                    JoeRossEventType.TTE_TRIGGERED, TradeDirection.LONG, styles);
-            directionalPatternMetric(sheet, rowIndex, "Short trades triggered", run,
-                    JoeRossEventType.TTE_TRIGGERED, TradeDirection.SHORT, styles);
+            if (run.parameters().strategy() == StrategyType.JOE_ROSS_123_TTE) {
+                rowIndex = writePoint3TteStatistics(sheet, rowIndex, run, styles);
+            } else {
+                rowIndex = writeLegacyJoeRossStatistics(sheet, rowIndex, run, styles);
+            }
         }
 
         ExcelSheetSupport.autoSize(sheet, 3);
+    }
+
+    private int writePoint3TteStatistics(
+            Sheet sheet,
+            int rowIndex,
+            BacktestExportRun run,
+            ExcelStyleFactory styles) {
+        rowIndex = point1CandidateMetric(sheet, rowIndex, "Point1 candidates", run, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "Point1 accepted by Bollinger", run,
+                JoeRossEventType.POINT1_BOLLINGER_VALID, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "Point1 rejected by Bollinger", run,
+                JoeRossEventType.POINT1_BOLLINGER_REJECTED, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "1-2-3 setups found", run,
+                JoeRossEventType.JOE_ROSS_123_COMPLETED, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "Point3 corrections started", run,
+                JoeRossEventType.JOE_ROSS_POINT3_CORRECTION_STARTED, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "TTE Bar1 candidates", run,
+                JoeRossEventType.TTE_BAR_1_CREATED, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "TTE Bar2 candidates", run,
+                JoeRossEventType.TTE_BAR_2_CREATED, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "TTE Bar3 candidates", run,
+                JoeRossEventType.TTE_BAR_3_CREATED, styles);
+        rowIndex = triggeredBarMetric(sheet, rowIndex, "TTE triggered Bar1", run, 1, styles);
+        rowIndex = triggeredBarMetric(sheet, rowIndex, "TTE triggered Bar2", run, 2, styles);
+        rowIndex = triggeredBarMetric(sheet, rowIndex, "TTE triggered Bar3", run, 3, styles);
+        rowIndex = writeMetric(sheet, rowIndex, "TTE expired",
+                run.strategyEvents().stream().filter(event ->
+                        event.type() == JoeRossEventType.TTE_EXPIRED
+                                || event.type() == JoeRossEventType.SETUP_EXPIRED).count(),
+                styles, false);
+        rowIndex = patternMetric(sheet, rowIndex,
+                "TTE missed - Point2 breakout", run,
+                JoeRossEventType.TTE_MISSED_POINT2_BREAKOUT, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "TTE rejected room", run,
+                JoeRossEventType.TTE_REJECTED_INSUFFICIENT_ROOM, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "Setups invalidated", run,
+                JoeRossEventType.SETUP_INVALIDATED, styles);
+        rowIndex = directionalPatternMetric(sheet, rowIndex, "Long trades triggered", run,
+                JoeRossEventType.TTE_TRIGGERED, TradeDirection.LONG, styles);
+        rowIndex = directionalPatternMetric(sheet, rowIndex, "Short trades triggered", run,
+                JoeRossEventType.TTE_TRIGGERED, TradeDirection.SHORT, styles);
+        rowIndex = writeMetric(sheet, rowIndex, "Average Target Profit %",
+                percentValue(averageStrategyValue(run.trades(), "targetProfitPercent")),
+                styles, true);
+        rowIndex = writeMetric(sheet, rowIndex, "Average Expected Profit at P2",
+                averageStrategyValue(run.trades(), "expectedProfitAtPoint2"), styles, false);
+        rowIndex = writeMetric(sheet, rowIndex, "Average Actual Risk %",
+                percentValue(averageStrategyValue(run.trades(), "actualStopRiskPercent")),
+                styles, true);
+        rowIndex = writeMetric(sheet, rowIndex, "Average Quantity",
+                run.trades().stream().mapToLong(BacktestExportTrade::initialQuantity)
+                        .average().stream().boxed().findFirst().orElse(null), styles, false);
+        long point2Hits = run.trades().stream().filter(this::point2Hit).count();
+        rowIndex = writeMetric(sheet, rowIndex, "Number of trades reaching Point2",
+                point2Hits, styles, false);
+        Double hitRate = run.trades().isEmpty() ? null
+                : (double) point2Hits / run.trades().size();
+        return writeMetric(sheet, rowIndex, "Point2 Hit Rate", hitRate, styles, true);
+    }
+
+    private Object averageStrategyValue(
+            List<BacktestExportTrade> trades, String key) {
+        return trades.stream().map(trade -> trade.strategyData().get(key))
+                .filter(Objects::nonNull)
+                .mapToDouble(value -> Double.parseDouble(value))
+                .average().stream().boxed().findFirst().orElse(null);
+    }
+
+    private Object percentValue(Object value) {
+        return value instanceof Double number ? number / 100.0 : null;
+    }
+
+    private boolean point2Hit(BacktestExportTrade trade) {
+        return trade.events().stream().anyMatch(event ->
+                event.eventType().equals("TP1_FILLED")
+                        || event.eventType().equals("EXIT - TP1"));
+    }
+
+    private int point1CandidateMetric(
+            Sheet sheet,
+            int rowIndex,
+            String label,
+            BacktestExportRun run,
+            ExcelStyleFactory styles) {
+        long count = run.strategyEvents().stream()
+                .filter(event -> event.type() == JoeRossEventType.POINT1_CANDIDATE)
+                .count();
+        return writeMetric(sheet, rowIndex, label, count, styles, false);
+    }
+
+    private int writeLegacyJoeRossStatistics(
+            Sheet sheet,
+            int rowIndex,
+            BacktestExportRun run,
+            ExcelStyleFactory styles) {
+        rowIndex = patternMetric(sheet, rowIndex, "1-2-3 found", run,
+                JoeRossEventType.JOE_ROSS_123_COMPLETED, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "Point2 breakouts", run,
+                JoeRossEventType.POINT2_BREAKOUT, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "Ross Hooks", run,
+                JoeRossEventType.ROSS_HOOK_CREATED, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "Valid TTE candidates", run,
+                JoeRossEventType.TTE_ENTRY_CANDIDATE, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "TTE triggered", run,
+                JoeRossEventType.TTE_TRIGGERED, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "TTE expired", run,
+                JoeRossEventType.TTE_EXPIRED, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "TTE rejected room", run,
+                JoeRossEventType.TTE_REJECTED_INSUFFICIENT_ROOM, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "TTE rejected gap", run,
+                JoeRossEventType.TTE_REJECTED_GAP, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "TTE missed RH broken", run,
+                JoeRossEventType.TTE_MISSED_RH_BROKEN, styles);
+        rowIndex = patternMetric(sheet, rowIndex, "Setups invalidated", run,
+                JoeRossEventType.SETUP_INVALIDATED, styles);
+        rowIndex = directionalPatternMetric(sheet, rowIndex, "Long trades triggered", run,
+                JoeRossEventType.TTE_TRIGGERED, TradeDirection.LONG, styles);
+        return directionalPatternMetric(sheet, rowIndex, "Short trades triggered", run,
+                JoeRossEventType.TTE_TRIGGERED, TradeDirection.SHORT, styles);
+    }
+
+    private int triggeredBarMetric(
+            Sheet sheet,
+            int rowIndex,
+            String label,
+            BacktestExportRun run,
+            int barNumber,
+            ExcelStyleFactory styles) {
+        String marker = "tteBar=" + barNumber;
+        long count = run.strategyEvents().stream()
+                .filter(event -> event.type() == JoeRossEventType.TTE_TRIGGERED)
+                .filter(event -> event.details() != null
+                        && event.details().contains(marker))
+                .count();
+        return writeMetric(sheet, rowIndex, label, count, styles, false);
     }
 
     private int patternMetric(

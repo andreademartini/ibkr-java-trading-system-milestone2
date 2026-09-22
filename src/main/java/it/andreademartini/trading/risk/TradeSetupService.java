@@ -6,6 +6,7 @@ import it.andreademartini.trading.orders.TakeProfitAllocation;
 import it.andreademartini.trading.orders.TradePlan;
 import it.andreademartini.trading.orders.TradeState;
 import it.andreademartini.trading.strategy.TradeDirection;
+import it.andreademartini.trading.strategy.joeross.JoeRossTakeProfitParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -25,6 +27,8 @@ public class TradeSetupService {
     private final HistoricalDataService historicalDataService;
     private final PositionSizingService positionSizingService;
     private final TakeProfitAllocationService takeProfitAllocationService;
+    private final JoeRossPoint2PositionSizingService joeRossPositionSizingService;
+    private final JoeRossPoint2TakeProfitService joeRossTakeProfitService;
 
     public TradeSetupService(
             TradingSystemProperties properties,
@@ -35,6 +39,10 @@ public class TradeSetupService {
         this.historicalDataService = historicalDataService;
         this.positionSizingService = positionSizingService;
         this.takeProfitAllocationService = takeProfitAllocationService;
+        this.joeRossPositionSizingService =
+                new JoeRossPoint2PositionSizingService(positionSizingService);
+        this.joeRossTakeProfitService =
+                new JoeRossPoint2TakeProfitService(takeProfitAllocationService);
     }
 
     public TradePlan create(String symbol, TradeDirection direction) {
@@ -106,6 +114,15 @@ public class TradeSetupService {
             TradeDirection direction,
             BigDecimal entryPrice,
             BigDecimal stopLossPrice) {
+        return create(symbol, direction, entryPrice, stopLossPrice, Map.of());
+    }
+
+    public TradePlan create(
+            String symbol,
+            TradeDirection direction,
+            BigDecimal entryPrice,
+            BigDecimal stopLossPrice,
+            Map<String, String> strategyMetadata) {
         TradingSystemProperties.RiskProperties risk = properties.getRisk();
         if (entryPrice == null || stopLossPrice == null
                 || entryPrice.compareTo(BigDecimal.ZERO) <= 0
@@ -130,18 +147,40 @@ public class TradeSetupService {
                 .min(money(risk.getMaxOrderValue()))
                 .min(money(risk.getMaxPositionValue()));
 
-        PositionSizingResult sizing = positionSizingService.calculate(
-                money(risk.getTradingCapital()),
-                money(risk.getRiskPerTradePercent()),
-                entryPrice,
-                stopLossPrice,
-                transactionCostsPerShare,
-                fixedTransactionCosts,
-                maxNotional,
-                risk.isUseLeverage(),
-                risk.getMaxQuantityPerOrder());
-        List<TakeProfitAllocation> takeProfits = takeProfitAllocationService.allocate(
-                sizing.quantity(), entryPrice, direction);
+        boolean joeRoss = "JOE_ROSS_123_TTE".equals(strategyMetadata.get("strategy"));
+        boolean joeRossPoint2Sizing = joeRoss && Boolean.parseBoolean(
+                strategyMetadata.getOrDefault("point2TargetSizingEnabled", "true"));
+        PositionSizingResult sizing;
+        if (joeRossPoint2Sizing) {
+            sizing = joeRossPositionSizingService.calculate(
+                    money(risk.getTradingCapital()),
+                    metadataMoney(strategyMetadata, "targetProfitPercent", 2.0),
+                    entryPrice,
+                    metadataMoney(strategyMetadata, "point2Delta", 0.0),
+                    metadataMoney(strategyMetadata, "minimumPoint2Distance", 0.0),
+                    stopLossPrice, money(risk.getRiskPerTradePercent()),
+                    transactionCostsPerShare, fixedTransactionCosts, maxNotional,
+                    risk.isUseLeverage(), risk.getMaxQuantityPerOrder())
+                    .positionSizing();
+        } else {
+            sizing = positionSizingService.calculate(
+                    money(risk.getTradingCapital()), money(risk.getRiskPerTradePercent()),
+                    entryPrice, stopLossPrice, transactionCostsPerShare,
+                    fixedTransactionCosts, maxNotional, risk.isUseLeverage(),
+                    risk.getMaxQuantityPerOrder());
+        }
+        List<TakeProfitAllocation> takeProfits = joeRoss
+                ? joeRossTakeProfitService.allocate(sizing.quantity(), entryPrice,
+                        metadataMoney(strategyMetadata, "point2Price", 0.0),
+                        metadataMoney(strategyMetadata, "point2Delta", 0.0), direction,
+                        new JoeRossTakeProfitParameters(
+                                metadataMoney(strategyMetadata, "tp1Percent", 60.0)
+                                        .doubleValue(),
+                                metadataMoney(strategyMetadata, "tp2Percent", 20.0)
+                                        .doubleValue(),
+                                metadataMoney(strategyMetadata, "tp3Percent", 20.0)
+                                        .doubleValue()))
+                : takeProfitAllocationService.allocate(sizing.quantity(), entryPrice, direction);
         TradePlan plan = new TradePlan(
                 UUID.randomUUID().toString(),
                 direction,
@@ -158,9 +197,19 @@ public class TradeSetupService {
                 sizing.quantity(),
                 sizing.effectiveRisk(),
                 sizing.notional(),
-                takeProfits);
+                takeProfits,
+                joeRossPoint2Sizing
+                        ? PositionSizingMode.JOE_ROSS_POINT2_DELTA
+                        : PositionSizingMode.DEFAULT_STOP_RISK);
         logTradeSetup(symbol, plan);
         return plan;
+    }
+
+    private BigDecimal metadataMoney(
+            Map<String, String> metadata, String key, double fallback) {
+        String value = metadata.get(key);
+        return value == null || value.isBlank()
+                ? BigDecimal.valueOf(fallback) : new BigDecimal(value);
     }
 
     private PriceRange referenceRange(String symbol) {

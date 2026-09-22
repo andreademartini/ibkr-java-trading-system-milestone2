@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import it.andreademartini.trading.strategy.StrategyTradeMode;
+import it.andreademartini.trading.strategy.joeross.BollingerSource;
+import it.andreademartini.trading.strategy.joeross.Point1PriceMode;
 
 @Validated
 @ConfigurationProperties(prefix = "trading")
@@ -390,6 +392,10 @@ public class TradingSystemProperties {
         @Valid
         private final JoeRossProperties joeRoss123RhTte = new JoeRossProperties();
 
+        @Valid
+        private final JoeRoss123TteProperties joeRoss123Tte =
+                new JoeRoss123TteProperties();
+
         public StrategyType getType() {
             return type;
         }
@@ -453,6 +459,10 @@ public class TradingSystemProperties {
         /** Configuration alias preserving the requested joe-ross-123-rh-tte key. */
         public JoeRossProperties getJoeRoss_123RhTte() {
             return joeRoss123RhTte;
+        }
+
+        public JoeRoss123TteProperties getJoeRoss123Tte() {
+            return joeRoss123Tte;
         }
 
     }
@@ -686,6 +696,289 @@ public class TradingSystemProperties {
 
         public void setValue(double value) {
             this.value = value;
+        }
+    }
+
+    /** Configuration for the causal 1-2-3 + TTE-on-Point-3 strategy. */
+    public static class JoeRoss123TteProperties {
+
+        private boolean enabled = true;
+
+        @NotNull
+        private StrategyTradeMode direction = StrategyTradeMode.LONG_SHORT;
+
+        @DecimalMin("0.00000001")
+        private double minimumTick = 0.01;
+
+        @Valid
+        private final SwingProperties swing = new SwingProperties();
+
+        @Valid
+        private final TteOnPoint3Properties tte = new TteOnPoint3Properties();
+
+        @Valid
+        private final BollingerPoint1FilterProperties bollingerPoint1Filter =
+                new BollingerPoint1FilterProperties();
+
+        @Valid
+        private final Point2TargetSizingProperties point2TargetSizing =
+                new Point2TargetSizingProperties();
+
+        @Valid
+        private final JoeRossTakeProfitProperties takeProfit =
+                new JoeRossTakeProfitProperties();
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public StrategyTradeMode getDirection() {
+            return direction;
+        }
+
+        public void setDirection(StrategyTradeMode direction) {
+            this.direction = direction;
+        }
+
+        public double getMinimumTick() {
+            return minimumTick;
+        }
+
+        public void setMinimumTick(double minimumTick) {
+            this.minimumTick = minimumTick;
+        }
+
+        public SwingProperties getSwing() {
+            return swing;
+        }
+
+        public TteOnPoint3Properties getTte() {
+            return tte;
+        }
+
+        public BollingerPoint1FilterProperties getBollingerPoint1Filter() {
+            return bollingerPoint1Filter;
+        }
+
+        public Point2TargetSizingProperties getPoint2TargetSizing() {
+            return point2TargetSizing;
+        }
+
+        public JoeRossTakeProfitProperties getTakeProfit() {
+            return takeProfit;
+        }
+    }
+
+    public static class Point2TargetSizingProperties {
+
+        private boolean enabled = true;
+
+        @DecimalMin("0.00000001")
+        private double targetProfitPercent = 2.0;
+
+        @DecimalMin("0.0")
+        private double minimumPoint2Distance = 0.0;
+
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public double getTargetProfitPercent() { return targetProfitPercent; }
+        public void setTargetProfitPercent(double value) { this.targetProfitPercent = value; }
+        public double getTargetPercent() { return targetProfitPercent; }
+        public void setTargetPercent(double value) { this.targetProfitPercent = value; }
+        public double getMinimumPoint2Distance() { return minimumPoint2Distance; }
+        public void setMinimumPoint2Distance(double value) { this.minimumPoint2Distance = value; }
+    }
+
+    public static class JoeRossTakeProfitProperties {
+
+        @DecimalMin("0.0")
+        private double tp1PercentPosition = 60.0;
+
+        @DecimalMin("0.0")
+        private double tp2PercentPosition = 20.0;
+
+        @DecimalMin("0.0")
+        private double tp3PercentPosition = 20.0;
+
+        public double getTp1PercentPosition() { return tp1PercentPosition; }
+        public void setTp1PercentPosition(double value) { tp1PercentPosition = value; }
+        public double getTp2PercentPosition() { return tp2PercentPosition; }
+        public void setTp2PercentPosition(double value) { tp2PercentPosition = value; }
+        public double getTp3PercentPosition() { return tp3PercentPosition; }
+        public void setTp3PercentPosition(double value) { tp3PercentPosition = value; }
+    }
+
+    public static class BollingerPoint1FilterProperties {
+
+        private boolean enabled = true;
+
+        @Min(2)
+        private int period = 20;
+
+        @DecimalMin("0.0")
+        private double standardDeviation = 2.0;
+
+        @NotNull
+        private BollingerSource source = BollingerSource.CLOSE;
+
+        @NotNull
+        private Point1PriceMode point1PriceMode = Point1PriceMode.EXTREME;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public int getPeriod() {
+            return period;
+        }
+
+        public void setPeriod(int period) {
+            this.period = period;
+        }
+
+        public double getStandardDeviation() {
+            return standardDeviation;
+        }
+
+        public void setStandardDeviation(double standardDeviation) {
+            this.standardDeviation = standardDeviation;
+        }
+
+        public BollingerSource getSource() {
+            return source;
+        }
+
+        public void setSource(BollingerSource source) {
+            this.source = source;
+        }
+
+        public Point1PriceMode getPoint1PriceMode() {
+            return point1PriceMode;
+        }
+
+        public void setPoint1PriceMode(Point1PriceMode point1PriceMode) {
+            this.point1PriceMode = point1PriceMode;
+        }
+    }
+
+    public static class TteOnPoint3Properties {
+
+        private boolean enabled = true;
+
+        @Min(1)
+        @Max(3)
+        private int maxBars = 3;
+
+        @Min(0)
+        private int entryBufferTicks = 1;
+
+        @Min(0)
+        private int stopBufferTicks = 1;
+
+        @NotNull
+        private it.andreademartini.trading.strategy.joeross.InitialStopMode
+                initialStopMode =
+                it.andreademartini.trading.strategy.joeross.InitialStopMode.TTE_BAR;
+
+        private boolean fallbackToPoint2Breakout = false;
+
+        @Valid
+        private final MinimumRoomProperties minimumRoomToPoint2 =
+                new MinimumRoomProperties();
+
+        private boolean allowAfterThreeBarsOnDoubleTriple = false;
+
+        @Min(0)
+        private int doubleTripleToleranceTicks = 1;
+
+        public TteOnPoint3Properties() {
+            minimumRoomToPoint2.setEnabled(false);
+        }
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public int getMaxBars() {
+            return maxBars;
+        }
+
+        public void setMaxBars(int maxBars) {
+            this.maxBars = maxBars;
+        }
+
+        public int getMaxCorrectionBars() {
+            return maxBars;
+        }
+
+        public void setMaxCorrectionBars(int maxCorrectionBars) {
+            this.maxBars = maxCorrectionBars;
+        }
+
+        public int getEntryBufferTicks() {
+            return entryBufferTicks;
+        }
+
+        public void setEntryBufferTicks(int entryBufferTicks) {
+            this.entryBufferTicks = entryBufferTicks;
+        }
+
+        public int getStopBufferTicks() {
+            return stopBufferTicks;
+        }
+
+        public void setStopBufferTicks(int stopBufferTicks) {
+            this.stopBufferTicks = stopBufferTicks;
+        }
+
+        public it.andreademartini.trading.strategy.joeross.InitialStopMode
+                getInitialStopMode() {
+            return initialStopMode;
+        }
+
+        public void setInitialStopMode(
+                it.andreademartini.trading.strategy.joeross.InitialStopMode value) {
+            initialStopMode = value;
+        }
+
+        public boolean isFallbackToPoint2Breakout() {
+            return fallbackToPoint2Breakout;
+        }
+
+        public void setFallbackToPoint2Breakout(boolean value) {
+            fallbackToPoint2Breakout = value;
+        }
+
+        public MinimumRoomProperties getMinimumRoomToPoint2() {
+            return minimumRoomToPoint2;
+        }
+
+        public boolean isAllowAfterThreeBarsOnDoubleTriple() {
+            return allowAfterThreeBarsOnDoubleTriple;
+        }
+
+        public void setAllowAfterThreeBarsOnDoubleTriple(boolean value) {
+            allowAfterThreeBarsOnDoubleTriple = value;
+        }
+
+        public int getDoubleTripleToleranceTicks() {
+            return doubleTripleToleranceTicks;
+        }
+
+        public void setDoubleTripleToleranceTicks(int value) {
+            doubleTripleToleranceTicks = value;
         }
     }
 

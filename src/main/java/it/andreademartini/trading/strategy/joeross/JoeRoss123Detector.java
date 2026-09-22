@@ -77,6 +77,14 @@ public final class JoeRoss123Detector {
         return Optional.of(new JoeRoss123Pattern(direction, point1, point2, point3));
     }
 
+    public Optional<SwingPoint> point1() {
+        return Optional.ofNullable(point1);
+    }
+
+    public Optional<SwingPoint> point2() {
+        return Optional.ofNullable(point2);
+    }
+
     public JoeRossSetupState state() {
         if (point3 != null) {
             return JoeRossSetupState.WAITING_POINT_2_BREAKOUT;

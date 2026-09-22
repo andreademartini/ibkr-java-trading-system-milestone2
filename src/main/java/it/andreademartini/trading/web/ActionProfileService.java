@@ -7,6 +7,9 @@ import it.andreademartini.trading.persistence.TradingStockEntity;
 import it.andreademartini.trading.persistence.TradingStockRepository;
 import it.andreademartini.trading.persistence.TradingStockStrategyEntity;
 import it.andreademartini.trading.strategy.StrategyTradeMode;
+import it.andreademartini.trading.strategy.joeross.InitialStopMode;
+import it.andreademartini.trading.strategy.joeross.BollingerSource;
+import it.andreademartini.trading.strategy.joeross.Point1PriceMode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -167,6 +170,9 @@ public class ActionProfileService {
                 : profile.strategy();
         TradingSystemProperties.JoeRossProperties joe =
                 properties.getStrategy().getJoeRoss123RhTte();
+        TradingSystemProperties.JoeRoss123TteProperties tteJoe =
+                properties.getStrategy().getJoeRoss123Tte();
+        boolean point3Tte = strategy == StrategyType.JOE_ROSS_123_TTE;
         return new TradingStockStrategyEntity(
                 blankToDefault(profile.id(), UUID.randomUUID().toString()),
                 blankToDefault(profile.name(), symbol + " " + strategy),
@@ -193,36 +199,89 @@ public class ActionProfileService {
                         ? 100
                         : Math.max(1, Math.min(5_000, profile.maxPoints())),
                 profile.pivotStrength() == null
-                        ? joe.getSwing().getPivotStrength()
+                        ? (point3Tte ? tteJoe.getSwing().getPivotStrength()
+                        : joe.getSwing().getPivotStrength())
                         : Math.max(1, profile.pivotStrength()),
                 profile.minimumTick() == null
-                        ? joe.getMinimumTick()
+                        ? (point3Tte ? tteJoe.getMinimumTick() : joe.getMinimumTick())
                         : Math.max(0.00000001, profile.minimumTick()),
                 profile.tteMaxBars() == null
-                        ? joe.getTte().getMaxBarsAfterRossHook()
-                        : Math.max(1, profile.tteMaxBars()),
+                        ? (point3Tte ? tteJoe.getTte().getMaxBars()
+                        : joe.getTte().getMaxBarsAfterRossHook())
+                        : Math.max(1, point3Tte
+                        ? Math.min(3, profile.tteMaxBars()) : profile.tteMaxBars()),
                 profile.entryBufferTicks() == null
-                        ? joe.getTte().getEntryBufferTicks()
+                        ? (point3Tte ? tteJoe.getTte().getEntryBufferTicks()
+                        : joe.getTte().getEntryBufferTicks())
                         : Math.max(0, profile.entryBufferTicks()),
                 profile.stopBufferTicks() == null
-                        ? joe.getTte().getStopBufferTicks()
+                        ? (point3Tte ? tteJoe.getTte().getStopBufferTicks()
+                        : joe.getTte().getStopBufferTicks())
                         : Math.max(0, profile.stopBufferTicks()),
                 profile.minimumRoomEnabled() == null
-                        ? joe.getTte().getMinimumRoom().isEnabled()
+                        ? (point3Tte
+                        ? tteJoe.getTte().getMinimumRoomToPoint2().isEnabled()
+                        : joe.getTte().getMinimumRoom().isEnabled())
                         : profile.minimumRoomEnabled(),
-                "R",
+                profile.minimumRoomType() == null
+                        ? "R" : profile.minimumRoomType(),
                 profile.minimumRoomValue() == null
-                        ? joe.getTte().getMinimumRoom().getValue()
+                        ? (point3Tte
+                        ? tteJoe.getTte().getMinimumRoomToPoint2().getValue()
+                        : joe.getTte().getMinimumRoom().getValue())
                         : Math.max(0, profile.minimumRoomValue()),
                 profile.allowDoubleTriple() == null
-                        ? joe.getTte().isAllowAfterThreeBarsOnDoubleTriple()
+                        ? (point3Tte
+                        ? tteJoe.getTte().isAllowAfterThreeBarsOnDoubleTriple()
+                        : joe.getTte().isAllowAfterThreeBarsOnDoubleTriple())
                         : profile.allowDoubleTriple(),
                 profile.doubleTripleToleranceTicks() == null
-                        ? joe.getTte().getDoubleTripleToleranceTicks()
+                        ? (point3Tte
+                        ? tteJoe.getTte().getDoubleTripleToleranceTicks()
+                        : joe.getTte().getDoubleTripleToleranceTicks())
                         : Math.max(0, profile.doubleTripleToleranceTicks()),
                 profile.rejectGapOverEntry() == null
-                        ? joe.getTte().isRejectGapOverEntry()
+                        ? !point3Tte && joe.getTte().isRejectGapOverEntry()
                         : profile.rejectGapOverEntry(),
+                (profile.initialStopMode() == null
+                        ? tteJoe.getTte().getInitialStopMode()
+                        : profile.initialStopMode()).name(),
+                profile.fallbackToPoint2Breakout() == null
+                        ? tteJoe.getTte().isFallbackToPoint2Breakout()
+                        : profile.fallbackToPoint2Breakout(),
+                profile.bollingerPoint1FilterEnabled() == null
+                        ? tteJoe.getBollingerPoint1Filter().isEnabled()
+                        : profile.bollingerPoint1FilterEnabled(),
+                profile.bollingerPeriod() == null
+                        ? tteJoe.getBollingerPoint1Filter().getPeriod()
+                        : Math.max(2, profile.bollingerPeriod()),
+                profile.bollingerStandardDeviation() == null
+                        ? tteJoe.getBollingerPoint1Filter().getStandardDeviation()
+                        : Math.max(0, profile.bollingerStandardDeviation()),
+                (profile.bollingerSource() == null
+                        ? tteJoe.getBollingerPoint1Filter().getSource()
+                        : profile.bollingerSource()).name(),
+                (profile.point1PriceMode() == null
+                        ? tteJoe.getBollingerPoint1Filter().getPoint1PriceMode()
+                        : profile.point1PriceMode()).name(),
+                profile.point2TargetSizingEnabled() == null
+                        ? tteJoe.getPoint2TargetSizing().isEnabled()
+                        : profile.point2TargetSizingEnabled(),
+                profile.point2TargetProfitPercent() == null
+                        ? tteJoe.getPoint2TargetSizing().getTargetProfitPercent()
+                        : Math.max(0.00000001, profile.point2TargetProfitPercent()),
+                profile.minimumPoint2Distance() == null
+                        ? tteJoe.getPoint2TargetSizing().getMinimumPoint2Distance()
+                        : Math.max(0, profile.minimumPoint2Distance()),
+                profile.tp1PositionPercent() == null
+                        ? tteJoe.getTakeProfit().getTp1PercentPosition()
+                        : Math.max(0, profile.tp1PositionPercent()),
+                profile.tp2PositionPercent() == null
+                        ? tteJoe.getTakeProfit().getTp2PercentPosition()
+                        : Math.max(0, profile.tp2PositionPercent()),
+                profile.tp3PositionPercent() == null
+                        ? tteJoe.getTakeProfit().getTp3PercentPosition()
+                        : Math.max(0, profile.tp3PositionPercent()),
                 sortOrder,
                 now);
     }
@@ -236,7 +295,9 @@ public class ActionProfileService {
                 .toList();
         return new ActionProfilesResponse(
                 Arrays.asList(MarketDataProvider.values()),
-                Arrays.asList(StrategyType.values()),
+                Arrays.stream(StrategyType.values())
+                        .filter(type -> type != StrategyType.JOE_ROSS_123_RH_TTE)
+                        .toList(),
                 stocks,
                 profiles);
     }
@@ -284,7 +345,20 @@ public class ActionProfileService {
                 entity.getMinimumRoomValue(),
                 entity.isAllowDoubleTriple(),
                 entity.getDoubleTripleToleranceTicks(),
-                entity.isRejectGapOverEntry());
+                entity.isRejectGapOverEntry(),
+                InitialStopMode.valueOf(entity.getInitialStopMode()),
+                entity.isFallbackToPoint2Breakout(),
+                entity.isBollingerPoint1FilterEnabled(),
+                entity.getBollingerPeriod(),
+                entity.getBollingerStandardDeviation(),
+                BollingerSource.valueOf(entity.getBollingerSource()),
+                Point1PriceMode.valueOf(entity.getPoint1PriceMode()),
+                entity.isPoint2TargetSizingEnabled(),
+                entity.getPoint2TargetProfitPercent(),
+                entity.getMinimumPoint2Distance(),
+                entity.getTp1PositionPercent(),
+                entity.getTp2PositionPercent(),
+                entity.getTp3PositionPercent());
     }
 
     private List<TradingStockEntity> ensureDefaultUniverse() {
@@ -349,19 +423,38 @@ public class ActionProfileService {
                 "DAILY",
                 "compact",
                 100,
-                strategy.getJoeRoss123RhTte().getSwing().getPivotStrength(),
-                strategy.getJoeRoss123RhTte().getMinimumTick(),
-                strategy.getJoeRoss123RhTte().getTte().getMaxBarsAfterRossHook(),
-                strategy.getJoeRoss123RhTte().getTte().getEntryBufferTicks(),
-                strategy.getJoeRoss123RhTte().getTte().getStopBufferTicks(),
-                strategy.getJoeRoss123RhTte().getTte().getMinimumRoom().isEnabled(),
+                strategy.getJoeRoss123Tte().getSwing().getPivotStrength(),
+                strategy.getJoeRoss123Tte().getMinimumTick(),
+                strategy.getJoeRoss123Tte().getTte().getMaxBars(),
+                strategy.getJoeRoss123Tte().getTte().getEntryBufferTicks(),
+                strategy.getJoeRoss123Tte().getTte().getStopBufferTicks(),
+                strategy.getJoeRoss123Tte().getTte()
+                        .getMinimumRoomToPoint2().isEnabled(),
                 "R",
-                strategy.getJoeRoss123RhTte().getTte().getMinimumRoom().getValue(),
-                strategy.getJoeRoss123RhTte().getTte()
+                strategy.getJoeRoss123Tte().getTte()
+                        .getMinimumRoomToPoint2().getValue(),
+                strategy.getJoeRoss123Tte().getTte()
                         .isAllowAfterThreeBarsOnDoubleTriple(),
-                strategy.getJoeRoss123RhTte().getTte()
+                strategy.getJoeRoss123Tte().getTte()
                         .getDoubleTripleToleranceTicks(),
-                strategy.getJoeRoss123RhTte().getTte().isRejectGapOverEntry());
+                false,
+                strategy.getJoeRoss123Tte().getTte().getInitialStopMode(),
+                strategy.getJoeRoss123Tte().getTte().isFallbackToPoint2Breakout(),
+                strategy.getJoeRoss123Tte().getBollingerPoint1Filter().isEnabled(),
+                strategy.getJoeRoss123Tte().getBollingerPoint1Filter().getPeriod(),
+                strategy.getJoeRoss123Tte().getBollingerPoint1Filter()
+                        .getStandardDeviation(),
+                strategy.getJoeRoss123Tte().getBollingerPoint1Filter().getSource(),
+                strategy.getJoeRoss123Tte().getBollingerPoint1Filter()
+                        .getPoint1PriceMode(),
+                strategy.getJoeRoss123Tte().getPoint2TargetSizing().isEnabled(),
+                strategy.getJoeRoss123Tte().getPoint2TargetSizing()
+                        .getTargetProfitPercent(),
+                strategy.getJoeRoss123Tte().getPoint2TargetSizing()
+                        .getMinimumPoint2Distance(),
+                strategy.getJoeRoss123Tte().getTakeProfit().getTp1PercentPosition(),
+                strategy.getJoeRoss123Tte().getTakeProfit().getTp2PercentPosition(),
+                strategy.getJoeRoss123Tte().getTakeProfit().getTp3PercentPosition());
     }
 
     private MarketDataProvider provider(MarketDataProvider provider) {

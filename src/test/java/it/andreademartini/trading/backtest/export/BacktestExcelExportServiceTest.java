@@ -52,6 +52,10 @@ class BacktestExcelExportServiceTest {
                     .isEqualTo("'T001'!A1");
             assertThat(trades.getRow(1).getCell(34).getHyperlink().getAddress())
                     .isEqualTo("'T001'!A1");
+            assertThat(formattedCells(trades)).contains(
+                    "Delta", "Delta Formula", "Point 3 High", "Point 3 Low",
+                    "Point 3 Range Risk Amount", "Actual Order Risk Amount",
+                    "TP1 %", "TP2 %", "TP3 %", "Progressive Stop Events");
             assertThat(workbook.getSheet("T001").getRow(0).getCell(0)
                     .getHyperlink().getAddress()).isEqualTo("'TRADES'!A1");
             assertThat(workbook.getSheet("T001").getPaneInformation().isFreezePane())
