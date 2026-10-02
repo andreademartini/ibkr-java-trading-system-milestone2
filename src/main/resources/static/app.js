@@ -287,6 +287,9 @@ function fillStrategyTypeSelect(select, values) {
     }
     select.innerHTML = "";
     values.forEach((value) => appendOption(select, value, strategyMeta(value).label));
+    if (select.id === "profile-strategy") {
+        appendOption(select, "PATTERN_V1", "PATTERN V1 · Solo backtest");
+    }
 }
 
 function cloneValue(value) {
@@ -478,13 +481,15 @@ function renderStrategySelect() {
     select.innerHTML = "";
     if (strategies.length === 0) {
         appendOption(select, "", "Nessuna strategia");
-        select.disabled = true;
+        appendOption(select, "__PATTERN_V1_BACKTEST__", "PATTERN V1 · Solo backtest");
+        select.disabled = false;
         return;
     }
     strategies.forEach((item) => appendOption(
         select,
         item.id,
         `${item.name} · ${strategyMeta(item.strategy).label} · ${globalStrategyEnabled() ? "Attiva" : "Disattiva"}`));
+    appendOption(select, "__PATTERN_V1_BACKTEST__", "PATTERN V1 · Solo backtest");
     select.disabled = false;
     select.value = profile?.id || "";
 }
@@ -1357,6 +1362,10 @@ function deleteStrategy() {
 }
 
 function changeStrategyType(newType) {
+    if (newType === "PATTERN_V1") {
+        window.location.assign("/pattern-v1.html");
+        return;
+    }
     const profile = selectedProfile();
     const previousType = profile?.strategy;
     if (!profile || !newType || newType === previousType) {
@@ -2445,6 +2454,11 @@ function initEvents() {
     $("strategy-select")?.addEventListener("change", (event) => {
         const profileId = event.target.value;
         renderProfiles();
+        if (profileId === "__PATTERN_V1_BACKTEST__") {
+            requestTransition(() => window.location.assign("/pattern-v1.html"))
+                .catch((error) => toast(error.message, true, 9000));
+            return;
+        }
         requestTransition(() => selectProfileById(profileId))
             .catch((error) => toast(error.message, true, 9000));
     });

@@ -146,6 +146,7 @@ public class StrategyEngine {
 
     private TradingStrategy createStrategy(StrategyType type) {
         return switch (type) {
+            case PATTERN_V1 -> throw new IllegalArgumentException("PATTERN_V1 is backtest only");
             case MANUAL_ONLY -> new ManualOnlyStrategy();
             case MOVING_AVERAGE_CROSSOVER ->
                     new MovingAverageCrossoverStrategy(properties.getStrategy());

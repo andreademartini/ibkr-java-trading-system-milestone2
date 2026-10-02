@@ -160,6 +160,46 @@ logging:
 backtest:
   same-bar-execution-policy: ${BACKTEST_SAME_BAR_EXECUTION_POLICY:STOP_FIRST}
 
+# Frozen CORE mapping. Only consumed by the PATTERN_V1 backtest path.
+pattern-v1:
+  enabled: true
+  timeframe: DAILY
+  max-holding-bars: 20
+  same-bar-resolution: STOP_FIRST
+  stop-buffer-ticks: 0
+  timeout-exit-mode: CLOSE_AT_MAX_HOLDING_BAR
+  min-quantity: 1
+  min-order-value: 0
+  small-quantity-warning-threshold: 4
+  symbols:
+    AAPL:
+      long-config: { enabled: true, pattern: BULLISH_ENGULFING, target-r: 3.0 }
+      short-config: { enabled: false }
+    GOOGL:
+      long-config: { enabled: true, pattern: BULLISH_HARAMI, target-r: 1.5 }
+      short-config: { enabled: false }
+    NFLX:
+      long-config: { enabled: true, pattern: HAMMER, target-r: 2.0 }
+      short-config: { enabled: false }
+    NVDA:
+      long-config: { enabled: true, pattern: PIERCING_PATTERN, target-r: 3.0 }
+      short-config: { enabled: false }
+    QQQ:
+      long-config: { enabled: true, pattern: HAMMER, target-r: 3.0 }
+      short-config: { enabled: false }
+    SPY:
+      long-config: { enabled: true, pattern: BULLISH_HARAMI, target-r: 3.0 }
+      short-config: { enabled: false }
+    TSLA:
+      long-config: { enabled: true, pattern: BULLISH_ENGULFING, target-r: 1.0 }
+      short-config: { enabled: true, pattern: SHOOTING_STAR, target-r: 4.0 }
+    XLK:
+      long-config: { enabled: true, pattern: HAMMER, target-r: 4.0 }
+      short-config: { enabled: false }
+    XLY:
+      long-config: { enabled: true, pattern: BULLISH_ENGULFING, target-r: 1.5 }
+      short-config: { enabled: false }
+
 excel-export:
   enabled: ${EXCEL_EXPORT_ENABLED:true}
   historical-bars-before-entry: ${EXCEL_EXPORT_HISTORICAL_BARS_BEFORE_ENTRY:30}

@@ -168,6 +168,9 @@ public class ActionProfileService {
         StrategyType strategy = profile.strategy() == null
                 ? properties.getStrategy().getType()
                 : profile.strategy();
+        if (strategy == StrategyType.PATTERN_V1) {
+            throw new IllegalArgumentException("PATTERN_V1 cannot be saved as an operational profile");
+        }
         TradingSystemProperties.JoeRossProperties joe =
                 properties.getStrategy().getJoeRoss123RhTte();
         TradingSystemProperties.JoeRoss123TteProperties tteJoe =
@@ -296,6 +299,7 @@ public class ActionProfileService {
         return new ActionProfilesResponse(
                 Arrays.asList(MarketDataProvider.values()),
                 Arrays.stream(StrategyType.values())
+                        .filter(type -> type != StrategyType.PATTERN_V1)
                         .filter(type -> type != StrategyType.JOE_ROSS_123_RH_TTE)
                         .toList(),
                 stocks,

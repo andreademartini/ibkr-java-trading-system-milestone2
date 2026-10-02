@@ -744,6 +744,98 @@ pattern score arbitrario. L'Excel contiene `PATTERN_SUMMARY`,
 
 ## 15. Limiti attuali
 
+### PATTERN_V1 CORE (solo backtest)
+
+La pagina /pattern-v1.html esegue il portafoglio DAILY con la mapping frozen
+in pattern-v1.symbols di application.yml: AAPL, GOOGL, NFLX, NVDA, QQQ, SPY,
+TSLA, XLK, XLY. Solo TSLA abilita SHORT. BA/BAC e tutti gli altri simboli
+restano esclusi. Nessun pattern, Target R o parametro del detector viene
+ottimizzato durante il backtest.
+
+BacktestEngine carica le barre attraverso HistoricalDataService. I detector
+e i loro parametri sono gli stessi della Pattern Research; il detector riceve
+solo il prefisso delle barre chiuse. Entry = NEXT_BAR_OPEN, stop =
+PATTERN_EXTREME, buffer = 0; target = Entry ± RiskPerShare × TargetR.
+Una sola posizione per symbol + strategy, un TP, STOP_FIRST, stop invariato.
+
+Il timeout obbligatorio è CLOSE_AT_MAX_HOLDING_BAR: la barra di ingresso
+conta come holding bar 1, come in Research. Se STOP/TARGET non sono stati
+raggiunti, il trade chiude al Close della holding bar 20 (entryIndex + 19),
+con Result R prezzo effettivo, remainingQuantity = 0 e capitale liberato.
+STOP/TARGET hanno precedenza sul timeout nella stessa barra. Non esiste più
+il ramo V1 UNRESOLVED_MARK_TO_MARKET. Le sole finestre finali incomplete
+(<20 barre) restano OPEN: exitDate/exitPrice sono null; markDate/markPrice
+contengono la valorizzazione, separata dal fill.
+
+PatternV1PositionSizing rende tracciabile il servizio PositionSizingService
+standard, che rimane invariato per tutte le altre strategie. Desired Quantity
+= floor(equity nota all'open × riskPercent / 100 / rischio prezzo). Seguono
+maxQuantity, maxOrderValue, maxPositionValue, notional direzionale, riserva
+standard per costi, cash disponibile e leva. Limiting reasons, quantità finale,
+cash prima/dopo, order value, desired/actual risk sono conservati nei trade e
+negli eventi. Min quantity = 1 e min order value = 0 conservano il comportamento
+attuale; un warning segnala quantità <=4 e forti riduzioni dovute al capitale.
+Actual Risk % = rischio prezzo × quantità finale / equity all'entry × 100,
+spesso inferiore al rischio target 2%. Non viene usato il sizing Joe Ross.
+
+Cash registra acquisti/vendite e costi. I proventi SHORT sono vincolati insieme
+a un margine iniziale pari al 100% del notional: available cash = cash −
+2 × entry notional SHORT aperto. Equity = cash + Long Market Value − Short
+Market Value (passività). Tutti gli open precedono le uscite intrabar; i
+proventi di queste uscite finanziano ordini dalla sessione seguente. Ingressi
+simultanei: priorità alfabetica. L'equity di sizing usa soltanto open correnti
+noti e quotazioni precedenti. Le protezioni operative PAPER/LIVE non vengono
+chiamate dalla simulazione.
+
+PatternV1MetricsCalculator separa Realized Gross/Net PnL da Unrealized/Net
+Unrealized PnL. PF PnL usa solo i PnL lordi dei CHIUSI; PF netto e PF R sono
+separati. Win rate = net wins/(net wins + net losses), breakevens esclusi e
+visibili. Expectancy/Average R sono la media dei R prezzo dei CHIUSI validi,
+TIMEOUT inclusi. I costi possono cambiare la categoria PnL senza cambiare il
+R prezzo; la formula ponderata usa tutti i chiusi e il contributo breakeven.
+PF senza perdite = null (n/d).
+
+Daily equity usa l'ultima quotazione disponibile del giorno per ciascun simbolo,
+senza dati futuri. Drawdown e running peak sono calcolati su questa curva,
+partendo dal capitale iniziale. Average Gross Exposure % è la media del
+valore di mercato lordo corrente delle posizioni EOD/equity. Time In Market %
+è la percentuale di sessioni con almeno una posizione durante la giornata,
+compresi ingressi/uscite nella stessa sessione. I drawdown per simbolo e
+direzione sono attribuzioni del PnL a mercato, non portafogli indipendenti.
+
+I fill STOP/TARGET restano nominali anche sui gap, per coerenza con Research.
+Executed MFE/MAE terminano al fill e non inferiscono un percorso daily
+sconosciuto: sulla barra STOP usano open noto e stop, con MAE <=1R; sulla barra
+TARGET usano open noto e target. Raw Bar MFE/MAE riportano separatamente
+l'intera candela di uscita e sono confrontabili con Research. I valori della
+dashboard sono quelli eseguibili. Il confronto statistico Research standard
+usa STOP/TARGET in R; i test di coerenza dei timeout attivano l'opzione di
+chiusura già esistente in PatternOutcomeAnalyzer, senza modificarlo.
+
+Endpoint in http/pattern-v1.http. Risultati JSON persistiti in
+data/pattern-v1/backtests/<id>.json. Schema versione 2 distingue le run corrette:
+i file legacy sono conservati, la nuova dashboard li identifica e richiede
+un nuovo backtest; l'export evita di rietichettare una run legacy come corretta.
+Excel: SUMMARY, SYMBOL_RESULTS, TRADES, EQUITY_CURVE, CONFIGURATION; curve
+Equity/Drawdown integrate. Le metriche frontend hanno tooltip esplicativi.
+Il grafico TradingView mostra pattern, signal, entry, stop, target, exit,
+sizing e raw/executed excursions; gli OPEN mostrano il mark separatamente.
+
+Validazione della run originale, senza import/download o ordini operativi:
+
+    mvn test -DpatternV1.validateLocal=true
+
+Il test rigioca il market snapshot di
+72ea9407-0a48-40f9-bd5c-3214bf360d03 attraverso BacktestEngine, conserva
+l'artefatto OLD e salva report, JSON, Excel e hash SHA-256 in
+outputs/pattern-v1-corrected. Verifica la mapping, la contabilità giornaliera,
+tutti i trade contro PatternOutcomeAnalyzer e i quattro vecchi TIMEOUT
+AAPL/QQQ/XLK/NVDA. I test ordinari usano fixture indipendenti dai dati locali.
+Le run diagnostiche precedenti in outputs/pattern-v1 sono storiche e non
+rappresentano il nuovo motore.
+
+### Limiti operativi
+
 Questa milestone non include ancora:
 
 - scanner di mercato;

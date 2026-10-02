@@ -176,6 +176,9 @@ public class TradingWorkbenchController {
     @PutMapping("/config")
     public WorkbenchConfigResponse updateConfig(
             @RequestBody WorkbenchConfigRequest request) {
+        if (request.strategy() != null && request.strategy().type() == StrategyType.PATTERN_V1) {
+            throw new IllegalArgumentException("PATTERN_V1 is backtest only; operational configuration rejected");
+        }
         if (request.marketData() != null) {
             applyMarketDataConfig(request.marketData());
         }
@@ -1076,6 +1079,7 @@ public class TradingWorkbenchController {
             TradingSystemProperties.StrategyProperties strategyProperties) {
         StrategyType resolved = type == null ? properties.getStrategy().getType() : type;
         return switch (resolved) {
+            case PATTERN_V1 -> throw new IllegalArgumentException("Use /api/backtest/pattern-v1/run; PATTERN_V1 is backtest only");
             case MANUAL_ONLY -> new ManualOnlyStrategy();
             case MOVING_AVERAGE_CROSSOVER ->
                     new MovingAverageCrossoverStrategy(strategyProperties);
@@ -2170,6 +2174,7 @@ public class TradingWorkbenchController {
                 Arrays.asList(MarketDataProvider.values()),
                 Arrays.asList(MarketDataMode.values()),
                 Arrays.stream(StrategyType.values())
+                        .filter(type -> type != StrategyType.PATTERN_V1)
                         .filter(type -> type != StrategyType.JOE_ROSS_123_RH_TTE)
                         .toList(),
                 Arrays.asList(TradingMode.values()),
