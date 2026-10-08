@@ -1,0 +1,50 @@
+### Frozen PATTERN_V1 configuration (simulation only)
+GET http://localhost:8081/api/backtest/pattern-v1/configuration
+
+### PATTERN_V1 COST TEST (riskPercent uses general configuration; default 2%)
+POST http://localhost:8081/api/backtest/pattern-v1/run
+Content-Type: application/json
+
+{
+  "startDate": "2010-01-01",
+  "initialCapital": 10000,
+  "maxOrderValue": 6000,
+  "maxQuantity": 100000,
+  "slippagePercent": 0.03,
+  "commission": {
+    "model": "IBKR_US_FIXED",
+    "perShare": 0.005,
+    "minimumPerOrder": 1.00,
+    "maximumPercentOrderValue": 1
+  }
+}
+
+### Entire CORE, from 2010 to last available completed daily bar
+POST http://localhost:8081/api/backtest/pattern-v1/run
+Content-Type: application/json
+
+{
+  "startDate": "2010-01-01",
+  "timeframe": "DAILY",
+  "initialCapital": 10000,
+  "commissionPerOrder": 0,
+  "slippagePercent": 0
+}
+
+### Single symbol; targets and directions always come from YAML
+POST http://localhost:8081/api/backtest/pattern-v1/run
+Content-Type: application/json
+
+{
+  "symbols": ["AAPL"],
+  "startDate": "2010-01-01",
+  "endDate": "2026-09-08",
+  "timeframe": "DAILY",
+  "initialCapital": 10000
+}
+
+### Replace with backtestId from the response
+GET http://localhost:8081/api/backtest/pattern-v1/{{backtestId}}
+
+### Excel: SUMMARY, SYMBOL_RESULTS, TRADES, EQUITY_CURVE, CONFIGURATION
+GET http://localhost:8081/api/backtest/pattern-v1/{{backtestId}}/export/excel

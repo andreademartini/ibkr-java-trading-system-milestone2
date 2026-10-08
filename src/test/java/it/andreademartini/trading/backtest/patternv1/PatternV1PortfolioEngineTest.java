@@ -26,7 +26,7 @@ class PatternV1PortfolioEngineTest {
         assertEquals("STOP",trade.exitReason());assertEquals(0,bd("98").compareTo(trade.exitPrice()));
         assertEquals(0,bd("-1").compareTo(trade.resultR()));assertTrue(trade.sameBarAmbiguous());assertTrue(trade.closed());
         assertEquals(0,bd("1").compareTo(trade.executedMaeR()));assertEquals(0,bd("0").compareTo(trade.executedMfeR()));
-        assertEquals(50,trade.quantity());assertEquals(1,trade.holdingBars());assertEquals(0,bd("9900").compareTo(result.finalCapital()));
+        assertEquals(60,trade.quantity());assertEquals(1,trade.holdingBars());assertEquals(0,bd("9880").compareTo(result.finalCapital()));
         assertEquals(1,result.summary().ambiguities());assertEquals(0,result.openPositions());
         var detection=new BullishEngulfingDetector().detect(bars,1,PatternDetectorParameters.defaults()).orElseThrow();
         var research=research(bars,detection,bd("3")).getFirst();
@@ -54,7 +54,7 @@ class PatternV1PortfolioEngineTest {
         var t=result.trades().getFirst();assertEquals("TIMEOUT",t.exitReason());assertEquals(20,t.holdingBars());
         assertEquals(0,bd("2.5").compareTo(t.resultR()));assertNull(t.researchResultR());assertTrue(t.closed());assertEquals(0,result.openPositions());
         assertEquals(0,t.remainingQuantity());assertEquals(0,bd("105").compareTo(t.exitPrice()));assertEquals(START.plusDays(21),t.exitDate());
-        assertEquals(0,result.finalCapital().compareTo(result.finalCash()));assertEquals(0,bd("10250").compareTo(result.finalCapital()));
+        assertEquals(0,result.finalCapital().compareTo(result.finalCash()));assertEquals(0,bd("10300").compareTo(result.finalCapital()));
         var research=research(bars,new BullishEngulfingDetector().detect(bars,1,PatternDetectorParameters.defaults()).orElseThrow(),bd("3")).getFirst();
         assertEquals(PatternExitReason.TIMEOUT,research.exitReason());assertNull(research.exitPrice());assertNull(research.resultR());
         assertEquals(0,research.mfe().compareTo(t.rawBarMfeR()));assertEquals(0,research.mae().compareTo(t.rawBarMaeR()));
@@ -73,8 +73,9 @@ class PatternV1PortfolioEngineTest {
         var a=new ArrayList<>(engulfing("AAPL"));a.set(2,bar("AAPL",2,100,107,99,106));
         var t=List.of(bar("TSLA",0,100,101,98,99),bar("TSLA",1,98.5,101,98.2,100.5),bar("TSLA",2,100,103,99,102));
         var result=engine.run(request(),configuration(),risk,Map.of("AAPL",a,"TSLA",t));
-        assertEquals(1,result.trades().size());assertEquals("AAPL",result.trades().getFirst().symbol());
-        assertEquals(1,result.summary().skippedCapital());assertEquals(0,bd("10600").compareTo(result.finalCapital()));
+        assertEquals(2,result.trades().size());assertEquals("AAPL",result.trades().getFirst().symbol());
+        assertEquals(0,result.summary().skippedCapital());assertEquals(0,bd("10440").compareTo(result.finalCapital()));
+        assertEquals(0,bd("4000").compareTo(result.trades().getLast().availableCashBeforeEntry()));
     }
     @Test void futureEntryCandleDoesNotChangeSignalEntryOrQuantity() {
         var bars=engulfing("AAPL");var changed=new ArrayList<>(bars);changed.set(2,bar("AAPL",2,100,999,1,900));
@@ -93,7 +94,7 @@ class PatternV1PortfolioEngineTest {
         var result=engine.run(request(),configuration(),risk,Map.of("AAPL",engulfing("AAPL")));
         var t=result.trades().getFirst();assertEquals("OPEN",t.exitReason());assertEquals(0,result.summary().timeouts());
         assertFalse(t.closed());assertNull(t.exitDate());assertNull(t.exitPrice());assertNull(t.resultR());assertEquals(t.quantity(),t.remainingQuantity());
-        assertEquals(0,t.grossPnl().signum());assertEquals(0,t.netPnl().signum());assertEquals(0,bd("50").compareTo(t.unrealizedPnl()));
+        assertEquals(0,t.grossPnl().signum());assertEquals(0,t.netPnl().signum());assertEquals(0,bd("60").compareTo(t.unrealizedPnl()));
     }
     @Test void exportAndPersistentRunRoundTrip(@TempDir Path directory) throws Exception {
         var bars=new ArrayList<>(engulfing("AAPL"));bars.set(2,bar("AAPL",2,100,107,97,103));

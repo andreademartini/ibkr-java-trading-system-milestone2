@@ -770,13 +770,29 @@ contengono la valorizzazione, separata dal fill.
 PatternV1PositionSizing rende tracciabile il servizio PositionSizingService
 standard, che rimane invariato per tutte le altre strategie. Desired Quantity
 = floor(equity nota all'open × riskPercent / 100 / rischio prezzo). Seguono
-maxQuantity, maxOrderValue, maxPositionValue, notional direzionale, riserva
+maxQuantity e maxOrderValue, modificabili nella schermata PATTERN V1 e fissi per
+la simulazione. Se vuoti, maxQuantity usa 1.000.000 e
+maxOrderValue usa il 60% del capitale iniziale del backtest (maxOrderValuePercent). Seguono
+maxPositionValue, notional direzionale, riserva
 standard per costi, cash disponibile e leva. Limiting reasons, quantità finale,
 cash prima/dopo, order value, desired/actual risk sono conservati nei trade e
 negli eventi. Min quantity = 1 e min order value = 0 conservano il comportamento
 attuale; un warning segnala quantità <=4 e forti riduzioni dovute al capitale.
 Actual Risk % = rischio prezzo × quantità finale / equity all'entry × 100,
 spesso inferiore al rischio target 2%. Non viene usato il sizing Joe Ross.
+
+La schermata PATTERN V1 usa di default slippage 0,03% per esecuzione (3 basis
+point) e commissioni IBKR_US_FIXED: 0,005 USD per azione, minimo 1 USD e
+massimo 1% del valore di ogni ordine. La formula per entrata e uscita e'
+`min(max(quantity * perShare, minimumPerOrder), orderValue * maximumPercentOrderValue / 100)`.
+I tre parametri sono modificabili nella schermata; il modello FIXED_PER_ORDER
+mantiene l'alternativa di una commissione fissa. Il sizing riserva le commissioni
+di entrata e stop nel budget di rischio e include il costo di entrata nel capitale
+richiesto, anche per il margine SHORT. Le posizioni OPEN addebitano solo l'entrata.
+Parametri ed eventi conservano commissioni e slippage per verificare i costi;
+le impostazioni sono esportate anche in Excel. Le richieste API con il precedente
+campo `commissionPerOrder` mantengono il modello fisso; se omesso viene usato
+IBKR_US_FIXED. Uno slippage esplicito di zero permette un confronto senza slippage.
 
 Cash registra acquisti/vendite e costi. I proventi SHORT sono vincolati insieme
 a un margine iniziale pari al 100% del notional: available cash = cash −

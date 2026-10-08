@@ -1,0 +1,52 @@
+(function (root) {
+    "use strict";
+    const definitions = [
+        ["Initial Capital", "initialCapital", "run", "Capitale iniziale della simulazione."],
+        ["Final Cash", "finalCash", "run", "Cash contabile: include i proventi SHORT vincolati."],
+        ["Final Available Cash", "finalAvailableCash", "run", "Cash disponibile per ordini, esclusi proventi SHORT e margine iniziale vincolati."],
+        ["Long Market Value", "finalLongMarketValue", "run", "Quantità LONG aperte × ultima quotazione disponibile."],
+        ["Short Market Value (liability)", "finalShortMarketValue", "run", "Quantità SHORT aperte × ultima quotazione: passività da sottrarre all'equity."],
+        ["Open Positions Market Value (net)", "finalOpenPositionValue", "run", "Long market value − short market value. Il gross exposure somma invece i valori assoluti."],
+        ["Final Equity", "finalCapital", "run", "Final Cash + Long Market Value − Short Market Value."],
+        ["Realized Gross PnL", "realizedGrossPnl", "summary", "Somma del PnL lordo dei trade CHIUSI, inclusi TIMEOUT."],
+        ["Realized Net PnL", "realizedNetPnl", "summary", "PnL realizzato lordo meno commissioni, fees e slippage effettivamente contabilizzati."],
+        ["Unrealized PnL", "unrealizedPnl", "summary", "PnL lordo delle sole posizioni realmente OPEN, all'ultima quotazione nota."],
+        ["Net Unrealized PnL", "netUnrealizedPnl", "summary", "PnL degli OPEN meno i costi di ingresso già pagati; non stima futuri costi di uscita."],
+        ["Total Gross Mark-to-Market PnL", "grossPnl", "summary", "Realized Gross PnL + Unrealized PnL. Comprende il mark-to-market."],
+        ["Total Net PnL", "netPnl", "summary", "Realized Net PnL + Net Unrealized PnL = Final Equity − Initial Capital."],
+        ["Return %", "returnPercent", "run", "(Final Equity / Initial Capital − 1) × 100."],
+        ["CAGR %", "cagr", "run", "(Final Equity / Initial Capital)^(1/anni) − 1; anni calcolati sulle date effettive mostrate, giorni / 365,25."],
+        ["Max Drawdown", "maxDrawdown", "run", "Massima perdita monetaria dal precedente running peak della daily equity."],
+        ["Max Drawdown %", "maxDrawdownPercent", "run", "Massimo (running peak − daily equity) / running peak × 100."],
+        ["Profit Factor (PnL)", "profitFactor", "summary", "Somma PnL lordi positivi / valore assoluto della somma PnL lordi negativi, solo CHIUSI. Senza perdite: n/d."],
+        ["Profit Factor (net PnL)", "profitFactorNet", "summary", "Stessa formula sui PnL netti dei CHIUSI. Non include PnL non realizzati."],
+        ["Profit Factor (R)", "profitFactorR", "summary", "Somma Result R positivi / valore assoluto somma Result R negativi dei CHIUSI validi."],
+        ["Win Rate", "winRate", "summary", "Net Wins / (Net Wins + Net Losses). Breakevens esclusi dal denominatore e contati separatamente."],
+        ["Expectancy R", "expectancyR", "summary", "Media dei Result R prezzo dei CHIUSI validi, TIMEOUT inclusi; OPEN esclusi. I costi non alterano il R prezzo."],
+        ["Average R", "averageR", "summary", "Media dei Result R dei trade CHIUSI validi; coincide con Expectancy R."],
+        ["Average Winner PnL", "averageWinner", "summary", "Media monetaria netta dei trade CHIUSI con Net PnL > 0."],
+        ["Average Loser PnL", "averageLoser", "summary", "Media monetaria netta dei trade CHIUSI con Net PnL < 0; valore negativo."],
+        ["Average Winner R", "averageWinnerR", "summary", "Media Result R dei CHIUSI vincenti in PnL netto. I costi possono rendere diverse le categorie PnL e R."],
+        ["Average Loser R", "averageLoserR", "summary", "Media Result R dei CHIUSI perdenti in PnL netto."],
+        ["Total Signals", "signalsDetected", "summary", "Pattern rilevati, compresi quelli poi saltati per overlap, capitale o assenza della barra successiva."],
+        ["Executed Trades", "trades", "summary", "Segnali con ingresso realmente eseguito; comprende CHIUSI e OPEN."],
+        ["Closed Trades", "closedTrades", "summary", "Trade interamente chiusi da STOP, TARGET o TIMEOUT."],
+        ["Open Trades", "openTrades", "summary", "Posizioni con meno di 20 barre disponibili, ancora prive di uscita."],
+        ["Wins", "wins", "summary", "Trade CHIUSI con Net PnL positivo."],
+        ["Losses", "losses", "summary", "Trade CHIUSI con Net PnL negativo."],
+        ["Breakevens", "breakevens", "summary", "Trade CHIUSI con Net PnL esattamente zero."],
+        ["Timeouts", "timeouts", "summary", "Trade CHIUSI al close della holding bar 20; la barra di entry conta come 1."],
+        ["Same Bar Ambiguities", "ambiguities", "summary", "STOP e TARGET toccati nella stessa barra: STOP_FIRST."],
+        ["Signals Skipped Open Position", "skippedPositionOpen", "summary", "Segnali saltati perché symbol + PATTERN_V1 aveva già una posizione."],
+        ["Signals Skipped Capital", "skippedCapital", "summary", "Ingressi non eseguiti perché la liquidità non finanzia neppure una quantità valida."],
+        ["Average Gross Exposure %", "averageGrossExposurePercent", "run", "Media su tutte le date disponibili del valore assoluto corrente delle posizioni a fine giornata / equity × 100."],
+        ["Time In Market %", "timeInMarketPercent", "run", "Sessioni con almeno una posizione durante la giornata / totale sessioni disponibili × 100; include entry e exit nello stesso giorno."],
+        ["Executed MFE R", "mfeR", "summary", "Media sui CHIUSI della massima escursione favorevole eseguibile, divisa per rischio prezzo. La candela di uscita usa open e fill conservativamente."],
+        ["Executed MAE R", "maeR", "summary", "Media sui CHIUSI della massima escursione avversa eseguibile; sui trade STOP non supera 1R."],
+        ["Average Actual Risk %", "averageActualRiskPercent", "summary", "Media rischio prezzo × quantità finale / equity all'ingresso × 100; può essere inferiore al target 2%."],
+        ["Average Order Value", "averageOrderValue", "summary", "Media entry price × quantità finale sui trade eseguiti."]
+    ];
+    const api = {definitions, summary: run => definitions.map(([label,key,source,tooltip]) => ({label,key,value:(source === "run" ? run : run.summary)[key],tooltip}))};
+    if (typeof module !== "undefined" && module.exports) module.exports = api;
+    root.PatternV1Metrics = api;
+})(typeof globalThis !== "undefined" ? globalThis : this);

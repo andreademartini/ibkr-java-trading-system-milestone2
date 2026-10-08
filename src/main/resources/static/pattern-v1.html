@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PATTERN V1 · Backtest</title>
+  <link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/research.css">
+  <link rel="stylesheet" href="/trading-chart.css"><link rel="stylesheet" href="/pattern-v1.css">
+</head>
+<body>
+<header class="topbar"><div><h1>PATTERN V1</h1><p>Portafoglio CORE · configurazione congelata · DAILY</p></div>
+  <nav class="top-actions"><a class="link-button" href="/">Azioni</a><a class="link-button" href="/research.html">Pattern Research</a><a class="link-button active-link" href="/pattern-v1.html">PATTERN V1</a><a class="link-button" href="/pattern-v2.html">PATTERN V2 · Research</a></nav>
+</header>
+<main class="research-shell">
+  <section class="panel research-config">
+    <div class="panel-heading"><h2>Simulazione multi-symbol</h2><span class="research-only">BACKTEST</span></div>
+    <form id="v1-form" class="research-form">
+      <label>Strategia<select id="v1-strategy"><option value="PATTERN_V1">PATTERN V1</option></select></label>
+      <label>Data iniziale<input id="v1-start" type="date" value="2010-01-01" required></label>
+      <label>Data finale<input id="v1-end" type="date"><small>Vuoto: ultima barra chiusa disponibile</small></label>
+      <label>Capitale iniziale<input id="v1-capital" type="number" min="1" step="1" value="10000" required></label>
+      <label>Max valore ordine (maxOrderValue)<input id="v1-max-order-value" type="number" min="0.01" step="0.01" placeholder="6000"><small>Vuoto: 60% del capitale iniziale (maxOrderValuePercent)</small></label>
+      <label>Max quantità (maxQuantity)<input id="v1-max-quantity" type="number" min="1" step="1" value="1000000"><small>Vuoto: 1.000.000</small></label>
+      <label>Modello commissioni<select id="v1-commission-model"><option value="IBKR_US_FIXED" selected>IBKR US Fixed</option><option value="FIXED_PER_ORDER">Importo fisso per ordine</option></select></label>
+      <label>Commissione per azione (USD)<input id="v1-commission-per-share" type="number" min="0" step="0.001" value="0.005" required></label>
+      <label>Minimo commissione per ordine (USD)<input id="v1-commission-minimum" type="number" min="0" step="0.01" value="1.00" required></label>
+      <label>Massimo commissione (% valore ordine)<input id="v1-commission-maximum" type="number" min="0" max="100" step="0.01" value="1" required></label>
+      <label>Commissione fissa per ordine (USD)<input id="v1-commission" type="number" min="0" step="0.01" value="1" required disabled><small>Usata solo con il modello Importo fisso</small></label>
+      <label>Slippage %<input id="v1-slippage" type="number" min="0" max="99" step="0.01" value="0.03" required><small>Per esecuzione: 0,03% = 3 basis point, entrata e uscita</small></label>
+      <div class="wide table-scroll"><table id="v1-mapping"><thead><tr><th>Symbol</th><th>LONG Pattern</th><th>LONG Target R</th><th>SHORT Pattern</th><th>SHORT Target R</th><th>Enabled</th></tr></thead><tbody></tbody></table></div>
+      <p id="v1-rules" class="wide research-note"></p>
+      <div class="wide run-actions"><button id="v1-run" type="submit">Esegui PATTERN V1</button><a id="v1-excel" class="link-button" hidden>Esporta Excel</a><span id="v1-status" role="status">Caricamento configurazione…</span></div>
+    </form>
+  </section>
+  <section id="v1-results" class="panel" hidden>
+    <h2>Portfolio Summary</h2><p id="v1-coverage"></p><p id="v1-applied-limits" class="research-note"></p><div id="v1-summary" class="v1-metrics"></div>
+    <h3>LONG vs SHORT</h3><div id="v1-directions" class="table-scroll"></div>
+    <h3>Equity Curve e Drawdown</h3><div id="v1-equity" class="v1-equity"></div><p id="v1-equity-point"></p>
+    <h3>Risultati per simbolo e configurazione</h3><div id="v1-symbols" class="table-scroll"></div>
+    <h3>Confronto con Pattern Research sullo stesso periodo</h3><p>Il confronto Research usa STOP/TARGET in R sullo stesso periodo. Il PF del portafoglio usa il PnL monetario lordo dei chiusi, TIMEOUT inclusi; PF netto e PF in R sono separati. I drawdown per simbolo/direzione sono attribuzioni del PnL a mercato.</p><div id="v1-comparison" class="table-scroll"></div>
+    <h3>Trade</h3><label>Simbolo <select id="v1-trade-symbol"><option value="">Tutti</option></select></label><div id="v1-trades" class="table-scroll"></div>
+    <h3>Eventi e segnali saltati</h3><label>Tipo evento <select id="v1-event-filter"><option value="">Tutti</option></select></label><div id="v1-events" class="table-scroll"></div>
+    <details><summary>Note e differenze</summary><ul id="v1-warnings"></ul></details>
+  </section>
+  <section id="v1-chart-section" class="panel" hidden>
+    <h2 id="v1-chart-title">Dettaglio trade</h2><div class="run-actions"><button id="v1-previous" type="button">Precedente</button><button id="v1-next" type="button">Successivo</button><button id="v1-fit" type="button">Centra trade</button></div>
+    <div class="v1-chart-wrapper"><div id="v1-chart"></div><div id="v1-tooltip" class="trading-chart-tooltip" hidden></div></div>
+    <div id="v1-info" class="trade-info-panel"></div><div id="v1-timeline" class="trade-event-timeline"></div><div id="v1-event-detail" hidden></div>
+    <p id="v1-pattern-info"></p>
+  </section>
+</main>
+<script src="/vendor/lightweight-charts.standalone.production.js"></script>
+<script src="/trading-chart.js"></script><script src="/pattern-v1-metrics.js"></script><script src="/pattern-v1.js?v=20261007-ibkr-costs"></script>
+</body></html>
