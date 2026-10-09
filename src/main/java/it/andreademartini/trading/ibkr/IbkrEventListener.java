@@ -4,10 +4,23 @@ import com.ib.client.Contract;
 import com.ib.client.Bar;
 import com.ib.client.Order;
 import com.ib.client.OrderState;
+import com.ib.client.Execution;
+import com.ib.client.CommissionAndFeesReport;
+import com.ib.client.ContractDetails;
 
 import java.util.List;
 
 public interface IbkrEventListener {
+    default void onCurrentTime(long epochSeconds) {}
+    default void onOpenOrderEnd() {}
+    default void onCompletedOrder(Contract contract,Order order,OrderState state) {}
+    default void onCompletedOrdersEnd() {}
+    default void onExecution(int requestId,Contract contract,Execution execution) {}
+    default void onExecutionEnd(int requestId) {}
+    default void onCommissionAndFees(CommissionAndFeesReport report) {}
+    default void onContractDetails(int requestId,ContractDetails details) {}
+    default void onContractDetailsEnd(int requestId) {}
+    default void onMarketDataType(int requestId,int type) {}
 
     default void onNextValidId(int orderId) {
     }

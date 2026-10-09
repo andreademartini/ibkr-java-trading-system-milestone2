@@ -3,6 +3,7 @@ package it.andreademartini.trading.ibkr;
 import com.ib.client.Contract;
 import com.ib.client.EClientSocket;
 import com.ib.client.Order;
+import com.ib.client.ExecutionFilter;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Constructor;
@@ -30,6 +31,14 @@ public class IbkrApiClient {
     public void cancelMarketData(int requestId) {
         connectionService.requireClientSocket().cancelMktData(requestId);
     }
+
+    public void requestCurrentTime(){connectionService.requireClientSocket().reqCurrentTime();}
+    public void requestAllOpenOrders(){connectionService.requireClientSocket().reqAllOpenOrders();}
+    public void requestCompletedOrders(){connectionService.requireClientSocket().reqCompletedOrders(false);}
+    public void requestExecutions(int requestId,String account){var filter=new ExecutionFilter();filter.acctCode(account);connectionService.requireClientSocket().reqExecutions(requestId,filter);}
+    public void requestContractDetails(int requestId,Contract contract){connectionService.requireClientSocket().reqContractDetails(requestId,contract);}
+    public void cancelAccountSummary(int requestId){connectionService.requireClientSocket().cancelAccountSummary(requestId);}
+    public void requestPatternMarketData(int requestId,Contract contract){connectionService.requireClientSocket().reqMktData(requestId,contract,"236",false,false,List.of());}
 
     public void requestHistoricalData(
             int requestId,

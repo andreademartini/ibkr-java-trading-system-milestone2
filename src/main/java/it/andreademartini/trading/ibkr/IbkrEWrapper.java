@@ -5,6 +5,9 @@ import com.ib.client.Contract;
 import com.ib.client.EWrapper;
 import com.ib.client.Order;
 import com.ib.client.OrderState;
+import com.ib.client.Execution;
+import com.ib.client.CommissionAndFeesReport;
+import com.ib.client.ContractDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -94,6 +97,27 @@ public class IbkrEWrapper implements InvocationHandler {
                 case "historicalDataEnd" -> handleHistoricalDataEnd(safeArgs);
                 case "orderStatus" -> handleOrderStatus(safeArgs);
                 case "openOrder" -> handleOpenOrder(safeArgs);
+                case "openOrderEnd" -> notifyListeners(IbkrEventListener::onOpenOrderEnd);
+                case "completedOrder" -> {
+                    if(safeArgs.length>=3&&safeArgs[0] instanceof Contract c&&safeArgs[1] instanceof Order o&&safeArgs[2] instanceof OrderState s)
+                        notifyListeners(l->l.onCompletedOrder(c,o,s));
+                }
+                case "completedOrdersEnd" -> notifyListeners(IbkrEventListener::onCompletedOrdersEnd);
+                case "execDetails" -> {
+                    if(safeArgs.length>=3&&safeArgs[1] instanceof Contract c&&safeArgs[2] instanceof Execution e)
+                        notifyListeners(l->l.onExecution(numberAsInt(safeArgs[0]),c,e));
+                }
+                case "execDetailsEnd" -> notifyListeners(l->l.onExecutionEnd(numberAsInt(safeArgs[0])));
+                case "commissionAndFeesReport" -> {
+                    if(safeArgs.length>0&&safeArgs[0] instanceof CommissionAndFeesReport r)notifyListeners(l->l.onCommissionAndFees(r));
+                }
+                case "contractDetails" -> {
+                    if(safeArgs.length>=2&&safeArgs[1] instanceof ContractDetails d)notifyListeners(l->l.onContractDetails(numberAsInt(safeArgs[0]),d));
+                }
+                case "contractDetailsEnd" -> notifyListeners(l->l.onContractDetailsEnd(numberAsInt(safeArgs[0])));
+                case "marketDataType" -> {
+                    if(safeArgs.length>=2)notifyListeners(l->l.onMarketDataType(numberAsInt(safeArgs[0]),numberAsInt(safeArgs[1])));
+                }
                 case "position" -> handlePosition(safeArgs);
                 case "positionEnd" -> notifyListeners(IbkrEventListener::onPositionEnd);
                 case "accountSummary" -> handleAccountSummary(safeArgs);
@@ -134,6 +158,7 @@ public class IbkrEWrapper implements InvocationHandler {
 
     private void handleCurrentTime(Object[] args) {
         if (args.length > 0 && args[0] instanceof Number number) {
+            notifyListeners(l->l.onCurrentTime(number.longValue()));
             log.info("Ora server IBKR: {}", Instant.ofEpochSecond(number.longValue()));
         }
     }
