@@ -1,0 +1,238 @@
+[
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\PatternStableController.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\PatternStableService.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\PatternStableStore.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\BullishEngulfingDetector.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\BullishHaramiDetector.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\ConfiguredPatternStrategy.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\HammerDetector.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\PatternDetectorSupport.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\PatternPortfolioSimulator.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\PatternV1PositionSizing.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\PatternV2BarRules.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\PatternV2CapitalLimits.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\PatternV2Configuration.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\PatternV2SplitCosts.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\PiercingPatternDetector.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\PositionSizingService.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\ShootingStarDetector.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\StableSimulation.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternstable\\engine\\TradePricingService.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\strategy\\patternv1\\DirectionPatternConfiguration.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\strategy\\patternv1\\PatternV1Properties.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\strategy\\patternv1\\PatternV1Strategy.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\strategy\\patternv1\\SymbolPatternConfiguration.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperAdmin.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperBroker.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperCalendar.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperController.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperEntity.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperExcelExporter.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperIbkrBroker.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperLedger.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperModel.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperPlanner.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperRepository.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperScheduler.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperSecurityFilter.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperService.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperShadow.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\paper\\patternv1\\PatternPaperStore.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\pattern-stable\\2.0.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\pattern-stable\\2.1.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\datasets\\190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\references\\10aae805-4987-4a29-a634-b3819cddc427.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\runs\\06badf1a-07e6-4d5c-b932-a5c28e9e4d9c.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\runs\\bc5b31dc-8dab-4502-8063-35ef3a5a6eaa.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\runs\\ddd0c475-f0c1-4639-8a1f-6bb8fc7e9980.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\runs\\de4a4a44-27b3-4657-9edb-7e22ebe30be6.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\runs\\f12755e8-7af2-4897-809a-20ccf71e0da6.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\versions\\2.0.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\versions\\2.1.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\versions\\PATTERN_V1_LEGACY.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1-legacy.html",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1-metrics.js",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1-paper.css",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1-paper.js",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1-stable.js",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1.css",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1.html",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1.js",
+        "unchanged":  true
+    }
+]

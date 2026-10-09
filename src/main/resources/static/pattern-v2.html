@@ -7,7 +7,7 @@
 <nav class="top-actions"><a class="link-button" href="/">Azioni</a><a class="link-button" href="/research.html">Pattern Research</a><a class="link-button" href="/pattern-v1.html">PATTERN V1 · FROZEN / VALIDATION</a></nav></header>
 <main class="research-shell">
 <div class="v2-frozen" role="note">PATTERN_V1 is frozen and is not affected by changes made here.</div>
-<nav class="v2-tabs" aria-label="Sezioni V2"><a href="#configuration">Configuration</a><a href="#symbols">Symbols &amp; Patterns</a><a href="#results">Results</a><a href="#symbol-results">Symbol Results</a><a href="#target-analysis">Target Analysis</a><a href="#pattern-analysis">Pattern Analysis</a><a href="#period-analysis">Period Analysis</a><a href="#equity">Equity / Drawdown</a><a href="#capital-skips">Capital Skips</a><a href="#history">Run History</a></nav>
+<nav class="v2-tabs" aria-label="Sezioni V2"><a href="#configuration">Configuration</a><a href="#symbols">Symbols &amp; Patterns</a><a href="#results">Results</a><a href="#symbol-results">Symbol Results</a><a href="#target-analysis">Target Analysis</a><a href="#pattern-analysis">Pattern Analysis</a><a href="#period-analysis">Period Analysis</a><a href="#equity">Equity / Drawdown</a><a href="#capital-skips">Capital Skips</a><a href="#market-regime-analysis">MARKET REGIME ANALYSIS</a><a href="#history">Run History</a></nav>
 <p id="v2-status" class="v2-status" role="status">Caricamento laboratorio…</p>
 <form id="v2-form">
 <section id="configuration" class="panel v2-panel"><div class="panel-heading"><h2>GLOBAL PARAMETERS</h2><span class="v2-badge">RESEARCH</span></div>
@@ -28,6 +28,7 @@
 <label>ATR Period<input id="v2-atr-period" type="number" min="1" step="1" value="14" required></label>
 <label>Max Distance ATR<input id="v2-bollinger-distance" type="number" min="0" step="any" value="0.50" required></label>
 <label><input id="v2-shadow-enabled" type="checkbox">Enable Capital Skip Shadow Analysis</label></div>
+<h3>Analysis only</h3><label><input id="v2-regime-enabled" type="checkbox">Enable Market Regime Analysis</label><p class="research-note">ANALYSIS ONLY — DOES NOT FILTER TRADES. ADX14 / DI14 / EMA20/50/200 / ATR14 alla chiusura del segnale. OFF non calcola questa analisi.</p>
 <h3>MANUAL FILTER EXPERIMENTS</h3><label>Baseline senza filtri (dataset salvato)<select id="v2-experiment-source"></select></label><div class="v2-actions"><button type="button" data-experiment="A">A · BASELINE</button><button type="button" data-experiment="B">B · RANGE 2.50%</button><button type="button" data-experiment="C">C · CLOSE 0.80</button><button type="button" data-experiment="D">D · COMBINATI</button><button type="button" id="v2-experiment-save">SAVE PRESET</button><button type="button" id="v2-experiment-run">RUN ON BASELINE DATA</button></div><p>Le modalità copiano tutti i parametri della baseline scelta e cambiano solo i filtri. Ogni esecuzione è manuale. Il confronto verifica dataset, periodo e parametri di trading.</p>
 <h3>SPLIT-AWARE PER-SHARE COSTS</h3>
 <p>Commissioni per azione: quantità equivalente alla data = quantità del dataset / fattore split. NVDA STOOQ usa 40 prima del 20/07/2021, 10 prima del 10/06/2024, poi 1. Il minimo per ordine e lo slippage percentuale restano invariati. AUTO_PROVIDER corregge STOOQ o dati etichettati ADJUSTED; scegli RAW per dati realmente non aggiustati.</p>
@@ -68,6 +69,18 @@
 <h3>By Period</h3><p>Cohort per data del segnale, anche se il trade termina nel periodo successivo.</p><div id="v2-shadow-periods" class="table-scroll"></div>
 <h3>Shadow Trades</h3><div id="v2-shadow-trades" class="table-scroll"></div>
 <details><summary>Contesto e concorrenza</summary><p>Invested Capital = valore lordo delle posizioni agli open disponibili. Rischio aggregato = somma dei rischi iniziali, esclusi costi. Candidati concorrenti = ingressi pendenti allo stesso timestamp, inclusi quelli successivamente scartati per altri motivi. Gli esiti futuri non autorizzano cambi di allocazione.</p><div id="v2-shadow-context" class="table-scroll"></div></details></section>
+<section id="market-regime-analysis" class="panel v2-panel"><h2>MARKET REGIME ANALYSIS</h2><p id="v2-regime-status" role="status">Abilita l'analisi e avvia una nuova run. Le run storiche non vengono riscritte.</p>
+<div id="v2-regime-content" hidden>
+<p>ANALYSIS ONLY — DOES NOT FILTER TRADES. Solo trade chiusi realmente eseguiti; periodi assegnati alla data del segnale. ADX basso non dimostra lateralità. N/D per valori non disponibili. Campioni &lt;30: conclusioni fragili.</p>
+<h3>A. Regime Overview</h3><div id="v2-regime-overview" class="table-scroll"></div><details><summary>Classificazione secondaria ADX / DI, senza allineamento EMA</summary><div id="v2-regime-secondary" class="table-scroll"></div></details>
+<h3>B. Winners vs Losers</h3><div id="v2-regime-winners" class="table-scroll"></div>
+<h3>C. ADX Buckets</h3><div id="v2-regime-buckets" class="table-scroll"></div><div class="v2-regime-charts"><figure><figcaption>ADX vs Net R per trade ? verde WINNER, rosso LOSER, grigio BREAKEVEN</figcaption><canvas id="v2-regime-scatter" height="320" aria-label="ADX vs Net R" role="img"></canvas></figure><figure><figcaption>Win Rate per fascia ADX (%) ? campione n indicato</figcaption><canvas id="v2-regime-bars" height="320" aria-label="Win Rate per fascia ADX" role="img"></canvas></figure></div>
+<h3>D. With Trend vs Counter Trend</h3><p>Prima tabella: ADX &gt;=25 e direzione DI. Seconda tabella: orientamento EMA50/EMA200, senza soglia ADX.</p><div id="v2-regime-trend" class="table-scroll"></div><div id="v2-regime-ema" class="table-scroll"></div>
+<h3>E. Symbol / Pattern Analysis</h3><div class="research-form"><label>Simbolo<select id="v2-regime-symbol"><option value="">Tutti</option></select></label><label>Pattern<select id="v2-regime-pattern"><option value="">Tutti</option></select></label><label>LONG / SHORT<select id="v2-regime-direction"><option value="">Tutti</option></select></label><label>Regime<select id="v2-regime-regime"><option value="">Tutti</option></select></label><label>Periodo del segnale<select id="v2-regime-period"><option value="">Tutti</option></select></label></div><p>Le celle con zero trade restano visibili. Le statistiche non sono backtest indipendenti.</p><div id="v2-regime-patterns" class="table-scroll"></div>
+<h3>F. Loser Diagnostics</h3><div id="v2-regime-loss-summary" class="table-scroll"></div><div id="v2-regime-losers" class="table-scroll"></div>
+<h3>G. Historical Stability</h3><div id="v2-regime-periods" class="table-scroll"></div>
+<details><summary>Valori continui per tutti i trade e segnali scartati</summary><p>I segnali scartati non hanno PnL o Win/Loss inventati.</p><div id="v2-regime-trades" class="table-scroll"></div><div id="v2-regime-signals" class="table-scroll"></div></details>
+</div></section>
 <section id="symbol-results" class="panel v2-panel"><h2>SYMBOL RESULTS</h2><p>Clicca sulle intestazioni per ordinare. Il drawdown di una combinazione è l'attribuzione del PnL a mercato; contribution % usa il PnL netto totale come denominatore.</p><div id="v2-symbol-results" class="table-scroll"></div><h3>RESULTS BY SYMBOL</h3><div id="v2-by-symbol" class="table-scroll"></div></section>
 <section id="target-analysis" class="panel v2-panel"><h2>RESULTS BY TARGET R</h2><div id="v2-by-target" class="table-scroll"></div></section>
 <section id="pattern-analysis" class="panel v2-panel"><h2>RESULTS BY PATTERN</h2><div id="v2-by-pattern" class="table-scroll"></div></section>
@@ -78,5 +91,5 @@
 </div>
 <section id="history" class="panel v2-panel"><h2>V2 RUN HISTORY</h2><div class="v2-actions"><button id="v2-history-refresh" type="button">REFRESH HISTORY</button><button type="button" id="v2-compare-capital">COMPARE CAPITAL LIMITS</button><button id="v2-compare-runs" type="button">COMPARE RUNS</button></div><div id="v2-history" class="table-scroll"></div><div id="v2-run-comparison" class="table-scroll"></div></section>
 </main>
-<script src="/vendor/lightweight-charts.standalone.production.js"></script><script src="/pattern-v2-model.js?v=8"></script><script src="/pattern-v2.js?v=6"></script>
+<script src="/vendor/lightweight-charts.standalone.production.js"></script><script src="/pattern-v2-model.js?v=9"></script><script src="/pattern-v2-regime.js?v=1"></script><script src="/pattern-v2.js?v=7"></script>
 </body></html>

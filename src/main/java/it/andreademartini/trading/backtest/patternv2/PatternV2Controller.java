@@ -22,7 +22,7 @@ public class PatternV2Controller {
     @GetMapping("/runs") public List<Map<String,Object>> history() {
         return store.runs().stream().map(r->{Map<String,Object> m=new LinkedHashMap<>();var p=r.portfolio();
             m.put("runId",r.runId());m.put("timestamp",r.timestamp());m.put("configurationName",r.configuration().name());
-            m.put("patternRangeFilterEnabled",r.configuration().patternRangeFilterEnabled());m.put("minimumPatternRangePct",r.configuration().minimumPatternRangePct());m.put("pairedRunId",r.pairedRunId());
+            m.put("marketRegimeAnalysisEnabled",r.configuration().marketRegimeAnalysisEnabled());m.put("patternRangeFilterEnabled",r.configuration().patternRangeFilterEnabled());m.put("minimumPatternRangePct",r.configuration().minimumPatternRangePct());m.put("pairedRunId",r.pairedRunId());
             m.put("closeStrengthFilterEnabled",r.configuration().closeStrengthFilterEnabled());m.put("maxCloseStrength",r.configuration().maxCloseStrength());m.put("datasetId",r.datasetId());
             m.put("bollingerAtrFilterEnabled",r.configuration().bollingerAtrFilterEnabled());m.put("bollingerPeriod",r.configuration().bollingerPeriod());m.put("bollingerStdDev",r.configuration().bollingerStdDev());m.put("atrPeriod",r.configuration().atrPeriod());m.put("maxBollingerDistanceAtr",r.configuration().maxBollingerDistanceAtr());
             var g=r.configuration().global();

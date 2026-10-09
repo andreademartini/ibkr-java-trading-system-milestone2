@@ -42,6 +42,7 @@ public class PatternV2ExcelExporter {
             headers.addAll(List.of("PatternHigh","PatternLow","PatternClose","PatternRange","CloseStrength","CloseStrengthFilterEnabled","MaxCloseStrength","CloseStrengthAccepted"));
             headers.addAll(List.of("EquityAtEntry","MaxOrderValueEffective","MaxPositionValueEffective","MaxLongNotionalEffective","MaxShortNotionalEffective","DesiredQuantity","FinalQuantity","DesiredOrderValue","FinalOrderValue","ActualRiskPercent","QuantityLimitingReason"));
             headers.addAll(List.of("BollingerMiddle","BollingerUpper","BollingerLower","ATR14","BollingerDistanceATR","BollingerFilterAccepted","PatternExtremeTimestamp","PatternExtremePrice"));
+            if(run.marketRegimeAnalysis()!=null)headers.addAll(List.of("SignalADX14","SignalPlusDI14","SignalMinusDI14","SignalEMA20","SignalEMA50","SignalEMA200","SignalATR14","SignalMarketRegime","SignalTrendDirection","SignalTrendStrength","SignalWithOrCounterTrend","SignalCloseAboveEMA20","SignalCloseAboveEMA50","SignalCloseAboveEMA200","SignalEMA20AboveEMA50","SignalEMA50AboveEMA200","NetR","SignalSecondaryRegime","SignalEMAWithOrCounterTrend","SignalPlusDIAboveMinusDI","WinLoss"));
             var trades=sheet(book,"TRADES",headers.toArray(String[]::new));
             for(var execution:run.executions()) {
                 List<Object> values=new ArrayList<>();for(var c:components)values.add(c.getAccessor().invoke(execution.trade()));
@@ -58,7 +59,7 @@ public class PatternV2ExcelExporter {
                 var audit=execution.capitalLimits();var t=execution.trade();
                 values.add(t.equityAtEntry());values.add(audit==null?null:audit.maxOrderValueEffective());values.add(audit==null?null:audit.maxPositionValueEffective());values.add(audit==null?null:audit.maxLongNotionalEffective());values.add(audit==null?null:audit.maxShortNotionalEffective());
                 values.add(t.desiredQuantity());values.add(t.quantity());values.add(t.entryPrice().multiply(java.math.BigDecimal.valueOf(t.desiredQuantity())));values.add(t.orderValue());values.add(t.actualRiskPercent());values.add(t.quantityLimitingReason());
-                var ba=execution.bollingerAtr();var bi=ba==null?null:ba.indicators();values.add(bi==null?null:bi.middle());values.add(bi==null?null:bi.upper());values.add(bi==null?null:bi.lower());values.add(bi==null?null:bi.atr());values.add(ba==null?null:ba.distanceAtr());values.add(ba==null?null:ba.accepted());values.add(ba==null?null:ba.extremeTimestamp());values.add(ba==null?null:ba.extremePrice());row(trades,values.toArray());
+                var ba=execution.bollingerAtr();var bi=ba==null?null:ba.indicators();values.add(bi==null?null:bi.middle());values.add(bi==null?null:bi.upper());values.add(bi==null?null:bi.lower());values.add(bi==null?null:bi.atr());values.add(ba==null?null:ba.distanceAtr());values.add(ba==null?null:ba.accepted());values.add(ba==null?null:ba.extremeTimestamp());values.add(ba==null?null:ba.extremePrice());if(run.marketRegimeAnalysis()!=null){var mr=run.marketRegimeAnalysis().trades().stream().filter(r->r.tradeId().equals(t.tradeId())).findFirst().orElseThrow();var c=mr.context();var i=c.indicators();Collections.addAll(values,i.adx14(),i.plusDI14(),i.minusDI14(),i.ema20(),i.ema50(),i.ema200(),i.atr14(),c.marketRegime(),c.trendDirection(),c.trendStrength(),c.withOrCounterTrend(),c.closeAboveEMA20(),c.closeAboveEMA50(),c.closeAboveEMA200(),c.ema20AboveEMA50(),c.ema50AboveEMA200(),mr.netR(),c.secondaryRegime(),c.emaWithOrCounterTrend(),c.plusDIAboveMinusDI(),mr.winLoss());}row(trades,values.toArray());
             }
             var ba=run.bollingerAtrAnalysis();if(ba!=null){
                 var bs=sheet(book,"BOLLINGER_ATR_ANALYSIS","Source / Metric","Group / Value","Signals","Trades","Wins","Losses","Win Rate %","PF Net","Expectancy R (price)","Expectancy Net R","Net PnL","Average Distance ATR Winners","Average Distance ATR Losers","Period CAGR %","Period Max DD %","Period PF Net","Period Expectancy Price R","Period Trades");
@@ -70,13 +71,14 @@ public class PatternV2ExcelExporter {
             }
             var equity=sheet(book,"EQUITY_CURVE","Timestamp","Date","Equity","Drawdown $","Drawdown %","Cash","Available Cash","Gross Exposure %","Open Positions");
             for(int i=0;i<p.equityCurve().size();i++) {var e=p.equityCurve().get(i);row(equity,run.equityTimestamps().get(i),e.date(),e.equity(),e.drawdown(),e.drawdownPercent(),e.cash(),e.availableCash(),e.grossExposurePercent(),e.openPositions());}
-            var config=sheet(book,"CONFIGURATION","Parameter","Value");flatten(config,"",mapper.valueToTree(run.configuration()));
+            var config=sheet(book,"CONFIGURATION","Parameter","Value");flatten(config,"",mapper.valueToTree(run.configuration()));if(!run.configuration().marketRegimeAnalysisEnabled())row(config,"marketRegimeAnalysisEnabled",false);
             row(config,"PatternRangeFilterEnabled",run.configuration().patternRangeFilterEnabled());row(config,"MinimumPatternRangePct",run.configuration().minimumPatternRangePct());
             row(config,"CapitalSkipShadowAnalysisEnabled",run.configuration().capitalSkipShadowAnalysisEnabled());
             row(config,"CloseStrengthFilterEnabled",run.configuration().closeStrengthFilterEnabled());row(config,"MaxCloseStrength",run.configuration().maxCloseStrength());
             var periods=sheet(book,"PERIOD_ANALYSIS","Mode","Period","Start","End","Trades","Return %","CAGR","Max DD %","PF Net","Expectancy R","Win Rate","Net PnL");
             for(var e:run.analysis().periods())row(periods,"DEFAULT",e.label(),e.start(),e.end(),e.trades(),e.returnPercent(),e.cagr(),e.maxDrawdownPercent(),e.pfNet(),e.expectancyR(),e.winRate(),e.netPnl());
             for(var e:run.analysis().yearly())row(periods,"YEARLY",e.label(),e.start(),e.end(),e.trades(),e.returnPercent(),e.cagr(),e.maxDrawdownPercent(),e.pfNet(),e.expectancyR(),e.winRate());
+            marketRegime(book,run);
             rangeAnalysis(book,run);closeStrengthAnalysis(book,run);capitalSkipAnalysis(book,run);
             if(run.patternRangeAnalysis()!=null) {
                 for(var e:run.patternRangeAnalysis().baselinePeriods())row(periods,"BASELINE",e.label(),e.start(),e.end(),e.trades(),e.returnPercent(),e.cagr(),e.maxDrawdownPercent(),e.pfNet(),e.expectancyR(),e.winRate(),e.netPnl());
@@ -96,6 +98,21 @@ public class PatternV2ExcelExporter {
             book.write(out);return out.toByteArray();
         }catch(Exception e){throw new IllegalStateException("Export PATTERN_V2 fallito",e);}
     }
+    private void marketRegime(Workbook book,PatternV2Run run) throws Exception {
+        var a=run.marketRegimeAnalysis();if(a==null)return;
+        var summary=regimeGroups(book,"MARKET_REGIME_SUMMARY",a.overview());row(summary,"METHODOLOGY",a.methodology());
+        regimeGroups(book,"SECONDARY_REGIME_SUMMARY",a.secondaryOverview());regimeGroups(book,"ADX_BUCKETS",a.adxBuckets());
+        var direction=regimeGroups(book,"TREND_DIRECTION_ANALYSIS",a.trendDirection());row(direction,"EMA50/EMA200 SECONDARY COMPARISON");regimeGroupRows(direction,a.emaTrendDirection());
+        regimeGroups(book,"PATTERN_REGIME_ANALYSIS",a.patternRegimes());regimeGroups(book,"REGIME_PERIOD_ANALYSIS",a.periods());
+        var losers=sheet(book,"LOSER_DIAGNOSTICS","Trade ID","Symbol","Pattern","Direction","Signal Date","Loss Type","Regime","ADX14","Trend Direction","Entry Stop Distance ATR","Price R","Net R","Net PnL","Holding Bars","Exit Reason");
+        for(var r:a.trades())if(r.loserType()!=null)row(losers,r.tradeId(),r.symbol(),r.pattern(),r.direction(),r.signalDate(),r.loserType(),r.context().marketRegime(),r.context().indicators().adx14(),r.context().trendDirection(),r.entryStopDistanceAtr(),r.priceR(),r.netR(),r.netPnl(),r.holdingBars(),r.exitReason());
+        var signals=sheet(book,"MARKET_REGIME_SIGNALS","Symbol","Pattern","Direction","Signal Date","Signal Index","Status","Reason","Trade ID","Market Regime","Secondary Regime","ADX14","PlusDI14","MinusDI14","EMA20","EMA50","EMA200","ATR14");
+        for(var r:a.signals()){var i=r.context().indicators();row(signals,r.symbol(),r.pattern(),r.direction(),r.signalDate(),r.signalIndex(),r.status(),r.reason(),r.tradeId(),r.context().marketRegime(),r.context().secondaryRegime(),i.adx14(),i.plusDI14(),i.minusDI14(),i.ema20(),i.ema50(),i.ema200(),i.atr14());}
+    }
+    private Sheet regimeGroups(Workbook book,String name,List<MarketRegimeAnalysis.Group> groups) throws Exception {
+        var headers=new ArrayList<>(List.of("Group","Symbol","Pattern","Direction","Regime","Signal Period"));for(var c:MarketRegimeAnalysis.Metrics.class.getRecordComponents())headers.add(c.getName());var s=sheet(book,name,headers.toArray(String[]::new));regimeGroupRows(s,groups);return s;
+    }
+    private void regimeGroupRows(Sheet sheet,List<MarketRegimeAnalysis.Group> groups) throws Exception {for(var r:groups){var values=new ArrayList<Object>(Arrays.asList(r.key(),r.symbol(),r.pattern(),r.direction(),r.regime(),r.period()));for(var c:MarketRegimeAnalysis.Metrics.class.getRecordComponents())values.add(c.getAccessor().invoke(r.metrics()));row(sheet,values.toArray());}}
     private void groups(Workbook book,String name,List<PatternV2Analysis.Group> groups) throws Exception {groups(book,name,groups,null);}
     private void groups(Workbook book,String name,List<PatternV2Analysis.Group> groups,PatternRangeAnalysis.Analysis research) throws Exception {
         var components=PatternV1Result.Metrics.class.getRecordComponents();var headers=new ArrayList<>(List.of("Key","Symbol","Direction","Pattern","Target R","Contribution %"));

@@ -84,6 +84,7 @@ public class PatternV2Service {
         result=result.withBollingerAtr(simulation.bollingerAtrSignals(),null);result=result.withBollingerAtr(simulation.bollingerAtrSignals(),BollingerAtrAnalysis.calculate(result));
         result=result.withCapitalSkipAudits(simulation.capitalSkipAudits()).withResearch(PatternRangeAnalysis.calculate(result,null),null,null).withCloseStrengthResearch(CloseStrengthAnalysis.calculate(result,null));
         if(config.capitalSkipShadowAnalysisEnabled()){var source=result.withResearch(result.patternRangeAnalysis(),PatternV2Dataset.capture(bars).id(),null);result=result.withCapitalSkipShadowAnalysis(new CapitalSkipShadowAnalysis(sizing).analyze(source,bars));}
+        if(config.marketRegimeAnalysisEnabled())result=result.withMarketRegimeAnalysis(MarketRegimeAnalysis.calculate(result));
         return result;
     }
     /** No current configuration write here: paired baseline is research-only. */

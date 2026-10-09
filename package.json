@@ -4,7 +4,7 @@
   "version": "0.2.0",
   "description": "Frontend assets and tests for the Spring Boot trading workbench",
   "scripts": {
-    "build": "node scripts/build-frontend.mjs && node --check src/main/resources/static/trading-chart.js && node --check src/main/resources/static/app.js && node --check src/main/resources/static/research.js && node --check src/main/resources/static/pattern-v1-metrics.js && node --check src/main/resources/static/pattern-v1.js && node --check src/main/resources/static/pattern-v2-model.js && node --check src/main/resources/static/pattern-v2.js && node --check src/main/resources/static/pattern-v1-stable.js && node --check src/main/resources/static/pattern-v1-paper.js",
+    "build": "node scripts/build-frontend.mjs && node --check src/main/resources/static/trading-chart.js && node --check src/main/resources/static/app.js && node --check src/main/resources/static/research.js && node --check src/main/resources/static/pattern-v1-metrics.js && node --check src/main/resources/static/pattern-v1.js && node --check src/main/resources/static/pattern-v2-model.js && node --check src/main/resources/static/pattern-v2.js && node --check src/main/resources/static/pattern-v1-stable.js && node --check src/main/resources/static/pattern-v1-paper.js && node --check src/main/resources/static/pattern-v2-regime.js",
     "test": "node --test src/test/js/*.test.js"
   },
   "dependencies": {

@@ -33,7 +33,19 @@ class PatternV2HttpIntegrationTest {
     @Autowired PatternV1Properties frozen;
     @MockitoBean HistoricalDataService historical;
     @MockitoSpyBean PatternV1RunStore v1Store;
+    @MockitoSpyBean it.andreademartini.trading.ibkr.IbkrApiClient ibkr;
     final ObjectMapper mapper=new ObjectMapper().findAndRegisterModules();
+    @Test void marketRegimeFlagPersistsThroughApiHistoryAndExcelWithoutOrders() throws Exception {
+        when(historical.load(anyString(),any(),any(),any())).thenAnswer(i->i.getArgument(0).equals("AAPL")?engulfing("AAPL"):List.of());
+        ObjectNode config=(ObjectNode)mapper.readTree(request("/api/backtest/pattern-v2/baseline","POST",null).body());
+        config.put("marketRegimeAnalysisEnabled",true);((ObjectNode)config.path("global")).put("startDate",START.toString()).put("endDate",START.plusDays(2).toString());
+        var response=request("/api/backtest/pattern-v2/run","POST",config);assertEquals(200,response.statusCode(),new String(response.body()));var run=mapper.readTree(response.body());var id=run.path("runId").asText();
+        assertTrue(run.path("configuration").path("marketRegimeAnalysisEnabled").asBoolean());assertTrue(run.path("marketRegimeAnalysis").isObject());
+        assertEquals(run,mapper.readTree(request("/api/backtest/pattern-v2/runs/"+id,"GET",null).body()));
+        var history=mapper.readTree(request("/api/backtest/pattern-v2/runs","GET",null).body());assertTrue(java.util.stream.StreamSupport.stream(history.spliterator(),false).filter(r->r.path("runId").asText().equals(id)).findFirst().orElseThrow().path("marketRegimeAnalysisEnabled").asBoolean());
+        var export=request("/api/backtest/pattern-v2/runs/"+id+"/export/excel","GET",null);assertEquals(200,export.statusCode());try(var book=new org.apache.poi.xssf.usermodel.XSSFWorkbook(new java.io.ByteArrayInputStream(export.body()))){assertNotNull(book.getSheet("MARKET_REGIME_SUMMARY"));}
+        assertEquals(200,request("/pattern-v2-regime.js","GET",null).statusCode());verify(ibkr,never()).placeOrder(anyInt(),any(),any());verify(v1Store,never()).save(any());
+    }
     HttpResponse<byte[]> request(String path,String method,Object body) throws Exception {
         var builder=HttpRequest.newBuilder(URI.create("http://localhost:"+environment.getProperty("local.server.port")+path));
         if(body!=null)builder.header("Content-Type","application/json").method(method,HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body)));

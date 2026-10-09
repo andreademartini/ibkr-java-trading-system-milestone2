@@ -16,7 +16,7 @@ public final class PatternV2RunComparison {
         if(!tradingConfiguration(a).equals(tradingConfiguration(b)))throw new IllegalArgumentException("Trading parameters, dates, symbols and cost basis must match; only filters and name may differ");
     }
     private static ObjectNode tradingConfiguration(PatternV2Configuration c) {
-        ObjectNode json=MAPPER.valueToTree(c);json.remove(List.of("name","capitalSkipShadowAnalysisEnabled","patternRangeFilterEnabled","minimumPatternRangePct","closeStrengthFilterEnabled","maxCloseStrength","bollingerAtrFilterEnabled","bollingerPeriod","bollingerStdDev","atrPeriod","maxBollingerDistanceAtr"));return json;
+        ObjectNode json=MAPPER.valueToTree(c);json.remove(List.of("name","marketRegimeAnalysisEnabled","capitalSkipShadowAnalysisEnabled","patternRangeFilterEnabled","minimumPatternRangePct","closeStrengthFilterEnabled","maxCloseStrength","bollingerAtrFilterEnabled","bollingerPeriod","bollingerStdDev","atrPeriod","maxBollingerDistanceAtr"));return json;
     }
     public static String mode(PatternV2Configuration c) {
         if(c.bollingerAtrFilterEnabled())return "E / BOLLINGER_ATR";

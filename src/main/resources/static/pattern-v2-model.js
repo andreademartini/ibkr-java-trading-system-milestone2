@@ -1,6 +1,7 @@
 (function(root){"use strict";
 const clone=value=>JSON.parse(JSON.stringify(value));
 function validate(config,patterns){
+ config.marketRegimeAnalysisEnabled??=false;if(typeof config.marketRegimeAnalysisEnabled!=="boolean")throw Error("Market Regime Analysis deve essere ON/OFF");if(config.marketRegimeAnalysisEnabled&&config.global?.timeframe!=="DAILY")throw Error("Market Regime Analysis requires DAILY bars");
  config.capitalSkipShadowAnalysisEnabled??=false;if(typeof config.capitalSkipShadowAnalysisEnabled!=="boolean")throw Error("Capital Skip Shadow Analysis deve essere ON/OFF");
  normalizeRangeFilter(config);normalizeCloseStrength(config);
  if(typeof config.closeStrengthFilterEnabled!=="boolean"||typeof config.maxCloseStrength!=="number"||!Number.isFinite(config.maxCloseStrength)||config.maxCloseStrength<0||config.maxCloseStrength>1)throw Error("Maximum Close Strength deve essere tra 0 e 1");
