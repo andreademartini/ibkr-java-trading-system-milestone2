@@ -1,0 +1,29 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const crypto=require('node:crypto');
+
+function harness(){
+    const calls=[],elements=new Map();
+    function element(){return {value:'',hidden:false,disabled:false,textContent:'',dataset:{},children:[],handlers:{},classList:{toggle(){}},addEventListener(e,h){this.handlers[e]=h;},append(...nodes){this.children.push(...nodes);},replaceChildren(...nodes){this.children=nodes;},contains(){return false;},elements:{namedItem(name){return get('limit-'+name);}}};}
+    function get(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);}
+    const document={getElementById:get,createElement:element,activeElement:null,querySelectorAll(){return ['paper-start','paper-stop','paper-kill','paper-refresh','paper-reset'].map(get);}};
+    const frozen={strategyVersion:'2.1',configuration:{global:{maxHoldingBars:13}},configurationHash:'hash'};
+    const data={session:{mode:'ERROR',reason:'Identità PAPER non verificata',initialCapital:10000,strategyVersion:'2.1',configurationHash:'hash',frozen,limits:{dailyLoss:null},orders:[],trades:[],signals:[],equityCurve:[],killSwitch:false},connection:{connected:false,host:'127.0.0.1',port:4002,account:'DU_ALLOWED',paperIdentityVerified:false},checks:[{name:'PAPER_IDENTITY',passed:false,reason:'Identità non verificata'}],capital:{equity:10000,available:10000,committed:0,longExposure:0,shortExposure:0,realized:0,unrealized:0,commissions:0,drawdownPercent:0},performance:{closedTrades:0,openPositions:0,commissionsPending:0},events:[],nextSessions:{},limitations:['PAPER_AUTO bloccato']};
+    let confirmation=null;
+    const context={document,window:{},crypto,console,Date,Map,JSON,setInterval(){return 1;},clearInterval(){},prompt(){return confirmation;},async fetch(url,options){calls.push({url,options,body:options.body?JSON.parse(options.body):null});return {ok:true,status:200,async json(){return url.endsWith('/access')?{adminConfigured:true}:url.endsWith('/login')?{csrf:'test-csrf'}:data;}};}};
+    vm.runInNewContext(fs.readFileSync('src/main/resources/static/pattern-v1-paper.js','utf8'),context);
+    return {get,calls,data,setConfirmation(value){confirmation=value;},async flush(){await new Promise(resolve=>setImmediate(resolve));},async login(){get('paper-token').value='temporary-test-token';await get('paper-login').handlers.submit({preventDefault(){}});await this.flush();}};
+}
+test('PAPER tab contains all controls and keeps frozen backtest controls separate',()=>{
+    const html=fs.readFileSync('src/main/resources/static/pattern-v1.html','utf8');
+    for(const id of ['paper-panel','paper-start','paper-stop','paper-kill','paper-refresh','paper-reset','paper-equity','paper-orders','paper-positions','v1-backtest-panel'])assert.match(html,new RegExp('id="'+id+'"'));
+    assert.match(html,/AVVIA PAPER AUTO/);assert.match(html,/FERMA NUOVI INGRESSI/);
+    const ids=[...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]);assert.equal(new Set(ids).size,ids.length);
+});
+test('Opening the tab or signing in never starts or connects trading',async()=>{const h=harness();await h.flush();h.get('paper-tab-paper').handlers.click();await h.login();assert.equal(h.get('paper-token').value,'');assert.equal(h.get('paper-mode').textContent,'ERROR');assert.equal(h.get('paper-message').textContent,h.data.session.reason);assert.equal(h.calls.filter(c=>c.url.endsWith('/start')||c.url.endsWith('/connect')).length,0);assert.equal(h.get('v1-backtest-panel').hidden,true);});
+test('Refresh sends only refresh with session CSRF and an idempotent command ID',async()=>{const h=harness();await h.login();await h.get('paper-refresh').handlers.click();const request=h.calls.find(c=>c.url.endsWith('/refresh'));assert.equal(request.options.headers['X-Paper-CSRF'],'test-csrf');assert.match(request.body.commandId,/^[a-f0-9-]{36}$/);assert.equal(h.calls.filter(c=>c.url.endsWith('/start')).length,0);});
+test('Kill switch requires the exact explicit confirmation',async()=>{const h=harness();await h.login();h.setConfirmation(null);h.get('paper-kill').handlers.click();assert.equal(h.calls.filter(c=>c.url.endsWith('/kill')).length,0);h.setConfirmation('ATTIVA KILL SWITCH');await h.get('paper-kill').handlers.click();await h.flush();assert.equal(h.calls.find(c=>c.url.endsWith('/kill')).body.confirmation,'ATTIVA KILL SWITCH');});
+test('Start renders backend state and cannot choose account or LIVE mode',async()=>{const h=harness();await h.login();await h.get('paper-start').handlers.click();const request=h.calls.find(c=>c.url.endsWith('/start'));assert.deepEqual(Object.keys(request.body),['commandId']);assert.equal(h.get('paper-mode').textContent,'ERROR');assert.equal(h.get('paper-checks').children[0].dataset.pass,false);});
+test('Operational credentials never use browser storage',()=>{const code=fs.readFileSync('src/main/resources/static/pattern-v1-paper.js','utf8');assert.doesNotMatch(code,/localStorage|sessionStorage|console\.log\(.*token|innerHTML/);});

@@ -1,0 +1,29 @@
+.research-shell { max-width: 1800px; margin: 0 auto; padding: 24px; display: grid; gap: 20px; }
+.research-config { border-top: 4px solid var(--accent); }
+.research-note { color: var(--muted); }
+.research-only { padding: 6px 10px; border-radius: 999px; background: #e6f3f1; color: var(--accent-dark); font-weight: 800; }
+.research-form { margin-top: 18px; display: grid; grid-template-columns: repeat(5, minmax(150px, 1fr)); gap: 14px; }
+.research-form label, .research-filters label { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.research-form input, .research-form select, .research-form textarea,
+.research-filters input, .research-filters select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 7px; background: #fff; color: var(--text); }
+.research-form .wide { grid-column: 1 / -1; }
+.pattern-picker { display: flex; flex-wrap: wrap; gap: 10px 20px; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.pattern-picker label { display: flex; align-items: center; gap: 6px; color: var(--text); }
+.pattern-picker input { width: auto; }
+.run-actions { display: flex; align-items: center; gap: 12px; }
+.research-filters { display: grid; grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 10px; margin: 16px 0; }
+.table-scroll { overflow: auto; max-height: 620px; border: 1px solid var(--border); border-radius: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { position: sticky; top: 0; z-index: 1; background: #e7efee; white-space: nowrap; text-align: left; }
+th, td { padding: 9px 10px; border-bottom: 1px solid var(--border); }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: #f0f7f5; }
+.stable { color: #087443; font-weight: 800; }
+.degraded, .edge-warning { color: var(--danger); font-weight: 800; }
+.insufficient-data { color: var(--warning); font-weight: 700; }
+.distribution { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.distribution span { padding: 7px 10px; background: var(--surface-alt); border-radius: 6px; }
+@media (max-width: 1050px) {
+    .research-form { grid-template-columns: repeat(2, 1fr); }
+    .research-filters { grid-template-columns: repeat(2, 1fr); }
+}

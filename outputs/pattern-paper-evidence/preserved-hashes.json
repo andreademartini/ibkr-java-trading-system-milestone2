@@ -1,0 +1,510 @@
+[
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternPortfolioSimulator.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\6728f099-14ec-41db-a385-9144406c2d04.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\93f6aa09-7a89-4f98-b967-93b989d9e652.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\601d31ab-b18f-4f34-ba86-45c4ca9f410c.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\1133b83e-efea-4636-a0ed-a47c9aec38a3.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2Store.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\81c213eb-9e61-47d0-b35c-b5eb42361365.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2Run.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\configurations\\2021583f-0bab-4987-a2f3-c231d779c42c.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\configurations\\535b95bd-b880-4762-a244-bb18dab4e149.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\48adda11-0689-472e-b389-f9473c3a0b3a.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\datasets\\741645928d0ece53a0ea2231fec80baca6551778353a9366e036766170555591.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\30dd9577-c589-45ae-8f85-863cf4f801ed.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2BarRules.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\d5dbe9d6-4b6a-4af3-b407-364a3e0dce73.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\CapitalSkipAudit.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\datasets\\190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\7b07cd0b-6e5d-4276-a0ca-c114d2d4775b.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\410cec78-92ef-4bd8-927d-57af4b6f4bea.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\3be79e1d-6f08-413c-8573-b552d2fad7fc.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\ab508dfb-e79c-48fb-b8c9-6f0a3794ee7a.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\pattern-stable\\2.1.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\f5ee3e69-42b1-483e-9ed3-8f289c6e94d1.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\4382fe2c-c363-4f65-a9e7-afc84f1c9ff9.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\shadow-analysis\\ab508dfb-e79c-48fb-b8c9-6f0a3794ee7a.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\71e4b9e1-88cc-4eca-be2f-c6b2cc50fb18.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\6e2f489b-b586-46b0-bbca-66be871fe53d.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\4200428a-7ae4-4554-8c7a-bf7c0308d98a.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\89997ecf-e228-4ff9-b8c2-97d3ac70dfe1.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\dc52ef36-eedd-4720-bfdf-0fa7bb71f487.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\datasets\\c3e3c93e06882524e131abd5f844f14a65712385a8b93fc27d825139a76f0b1a.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\configurations\\e0b26d0f-33d5-4cb7-8c07-2d4f20d9b2c2.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v2.js",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\acb20415-fa56-4e76-83f6-49c9125512ef.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\configurations\\68f33135-feac-41ae-bf9e-56b1946bc680.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\configurations\\3a080c31-2078-460e-9e67-940e7c100561.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\ee4c4ee5-de8d-4747-9833-f038b72ceacd.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\881d8448-017a-4e26-9819-191caa414560.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\08c1b757-2249-4dd0-bb0e-a4a55ae0b06e.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2Service.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\a35fa9a7-bbcf-4227-9ed4-56b6f107b898.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\BollingerAtr.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2ExcelExporter.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\07a17700-9c7e-487e-9fe2-ed98b88d720f.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\configurations\\4414fe6a-b3ad-4a46-bc8a-140bbd06426e.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\CloseStrength.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\84b4a798-78e4-4c13-abd1-a9938adb31f4.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\8c9a9a1f-c335-4b7f-ae3e-0575b11cebb6.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\d956c1fc-6b3b-46f3-b3c8-04c52a710f19.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\f05982f7-62de-42ae-8a09-0a57364228c7.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\56169536-a617-424d-8802-c321f589e2d3.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\aba7d432-976f-4bdc-b58f-13859991f698.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\CloseStrengthAnalysis.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\eae8d248-c355-4670-abdc-3ddd10f77412.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\dbf52d69-b69e-4b22-b7ae-80388714d035.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\ConfiguredPatternStrategy.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\980898d8-7508-4d88-adc3-af5d8fd7a246.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\0ed1d0e7-d24d-4aa6-8f91-fec9192d814d.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\33f7b063-6b5a-40e5-94ea-cc239a180d16.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\c51824ee-dfd9-424d-aeda-35b6de492dc4.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2Controller.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\datasets\\2f4eec4b6c7ce4c7982aa100e9dafc1060ab3fdd77233eb009c3c14716a46784.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\e15e0100-7d6e-4015-83df-92503ca2a6d6.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v2.html",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\050b7428-366f-4bce-a8cf-4bfe6fa027a6.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\a69360e8-069d-4a10-9043-3ab15c4ee3d5.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\29231e6a-5617-4708-9450-5937333fa101.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\e3f6fe51-f5f1-4259-a19f-0b8862f295ff.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\231c84c6-d36d-4802-9639-2c7bb46132a4.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\configurations\\d87f4372-328d-42b7-bdc7-34e685ac1d11.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\acfe9130-f435-4652-a725-41e5d9ca3ea8.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2Dataset.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\10aae805-4987-4a29-a634-b3819cddc427.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\a006e44d-7b87-4fa3-ba1c-cd543221e9fc.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\ecba26c8-6598-49c3-a154-035e5539f1f7.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\1bd5e04a-0038-414e-a7ec-1c022951fb4e.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\b488531e-9a5d-44bf-8498-d9de0a89747d.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\ad5ec171-b803-4473-9f4a-0f95f47e3cdc.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2Configuration.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\9a52f34f-c1bd-4f91-b0b3-0bc89c894543.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\datasets\\47a1c41b3e6eb21f0150051786da5f3c3b1969ede2703c1ba7b926e56579a2ab.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\configurations\\542140cb-7c1a-49a6-91f8-746f7824243e.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\ade4c46b-2b83-4bae-994b-ffb4edf6175c.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\9656dcca-3e27-4393-a0e0-aed5819cb882.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\ff05fc37-6fee-4516-bccf-97b52edf5e1b.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2RunComparison.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\current.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\4e3dc756-f0a3-49fe-8867-cf604d6ad2bc.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\versions\\2.1.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\CapitalSkipShadowAnalysis.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternRangeAnalysis.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\4fc5cbdd-3f55-48b3-8a8f-535e3082952f.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2CapitalComparison.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\321783a2-a9c9-4c4e-8a8c-769b73687901.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\configurations\\b65a707b-2ec1-4a7f-aaa5-5cb5fe43636a.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\6c6a83cc-1201-4091-953b-e71782cd6e75.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\default.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\5b9bd3fb-f92b-4df1-9294-0ce637296dff.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\b75f358a-3482-4256-ad06-63eb8d439471.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2CapitalLimits.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\2faccb7b-caca-46e3-9dea-143feeedd2f9.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\fdbf3ed1-3566-4ad4-a8d2-8337d018cf19.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\bbf6bbf0-654e-48a7-b7f4-24c0a69e72c1.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v2-model.js",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\d3ab5b3c-4b72-4888-a86c-010d343a5f95.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1-stable\\versions\\2.0.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\7c6ff11b-7d6f-4baf-b164-20bab8d0d5f7.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\95360142-4656-4533-acb5-29ebebe202d6.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\BollingerAtrAnalysis.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2SplitCosts.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\762b040c-344a-4126-8d32-3740bf2b08f8.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\configurations\\a7d85fb2-6a1b-449e-9e27-9f42642565ce.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\fca6968c-a930-4b96-82fa-fbb9548f1114.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\d398c74f-5311-482f-b5bb-1ff37aa25c05.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\711463cf-19a7-49ea-9398-c845633074ae.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v2.css",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\23e0daa5-39d9-453a-bba1-4d30e9e744bb.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternRange.java",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\77222c87-baed-4474-afa5-d09f4481c315.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\428f3c9b-791b-4211-aef0-3adee31741f4.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\be10003f-0c48-4bec-9767-5ecf23f4db8a.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\d92eea67-e743-4be1-bfbe-6da19e129d20.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\f6399af4-eb51-4994-8f73-e153cf384521.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\configurations\\489c15fb-d76f-416e-87af-5f7736da008b.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\pattern-stable\\2.0.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v2\\runs\\77d3a0eb-e9a8-4c4e-a173-e49b8d0f7b07.json",
+        "unchanged":  true
+    },
+    {
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv2\\PatternV2Analysis.java",
+        "unchanged":  true
+    }
+]

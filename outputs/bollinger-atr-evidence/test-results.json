@@ -1,0 +1,15 @@
+{
+  "backend": {
+    "tests": 379,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 6
+  },
+  "mavenPackagePassed": true,
+  "frontend": {
+    "tests": 54,
+    "passed": 54,
+    "buildPassed": true
+  },
+  "historicalExperimentPassed": true
+}

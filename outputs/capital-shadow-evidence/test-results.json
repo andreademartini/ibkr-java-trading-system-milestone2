@@ -1,0 +1,29 @@
+{
+  "maven": {
+    "tests": 349,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 4
+  },
+  "capitalShadowTests": {
+    "tests": 18,
+    "failures": 0
+  },
+  "historicalExperiment": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0
+  },
+  "frontend": {
+    "tests": 48,
+    "failures": 0
+  },
+  "backendBuild": {
+    "command": "mvn -q -DskipTests package",
+    "exitCode": 0
+  },
+  "frontendBuild": {
+    "command": "npm run build",
+    "exitCode": 0
+  }
+}

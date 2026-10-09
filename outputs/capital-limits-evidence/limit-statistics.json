@@ -1,0 +1,18 @@
+{
+  "fixed": {
+    "maxPositionReductions": 303,
+    "longReductions": 0,
+    "shortReductions": 0,
+    "cashReductions": 179,
+    "longBinding": 287,
+    "shortBinding": 28
+  },
+  "dynamic": {
+    "maxPositionReductions": 0,
+    "longReductions": 0,
+    "shortReductions": 0,
+    "cashReductions": 204,
+    "longBinding": 0,
+    "shortBinding": 0
+  }
+}

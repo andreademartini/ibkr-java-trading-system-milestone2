@@ -1,0 +1,461 @@
+{
+  "mavenPackagePassed": true,
+  "backend": {
+    "tests": 363,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 5
+  },
+  "suites": [
+    {
+      "name": "it.andreademartini.trading.backtest.export.BacktestExcelExportServiceTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.export.JoeRoss123TteStrategyExportDataProviderTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.export.JoeRossStrategyExportDataProviderTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv1.PatternV1AccountingTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv1.PatternV1CommissionTest",
+      "tests": 15,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv1.PatternV1HttpIntegrationTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv1.PatternV1LocalValidationTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv1.PatternV1OrderValueTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv1.PatternV1PortfolioEngineTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv2.CapitalSkipShadowExperimentTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv2.CapitalSkipShadowTest",
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv2.CloseStrengthExperimentTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv2.CloseStrengthFilterTest",
+      "tests": 34,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv2.PatternRangeExperimentTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv2.PatternRangeFilterTest",
+      "tests": 28,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv2.PatternV2CapitalLimitsExperimentTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv2.PatternV2CapitalLimitsTest",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv2.PatternV2HttpIntegrationTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv2.PatternV2SplitCostsTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.backtest.patternv2.PatternV2Test",
+      "tests": 16,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.ibkr.IbkrEWrapperTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.marketdata.HistoricalDataServiceTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.marketdata.IbkrHistoricalDataClientTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.marketdata.stooq.StooqCsvImporterTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.marketdata.stooq.StooqCsvImportServiceTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.marketdata.stooq.StooqCsvParserTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.marketdata.stooq.StooqSymbolMapperTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.marketdata.WeeklyLevelServiceTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.orders.IbkrOrderFactoryTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.orders.OrderTrackerProgressiveStopLossTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.orders.PaperOrderExecutionServiceTteTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.orders.ProgressiveStopLossServiceTest",
+      "tests": 12,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.persistence.TradingAuditServiceTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.BearishEngulfingDetectorTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.BearishHaramiDetectorTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.BullishEngulfingDetectorTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.BullishHaramiDetectorTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.DarkCloudCoverDetectorTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.HammerDetectorTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.PatternNoLookAheadTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.PatternOutcomeAnalyzerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.PatternResearchExcelExporterTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.PatternStatisticsServiceTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.PatternTimeoutTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.PiercingPatternDetectorTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.ShootingStarDetectorTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.research.pattern.TemporalDatasetSplitterTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.risk.JoeRossPoint2PositionSizingServiceTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.risk.JoeRossPoint2TakeProfitServiceTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.risk.TradeCalculationServiceTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.risk.TradingSafetyGuardTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.strategy.joeross.BollingerPoint1FilterTest",
+      "tests": 11,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.strategy.joeross.JoeRoss123RossHookTteStrategyTest",
+      "tests": 22,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.strategy.joeross.JoeRoss123TteStrategyTest",
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.strategy.MovingAverageCrossoverStrategyTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.strategy.patternv1.PatternV1StrategyTest",
+      "tests": 32,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.strategy.SignalServiceTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.strategy.StrategyEngineJoeRoss123TteTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.strategy.StrategyEngineJoeRossTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.web.ActionProfileServiceTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.web.TradingWorkbenchControllerJoeRoss123TteTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.web.TradingWorkbenchControllerJoeRossTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "name": "it.andreademartini.trading.web.TradingWorkbenchControllerSimulationTest",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "frontend": {
+    "tests": 52,
+    "passed": 52,
+    "buildPassed": true
+  },
+  "historicalExperiment": {
+    "tests": 1,
+    "passed": 1
+  }
+}

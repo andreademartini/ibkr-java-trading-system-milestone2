@@ -1,0 +1,33 @@
+{
+  "javaCreated": [
+    "src/main/java/it/andreademartini/trading/backtest/patternv2/CloseStrength.java",
+    "src/main/java/it/andreademartini/trading/backtest/patternv2/CloseStrengthAnalysis.java",
+    "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2RunComparison.java"
+  ],
+  "javaModified": [
+    "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2Configuration.java",
+    "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternPortfolioSimulator.java",
+    "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2Run.java",
+    "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2Service.java",
+    "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2Store.java",
+    "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2Controller.java",
+    "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2ExcelExporter.java"
+  ],
+  "frontendModified": [
+    "src/main/resources/static/pattern-v2.html",
+    "src/main/resources/static/pattern-v2.js",
+    "src/main/resources/static/pattern-v2-model.js"
+  ],
+  "testsCreated": [
+    "src/test/java/it/andreademartini/trading/backtest/patternv2/CloseStrengthFilterTest.java",
+    "src/test/java/it/andreademartini/trading/backtest/patternv2/CloseStrengthExperimentTest.java"
+  ],
+  "testsModified": [
+    "src/test/java/it/andreademartini/trading/backtest/patternv2/PatternV2Test.java",
+    "src/test/java/it/andreademartini/trading/backtest/patternv2/PatternV2HttpIntegrationTest.java",
+    "src/test/js/pattern-v2.test.js"
+  ],
+  "documentationModified": [
+    "docs/PATTERN_V2.md"
+  ]
+}

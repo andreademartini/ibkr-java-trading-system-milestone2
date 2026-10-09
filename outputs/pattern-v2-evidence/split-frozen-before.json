@@ -1,0 +1,426 @@
+﻿[
+    {
+        "hash":  "658B3B5195984D946929F41BD870D0DFC788C5E3218362CFC772E8F1EB571E7A",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1BacktestService.java"
+    },
+    {
+        "hash":  "A20D2B91C6A305218FEDC1D58FEE94DD36282DB7EED76FC66443B3F36CEF09A3",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1Commission.java"
+    },
+    {
+        "hash":  "EA706BBC68D566576C0BDA953CE0966548B50D143D5F3D86EFC8AFA717005749",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1Controller.java"
+    },
+    {
+        "hash":  "8EBBD62255273275F0AA4D8A3C176C53F43A7EEF50712609B9A61628A9FCE888",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1ExcelExporter.java"
+    },
+    {
+        "hash":  "E8140F1CC9C7017F614D8463266B08D24173685168CCB676CE1CDCB360C51716",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1MetricsCalculator.java"
+    },
+    {
+        "hash":  "41F5ACB2C2D0E3B221D53C38D2E2FE33DEEAEC295CABC2C830E00FC516805E88",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1PortfolioEngine.java"
+    },
+    {
+        "hash":  "AD3A78599A84BE095A9417A6F7492A95A8D95747A48413FD1BC15F45574660B3",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1PositionSizing.java"
+    },
+    {
+        "hash":  "583791CCDAD56F64CF1D4DB3C7C8182320A6C23BDEB14DF0366CD80A7AE80978",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1Request.java"
+    },
+    {
+        "hash":  "44F9C12F688673CA392535AAF20E9ECD841DEE8513156BA22E190F2721B2F655",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1Result.java"
+    },
+    {
+        "hash":  "5321CC6747E9AB992EE51FF3E8F0A822633403FCB19407CCCC2F843EF32A406E",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1RunStore.java"
+    },
+    {
+        "hash":  "82F5B5A479A820F4A206A3646D347FE6BA9BAD7B57A3DF1B0B28A95DB4E42FAF",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\strategy\\patternv1\\DirectionPatternConfiguration.java"
+    },
+    {
+        "hash":  "FD8C0ACD1D5FA8411D3DDDFFB4EB8A748F2D04E0074397607CA5E80EA8B47604",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\strategy\\patternv1\\PatternV1Properties.java"
+    },
+    {
+        "hash":  "9B283596E7DE8C39459CCC15B920FF5DFEE0E166AA216CBA31238AB06C22B875",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\strategy\\patternv1\\PatternV1Strategy.java"
+    },
+    {
+        "hash":  "4EB3539D5D9F5C5B24642FB9E2485DE37F4F9DC2245E60D11AC4574EC12CAC51",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\java\\it\\andreademartini\\trading\\strategy\\patternv1\\SymbolPatternConfiguration.java"
+    },
+    {
+        "hash":  "67B7F72DB391C88F5320B5B651D76F30B69C96B1E795DF9B38023FEBF446AA51",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\application.yml"
+    },
+    {
+        "hash":  "935C06492CDA790C6F3DE315029F8B979B131E813F64263A2836BC3EF5C8D324",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1-metrics.js"
+    },
+    {
+        "hash":  "AE67E4EDE69510A418D98FBBAA1C7615217EF8B3A1B09A316659DC3677E153B7",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1.css"
+    },
+    {
+        "hash":  "0CFB46AF2A6301F83DEA0AC4412286C34D580B06A0D48B509094C6B79819816E",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1.html"
+    },
+    {
+        "hash":  "6FA1B50520C4F875504BD38F4647578BA026D31F9A7CD5849B057465DA92088F",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\main\\resources\\static\\pattern-v1.js"
+    },
+    {
+        "hash":  "5D9B222C3CF07B8F97895DF8021E2CB4ACAE5F544CACEC41D9E466087DAC3CCC",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\test\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1AccountingTest.java"
+    },
+    {
+        "hash":  "42EED49F181AA0BE9230E956D056FE20BADEA30E2D0D18441DF2EF6941D72453",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\test\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1CommissionTest.java"
+    },
+    {
+        "hash":  "8340DAE92D742D18434D3B6B1EE5367447D71EAB533DEE0344629A023DB2AEFC",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\test\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1HttpIntegrationTest.java"
+    },
+    {
+        "hash":  "0B49834E3E0D65E39FD601032BB6C8163C7385EB1AED2061AEF4CC7D260F11F0",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\test\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1LocalValidationTest.java"
+    },
+    {
+        "hash":  "ACDFBE2D90CAA2A85B538A8A2C7F2DB9F9363487D2B37AB1833BE920840F913C",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\test\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1OrderValueTest.java"
+    },
+    {
+        "hash":  "DF1052B9E32CFDBC5CC1E46A119D0E006DEB5869FF20E519EBE098D3B67B598B",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\test\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1PortfolioEngineTest.java"
+    },
+    {
+        "hash":  "62D8080CB5DD3DFFECF6FC1B9876B77C33B4EC02B9A78042C096E70A30A092C9",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\test\\java\\it\\andreademartini\\trading\\backtest\\patternv1\\PatternV1TestSupport.java"
+    },
+    {
+        "hash":  "D1955A75F0B240B4C27540C48863FAC569ABD0934EF01AC05A91A7025380E649",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\test\\java\\it\\andreademartini\\trading\\strategy\\patternv1\\PatternV1StrategyTest.java"
+    },
+    {
+        "hash":  "A25F8448AEBA88FFCB5D2E1B0005ACC57DDE1414E91ECBA2DD15013E567416A4",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\test\\js\\pattern-v1-chart.test.js"
+    },
+    {
+        "hash":  "D84DB9BE2AEEFBE18E22E3B5F4C235C6C310F388A3EB8B312B3044B56EAF8776",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\test\\js\\pattern-v1-form.test.js"
+    },
+    {
+        "hash":  "5C2C591ABE4068F14A5C47230114FC9CC7FA5BD75C355E97B1C9FE7928A2A6B3",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\src\\test\\js\\pattern-v1-metrics.test.js"
+    },
+    {
+        "hash":  "597417540236694E63EB721242FD0298043DEFCAF8D49456F045A9857888F57F",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\0555a093-e3cd-4c2c-9621-a5442f358e04.json"
+    },
+    {
+        "hash":  "96A65E40B1D01D874CDC50C65C8FEB17AE45EE5E735B9F3473459C82C8DBD22C",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\0da14ce4-98f7-46ef-9e3d-744269278d52.json"
+    },
+    {
+        "hash":  "BB4525C883A27FD43409633D74EC7FAB6EED9DAC7628ECB8ACC95EEB922F76DB",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\0dfdd13f-1094-4873-9470-8489a71c58b2.json"
+    },
+    {
+        "hash":  "A23DCA2FEB00FB7E73C7672EC7E11B0B64A0FD646472B515C0A19BE8B9E5ABC5",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\0f68d552-c452-4b23-8b06-31aac87ea814.json"
+    },
+    {
+        "hash":  "0E9A8D7570F8E81945CC8ED6A6426F361DF610988D51D06607597D40D13D5D7F",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\0fbbbbea-02f0-45f8-a4d7-6e86e27a70d1.json"
+    },
+    {
+        "hash":  "E233AAD10F933B868726E9A9BADDE2AD556FE5C7CD8096501DF353012903E2BC",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\0fe976f8-6ee2-426c-802d-eb78dc4ec76d.json"
+    },
+    {
+        "hash":  "40301DC30F9FF70CB9DDC176BD5AA5C56A13BBD033789F1AED80CD02623C980C",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\15906ac8-ceac-4422-bff4-0cf01826d2f3.json"
+    },
+    {
+        "hash":  "C02FE42513B024A0711E7E0D2E73A22A09D0CDDD935874CE732C33B4B642C1E2",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\18720560-f3b9-4257-9914-b2581d33d93b.json"
+    },
+    {
+        "hash":  "8BC6D634FD343F6A83982C434E2579F8D569B630E87E89E2F87D3AA575C66662",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\1eb41871-6a30-49d6-9b7f-24bc43ba5f1d.json"
+    },
+    {
+        "hash":  "45A34E832C00B442A9670C964CF45A7B9FCD43D3BA8B30DE48548130FB9A418E",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\201d1016-48d2-40da-932a-c43331adbdfe.json"
+    },
+    {
+        "hash":  "4ED76F9CC3489BA9ECBDC21C13414950078EB8CE9363491FBD62D5D51B2E91CA",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\2243cda5-7b53-4930-b412-17ee03b13c3e.json"
+    },
+    {
+        "hash":  "008ED5161D1BECDAAF78D68F2C446DCC4611B35F7CB2BB0FBD075BB845D11027",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\22485f47-0063-4a15-9307-fcae0e22b5b2.json"
+    },
+    {
+        "hash":  "76C569EABCF17986285B1CD2DC26AAAF4F956128E0BC1616120F7893148EEC90",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\29b2febb-6578-482f-a674-2e04e9384078.json"
+    },
+    {
+        "hash":  "736E1356FFDB15EBB637BDD434457B1069EF2157A62EBD053D5D8FB189F668AC",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\2a27a205-e49a-48a1-8a3d-65d7a7ffd229.json"
+    },
+    {
+        "hash":  "35FCED416D588A5DC39B0D67F02C9E3F006077F0D145B14B0B48154A1593F119",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\2c538bff-d27f-4110-8448-66d31d3d107a.json"
+    },
+    {
+        "hash":  "58F0A93A171BF371659AD0E0038E8F12A17A42D06D271CF8A3A7110FD5E81329",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\2c7904f3-a26f-49ed-9ca4-ff7256eee902.json"
+    },
+    {
+        "hash":  "808201A643290E2EC1237ED2B36F7AE638E8836CF0C34EE76939BEDF904E4582",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\2c9b87f7-88ac-49c0-be0b-6d1b929b5b87.json"
+    },
+    {
+        "hash":  "1F39783792118304A8361955B659D56A3DE4CF035CE47E299303EBA11275E441",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\2f4ced7e-210e-437f-9c1f-1f32661037d4.json"
+    },
+    {
+        "hash":  "57FD4CD4BD3C6AEA586EAF087940D06F728CCADB9573A35D16ED2A501145755A",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\3287c0e3-ede6-4e5a-a0ee-1def9a2bf8a7.json"
+    },
+    {
+        "hash":  "BDC135563DD7864B7B5A5DE11D6821C26C0D51CC61A341613C15C52B6B8F84C4",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\345d8e49-a208-42d1-97bd-f4cbc27e4d62.json"
+    },
+    {
+        "hash":  "76EC08D51DF9DD40AF5DF316217F44AE8B0C2416BA1031177099AB625E88AB6C",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\35a5d62e-b2a5-4065-8d68-25b84619ea64.json"
+    },
+    {
+        "hash":  "634E5AECA9B475E00B1F90A5897DE07B519F4343449E0222C6A5A5E637EEF553",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\3de4e588-0a44-4765-a4a2-863c6cddf544.json"
+    },
+    {
+        "hash":  "2C2CF7040339BE399CE8F59D285DC49418A05741C1D4DF9AA39F20BA24D94DC4",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\43697a75-0483-45c3-aa13-c80a87bf6f38.json"
+    },
+    {
+        "hash":  "117A821D09ECCC2F20EB787F9CFE52E5687CA1E99B83F373979895BDCDF411DF",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\47e58f72-b2a3-4767-aa87-e7a8fc3617a6.json"
+    },
+    {
+        "hash":  "29F1B94427637E9AF9C25039FB16D6594DBC0B3A7D5FC38313250AD3011146B5",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\4a3159c0-877b-439e-8449-b4c55ac5a97c.json"
+    },
+    {
+        "hash":  "FEAB7DB23890E06C26A0B434B024883425C197B33C341AE81F027B30EA63A433",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\4f8d8da2-5d31-4b41-ab7a-26d7c132ed48.json"
+    },
+    {
+        "hash":  "55C7457C2897C3C0BA1B74352F72EA0AD10094D4B3E7A010F7303B29F3B385E9",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\5110c55f-b97c-4f69-a994-cf5fbce83ac8.json"
+    },
+    {
+        "hash":  "CF14546580AD3C8F466F9EB0B589CC6A5F68232E48F20976D8EF023C4A252188",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\5186d0f0-f0f0-44ed-9faa-170fb3f0d4d0.json"
+    },
+    {
+        "hash":  "F2F3089B1EF03850AFCC648E263FECF358458FF7329A0F27E62AF650245C14D3",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\58264a0d-4869-476e-9914-2255131597a1.json"
+    },
+    {
+        "hash":  "D48D232209CFF1E177B15141313719AD0D69ED6C5B8F18301273967C7F91F1FE",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\5975d1d5-89eb-4917-855b-ac678944c81e.json"
+    },
+    {
+        "hash":  "C8FD442D80A38F64DDDE835D25F576F104A2AD470EF779C5631343A65D49D7D9",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\5990d920-a32d-401e-b032-050cb6ebb81a.json"
+    },
+    {
+        "hash":  "FA3DDDBE874ACDDAF5C9C88DB419B05F0753552A55F42C63BA7C5EF0E8CC1458",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\59be375a-19a3-455e-8ad4-aa1e5e273ccf.json"
+    },
+    {
+        "hash":  "6B8D1425F3C9785D79E21E7DA28BDB077AECB059695C0EE873EAE24CD38C5A27",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\5e18dd77-e036-4d6b-8d36-49b2407a7ed7.json"
+    },
+    {
+        "hash":  "B2BAEC9F519AECCFBFA76A34F4205CC0970AC7295DCC4BDF90177AFC35764F06",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\64eecb22-9b1c-487c-857d-38aafc3d147c.json"
+    },
+    {
+        "hash":  "164723FD810C9C15A128BE773D03954F4C0E246D6355813BCD94D8CF4F20A3DA",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\6a9b25b7-2e48-476b-b965-49e7f3e3ea32.json"
+    },
+    {
+        "hash":  "35D8FC0AB91309637E71950DA1B6C3B690B02D95E107D55565A746D0631FDE7D",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\6b1ebb9e-adfb-4a71-8396-42c1f2b55d50.json"
+    },
+    {
+        "hash":  "30EE40BFAED74D66947BCD961F91CEC9179DF480088BED9EF7D2BE42CD37614B",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\6b773927-af06-49ea-b303-0dd6dce4d18d.json"
+    },
+    {
+        "hash":  "23B6EB04057FA9BDA76EF2B775A40357F2BF3CBB10355180F8AF3F560F933A55",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\6e800b5d-c2a0-4aa6-804c-a60f5053e01c.json"
+    },
+    {
+        "hash":  "F7F4C2CE464036C3B4A072E301D86251CDA2C948D5A3B3FF6C11B9FADDEF8D08",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\72ea9407-0a48-40f9-bd5c-3214bf360d03.json"
+    },
+    {
+        "hash":  "25A1668423D8E739CA19BA78AF6F32458DC666861370C1E11E6A272831E8647A",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\737186ff-aa76-437e-9e2d-b56f4f9bd2a6.json"
+    },
+    {
+        "hash":  "9DB194D39DE8FD764B66F3F6675C5963B692FF6A49F7EB6904A693D25E149104",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\771e349f-cbad-4921-8102-60b3bedcaf9c.json"
+    },
+    {
+        "hash":  "B9F89E19ECB34BE74DE908183CED11112C2D0994EBD97F09EDAE46618F1450BD",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\787c0451-02bb-488f-bb8e-9fa08571b1e3.json"
+    },
+    {
+        "hash":  "2D8EDD24E582B55770AC3715C93B6261190179C78CC21F3033F337185DA9AE20",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\80fbca2d-572c-49ff-961a-543a72c0fc36.json"
+    },
+    {
+        "hash":  "FF8570B82CD7D5C0086E7D890C38B3CCDB030BE0016A1D56F11BFCC4AFF4600F",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\859b2cfa-fcd0-4b72-bb5e-3e3def5e7a07.json"
+    },
+    {
+        "hash":  "A306C3EB92EA7378E5F03989F9C49F332A8E445C93A3D2C2C4B7445D402666A5",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\85e206f0-4d0d-44ea-b1db-be9bf54aa9d5.json"
+    },
+    {
+        "hash":  "37AAC373D61E596122668792C4ED74A34DCEFE9BEEC9B1E3DFC7306880D70990",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\8d3bebe9-4b3f-4dcc-869d-c7fb93b975f1.json"
+    },
+    {
+        "hash":  "FF29719B1E68A0C7FC4DF2D12465615A2686C3FD5DEC00D81AFBD7B9175E97AD",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\8fcb5a08-8232-4a66-9873-0ad3417e37ee.json"
+    },
+    {
+        "hash":  "D4EB8E0F9EFA6FE8863AE1D8B088C99135E55702A5333EB470EB40213B36A991",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\90d3ae31-71ee-4538-a28a-e325de682e2a.json"
+    },
+    {
+        "hash":  "868531D2B06BD3C95FEEED19F930A30CCB84FBB02E101B25F2BDC9457DE795B3",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\92bbc105-cbe4-496d-8a14-87c4db941ca7.json"
+    },
+    {
+        "hash":  "3CAAFD42191AF905A967097AED5AF288877F92C234CF64B1649323C3CF66BF90",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\94a9d843-54fd-4489-a621-4e0177aa3594.json"
+    },
+    {
+        "hash":  "14825D25C02679B409F91A736B5A609EF9BD0574E2572BD8F0956FD48E0583A9",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\961e7a81-d0e6-4eab-97eb-9d1038488bfa.json"
+    },
+    {
+        "hash":  "DAE68C2F5CD5888774EAD30F60543BDC1BD26F544AB2C727AECD61AB6800FC46",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\9c1f6de9-02ad-470b-9124-189010f8c3f2.json"
+    },
+    {
+        "hash":  "26511E63E64C7E71C727BF2D71944F6D3AF28003272EF3B9BC80C430A6DC4C45",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\9cdcc2c2-d170-4b2f-a48c-28b0d6ee7d24.json"
+    },
+    {
+        "hash":  "E5886E7C1261777840CD1A3ADF95837CBAD04B60D28B2F391166B2ADF87CB0BA",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\a5f163f3-8fb2-476b-8620-54e6a9dcc1a3.json"
+    },
+    {
+        "hash":  "7A4B94BEEBB1EAD0998EC31D9C34F34C979A30890F25DD927C956F372CFFC352",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\ab2e75af-bf1a-4d0c-aa11-8d2e295f0fb8.json"
+    },
+    {
+        "hash":  "E118A3A1F9C08DF711773C34C408535D6F6093CE86E3C92AB2C48420403C7FE6",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\ab8eebd0-d3eb-4659-9de2-d85485e4d6c3.json"
+    },
+    {
+        "hash":  "0AF5B829F91D68AA08A747B4E1465F48BA8B3212AC092A308AF66C9BFC24465C",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\af0d0256-248b-4b33-9d14-84bcb03575cc.json"
+    },
+    {
+        "hash":  "B5BA54754CB38DAFDC469DD9CC7194AEBC4372401A7149F42A829778F911F91D",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\b302f07a-5d65-4ad5-8d9c-36c9c3ddb8ca.json"
+    },
+    {
+        "hash":  "2E27F26D2865624719108A13364E3A0D5FFA7A3641BFF2BB3EFB42B09FBC3D3F",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\b41cac0e-ec1a-4274-82fb-f1beab34378c.json"
+    },
+    {
+        "hash":  "71F01B21BFD5F5F059751C7A97EED642F51D145C4F81463DC25BA5B960DFE830",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\b49af6d5-6959-441d-b21e-9a1b20c254d3.json"
+    },
+    {
+        "hash":  "14F1BBB6B285E0B62425E078A614516D84A1DB996983DA2BAFA43C566C6D337E",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\ba2e9150-5911-44a8-8268-087d4646fc34.json"
+    },
+    {
+        "hash":  "879D02405F9E1F33D6A627D6B9DD342CE76573259E1DD261CB5E973E6CEC89A1",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\ba69c6d3-4a65-4702-a588-623890df790e.json"
+    },
+    {
+        "hash":  "7E5163F21F98049DC57427B65B0EDA2FF0355CFB384830C3A1488B074B46ECAB",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\c0b86807-2fac-4fc3-8258-e4d0800954bd.json"
+    },
+    {
+        "hash":  "57C67E2D7783776C007BC4135346585FDE7DB3106A5B5345EDB3127702EF3B08",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\c26ed471-7a4c-4f26-b5e1-159c2775cff4.json"
+    },
+    {
+        "hash":  "80E261693F6CC4BB8ED2D400363EF679729D23CEFA15C8EFE72153E0BD42A5FC",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\c4dfd0c5-fa2c-4853-8496-ed7f2b0e2ab8.json"
+    },
+    {
+        "hash":  "F08DC9921154FB410FA2D3B3D82A0A444DB8D8E285A95E49205DF73204D869B8",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\c509bf0e-e28f-4886-a868-ad29c4eab2ed.json"
+    },
+    {
+        "hash":  "7C75E6CD193560CE60B3975E7239D41768B14A0CBF03D6C7C681B7EE769014B2",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\d3d90434-7ea1-4d9b-9bfd-4afdf04f7ec9.json"
+    },
+    {
+        "hash":  "BF23C7F13D8D63A8994954CE3A8E13F93F2796C77A7EAD75AAC13D3E43F0C5AF",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\d908a757-6b38-498d-b980-5f6a1a437e1c.json"
+    },
+    {
+        "hash":  "D02AFD371322ED035E7AD73020BA852EA98624126E09B5BAA0EC1906608819EF",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\e009e98b-6e29-4058-b7c0-904c600710be.json"
+    },
+    {
+        "hash":  "8463C690D3D82AF9DB86840F38918594A1FAF1F7A93F5E8EDE7F1CBC25EFBE89",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\e46280e7-3b93-423b-aa25-8a38586d8bf0.json"
+    },
+    {
+        "hash":  "B250FA1ADFC58AB1148499D01AA2035CA6D991507022C75A7DF4D9F7C7CFC3C2",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\e7bae55d-7d05-4c35-8727-a0f8e81a8bb3.json"
+    },
+    {
+        "hash":  "AA63325627B85137333A7412E9EF8148FCE9267064DBAADC845CE5EB55217655",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\e7c8c0d3-8979-4b1e-96ad-4cdf4fb6b350.json"
+    },
+    {
+        "hash":  "B016D01ED9ED264C49CC8D5D903FF61E86A593AA26BC81F77501822CA1498CAB",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\ec7e63b2-8a32-4bee-a3b4-a94245c4fddf.json"
+    },
+    {
+        "hash":  "FB5623ADE9A8657CAA9A289DDDBBB4417AF13FBD13CCBA977E51A90258990CF3",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\eda4bde1-434a-4c00-9533-71a9829f7cc9.json"
+    },
+    {
+        "hash":  "E1E6AE5424828025F0C0425C95BEC826950573E742F45875F47EEAC6F42509EF",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\f5045749-3fc3-4e58-a199-e8211a68598b.json"
+    },
+    {
+        "hash":  "0FF002BD28E0991CDD7564979EC9C77953915C48A82F772C04638171FE63B461",
+        "path":  "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\f7766c12-27a0-4fa2-bce1-e119f15be2bf.json"
+    }
+]

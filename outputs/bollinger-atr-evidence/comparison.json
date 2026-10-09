@@ -1,0 +1,170 @@
+{
+  "datasetId" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+  "runs" : [ {
+    "runId" : "be10003f-0c48-4bec-9767-5ecf23f4db8a",
+    "name" : "V2_BASELINE_DYNAMIC_30",
+    "mode" : "A / BASELINE",
+    "patternRangeFilterEnabled" : false,
+    "minimumPatternRangePct" : 2.5,
+    "closeStrengthFilterEnabled" : false,
+    "maxCloseStrength" : 0.8,
+    "periods" : [ {
+      "label" : "2010–2013",
+      "start" : "2010-01-04",
+      "end" : "2013-12-31",
+      "trades" : 296,
+      "returnPercent" : 6.767478668612004,
+      "cagr" : 1.6551219260952932,
+      "maxDrawdownPercent" : 15.750842598368758,
+      "pfNet" : 1.05113097371518,
+      "expectancyR" : 0.2986083100918784,
+      "winRate" : 0.40540540540540543,
+      "netPnl" : 676.7478668612002
+    }, {
+      "label" : "2014–2017",
+      "start" : "2014-01-01",
+      "end" : "2017-12-31",
+      "trades" : 358,
+      "returnPercent" : 62.00542777263527,
+      "cagr" : 12.828358465781143,
+      "maxDrawdownPercent" : 15.878918547724552,
+      "pfNet" : 1.5046436814488426,
+      "expectancyR" : 0.23347092496282124,
+      "winRate" : 0.3854748603351955,
+      "netPnl" : 6620.163187052998
+    }, {
+      "label" : "2018–2021",
+      "start" : "2018-01-01",
+      "end" : "2021-12-31",
+      "trades" : 304,
+      "returnPercent" : 89.74101339703866,
+      "cagr" : 17.378332161259525,
+      "maxDrawdownPercent" : 15.71137925310904,
+      "pfNet" : 1.620725080440084,
+      "expectancyR" : 0.3675664493406151,
+      "winRate" : 0.4342105263157895,
+      "netPnl" : 15522.423266167003
+    }, {
+      "label" : "2022–2026",
+      "start" : "2022-01-01",
+      "end" : "2026-09-08",
+      "trades" : 386,
+      "returnPercent" : 130.33685779600592,
+      "cagr" : 19.496262622902826,
+      "maxDrawdownPercent" : 20.687698967115146,
+      "pfNet" : 1.713887784392016,
+      "expectancyR" : 0.3588594998177668,
+      "winRate" : 0.42487046632124353,
+      "netPnl" : 42775.68910236
+    } ]
+  }, {
+    "runId" : "7c6ff11b-7d6f-4baf-b164-20bab8d0d5f7",
+    "name" : "V2_BOLLINGER_ATR_05",
+    "mode" : "E / BOLLINGER_ATR",
+    "patternRangeFilterEnabled" : false,
+    "minimumPatternRangePct" : 2.5,
+    "closeStrengthFilterEnabled" : false,
+    "maxCloseStrength" : 0.8,
+    "periods" : [ {
+      "label" : "2010–2013",
+      "start" : "2010-01-04",
+      "end" : "2013-12-31",
+      "trades" : 89,
+      "returnPercent" : 42.347257635222,
+      "cagr" : 9.25530307076814,
+      "maxDrawdownPercent" : 7.027833764479134,
+      "pfNet" : 1.9548523572322454,
+      "expectancyR" : 0.5489684436048876,
+      "winRate" : 0.47191011235955055,
+      "netPnl" : 4234.7257635221995
+    }, {
+      "label" : "2014–2017",
+      "start" : "2014-01-01",
+      "end" : "2017-12-31",
+      "trades" : 103,
+      "returnPercent" : 23.150948288702256,
+      "cagr" : 5.347667902043707,
+      "maxDrawdownPercent" : 16.408148374541597,
+      "pfNet" : 1.5360182239538156,
+      "expectancyR" : 0.32492116734005827,
+      "winRate" : 0.42718446601941745,
+      "netPnl" : 3295.4740005516014
+    }, {
+      "label" : "2018–2021",
+      "start" : "2018-01-01",
+      "end" : "2021-12-31",
+      "trades" : 93,
+      "returnPercent" : 37.635193669280895,
+      "cagr" : 8.319371045969515,
+      "maxDrawdownPercent" : 10.072448325677652,
+      "pfNet" : 1.797026122123318,
+      "expectancyR" : 0.4849888394704731,
+      "winRate" : 0.5053763440860215,
+      "netPnl" : 6597.5246318209975
+    }, {
+      "label" : "2022–2026",
+      "start" : "2022-01-01",
+      "end" : "2026-09-08",
+      "trades" : 117,
+      "returnPercent" : 30.05268430065342,
+      "cagr" : 5.769692099177237,
+      "maxDrawdownPercent" : 14.745469468454287,
+      "pfNet" : 1.4783807387203904,
+      "expectancyR" : 0.33272705896053845,
+      "winRate" : 0.4188034188034188,
+      "netPnl" : 7251.028841630003
+    } ]
+  } ],
+  "metrics" : [ {
+    "metric" : "Final Equity",
+    "values" : [ 75595.0234224412, 31378.7532375248 ]
+  }, {
+    "metric" : "Net PnL",
+    "values" : [ 65595.0234224412, 21378.7532375248 ]
+  }, {
+    "metric" : "CAGR",
+    "values" : [ 12.89619488160836, 7.097915611650252 ]
+  }, {
+    "metric" : "Max Drawdown %",
+    "values" : [ 20.687698967115157, 16.408148374541604 ]
+  }, {
+    "metric" : "CAGR / Max Drawdown",
+    "values" : [ 0.623375026004968, 0.43258480174784175 ]
+  }, {
+    "metric" : "Trades",
+    "values" : [ 1344.0, 402.0 ]
+  }, {
+    "metric" : "Win Rate",
+    "values" : [ 41.220238095238095, 45.27363184079602 ]
+  }, {
+    "metric" : "PF Net",
+    "values" : [ 1.5961825411606758, 1.6232704408140446 ]
+  }, {
+    "metric" : "Expectancy R",
+    "values" : [ 0.314159686349026, 0.4138261186218856 ]
+  }, {
+    "metric" : "Average Winner R",
+    "values" : [ 2.160373342734285, 2.103014230623478 ]
+  }, {
+    "metric" : "Average Loser R",
+    "values" : [ -0.9805268524325355, -0.9835931376703408 ]
+  }, {
+    "metric" : "Average Actual Risk %",
+    "values" : [ 0.6005423931422574, 0.8231399308616294 ]
+  }, {
+    "metric" : "Exposure %",
+    "values" : [ 39.80218639298535, 15.191702402389314 ]
+  }, {
+    "metric" : "Capital Skips",
+    "values" : [ 61.0, 5.0 ]
+  }, {
+    "metric" : "Total Commission",
+    "values" : [ 3801.2080819, 1340.106418 ]
+  }, {
+    "metric" : "Total Slippage",
+    "values" : [ 5297.0275596588, 1345.4879404752 ]
+  }, {
+    "metric" : "Total Costs",
+    "values" : [ 9098.2356415588, 2685.5943584752 ]
+  } ]
+}

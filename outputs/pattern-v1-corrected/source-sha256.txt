@@ -1,0 +1,2 @@
+data\pattern-v1\backtests\72ea9407-0a48-40f9-bd5c-3214bf360d03.json
+f7f4c2ce464036c3b4a072e301d86251cda2c948d5a3b3ff6c11b9faddef8d08

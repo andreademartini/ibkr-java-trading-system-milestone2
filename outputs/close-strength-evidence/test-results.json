@@ -1,0 +1,18 @@
+{
+  "maven": {
+    "tests": 329,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 3
+  },
+  "experiment": {
+    "tests": 1,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "frontend": {
+    "tests": 46,
+    "failures": 0
+  }
+}

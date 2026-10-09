@@ -1,0 +1,18 @@
+[
+  "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2Configuration.java",
+  "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternPortfolioSimulator.java",
+  "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2Run.java",
+  "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2Service.java",
+  "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2Controller.java",
+  "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2ExcelExporter.java",
+  "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2CapitalLimits.java",
+  "src/main/java/it/andreademartini/trading/backtest/patternv2/PatternV2CapitalComparison.java",
+  "src/main/resources/static/pattern-v2-model.js",
+  "src/main/resources/static/pattern-v2.js",
+  "src/main/resources/static/pattern-v2.html",
+  "src/test/java/it/andreademartini/trading/backtest/patternv2/PatternV2CapitalLimitsTest.java",
+  "src/test/java/it/andreademartini/trading/backtest/patternv2/PatternV2CapitalLimitsExperimentTest.java",
+  "src/test/java/it/andreademartini/trading/backtest/patternv2/PatternV2Test.java",
+  "src/test/java/it/andreademartini/trading/backtest/patternv2/PatternV2HttpIntegrationTest.java",
+  "src/test/js/pattern-v2.test.js"
+]

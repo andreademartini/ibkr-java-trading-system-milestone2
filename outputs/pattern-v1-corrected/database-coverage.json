@@ -1,0 +1,74 @@
+﻿[
+    {
+        "symbol":  "AAPL",
+        "provider":  "STOOQ",
+        "interval":  "DAILY",
+        "firstDate":  "2000-09-07",
+        "lastDate":  "2026-09-02",
+        "bars":  6535
+    },
+    {
+        "symbol":  "GOOGL",
+        "provider":  "STOOQ",
+        "interval":  "DAILY",
+        "firstDate":  "2004-08-19",
+        "lastDate":  "2026-09-02",
+        "bars":  5545
+    },
+    {
+        "symbol":  "NFLX",
+        "provider":  "STOOQ",
+        "interval":  "DAILY",
+        "firstDate":  "2005-02-25",
+        "lastDate":  "2026-09-02",
+        "bars":  5413
+    },
+    {
+        "symbol":  "NVDA",
+        "provider":  "STOOQ",
+        "interval":  "DAILY",
+        "firstDate":  "1999-01-22",
+        "lastDate":  "2026-09-08",
+        "bars":  6948
+    },
+    {
+        "symbol":  "QQQ",
+        "provider":  "STOOQ",
+        "interval":  "DAILY",
+        "firstDate":  "1999-03-10",
+        "lastDate":  "2026-09-08",
+        "bars":  6916
+    },
+    {
+        "symbol":  "SPY",
+        "provider":  "STOOQ",
+        "interval":  "DAILY",
+        "firstDate":  "2005-02-25",
+        "lastDate":  "2026-09-08",
+        "bars":  5416
+    },
+    {
+        "symbol":  "TSLA",
+        "provider":  "STOOQ",
+        "interval":  "DAILY",
+        "firstDate":  "2010-06-28",
+        "lastDate":  "2026-09-08",
+        "bars":  4073
+    },
+    {
+        "symbol":  "XLK",
+        "provider":  "STOOQ",
+        "interval":  "DAILY",
+        "firstDate":  "2005-02-25",
+        "lastDate":  "2026-09-08",
+        "bars":  5416
+    },
+    {
+        "symbol":  "XLY",
+        "provider":  "STOOQ",
+        "interval":  "DAILY",
+        "firstDate":  "2005-02-25",
+        "lastDate":  "2026-09-08",
+        "bars":  5416
+    }
+]

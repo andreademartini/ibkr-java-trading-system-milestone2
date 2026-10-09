@@ -1,0 +1,14 @@
+{
+  "filesChecked": 318,
+  "changed": [],
+  "frozenV1AndSharedSourcesUnchanged": true,
+  "currentConfigurationUnchanged": true,
+  "baselineFileUnchanged": true,
+  "rangeRunUnchanged": true,
+  "configurationDifferences": [
+    "name",
+    "closeStrengthFilterEnabled"
+  ],
+  "sameDataset": true,
+  "combinedRuns": []
+}

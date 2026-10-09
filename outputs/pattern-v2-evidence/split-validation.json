@@ -1,0 +1,23 @@
+﻿{
+    "checked":  106,
+    "changed":  [
+
+                ],
+    "removedSyntheticTestResults":  [
+                                        "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\2a7f2129-4054-41a8-b27b-a1ca8c85408c.json",
+                                        "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\2d1284f7-8cb0-4f23-9bbd-332c062224d6.json",
+                                        "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\4a109288-63ec-4248-a7ed-8c7a749cef0d.json",
+                                        "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\50feb764-9047-4cc3-86cc-7e22fcf9e45d.json",
+                                        "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\78564a2a-75f6-44f9-be93-3d76803f4cb6.json",
+                                        "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\78957243-9948-4851-915e-18eded369dbf.json",
+                                        "C:\\Users\\De Martini Andrea\\IdeaProjects\\ibkr-java-trading-system-milestone2\\data\\pattern-v1\\backtests\\c97cb598-0ee8-440a-b4ba-4981728678d9.json"
+                                    ],
+    "newV1Results":  [
+
+                     ],
+    "mavenTests":  263,
+    "failures":  0,
+    "errors":  0,
+    "skipped":  1,
+    "frontendTests":  39
+}

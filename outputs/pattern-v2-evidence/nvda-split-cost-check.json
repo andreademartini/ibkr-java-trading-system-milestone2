@@ -1,0 +1,471 @@
+{
+  "sourceRun" : "d3ab5b3c-4b72-4888-a86c-010d343a5f95",
+  "period" : "2010-01-01 / 2026-09-08",
+  "legacyReplayMatchesSavedRun" : true,
+  "before" : {
+    "trades" : 151,
+    "grossPnl" : 11685.887780,
+    "netPnl" : 5782.2487786440,
+    "commissions" : 5460.52613021,
+    "slippage" : 443.1128711460,
+    "portfolioFinalEquity" : 45435.4558089860
+  },
+  "after" : {
+    "trades" : 150,
+    "grossPnl" : 12546.673855,
+    "netPnl" : 11675.1853108825,
+    "commissions" : 381.23884899,
+    "slippage" : 490.2496951275,
+    "portfolioFinalEquity" : 53234.5729164285
+  },
+  "configuration" : {
+    "name" : "V2_BASELINE",
+    "global" : {
+      "initialCapital" : 10000.0,
+      "riskPercent" : 2.0,
+      "maxOrderValuePercent" : 60.0,
+      "maxOrderValue" : null,
+      "maxOrderValueMode" : "FIXED_INITIAL_CAPITAL_PERCENT",
+      "maxPositionValue" : 10000.0,
+      "maxQuantity" : 1000000,
+      "useLeverage" : false,
+      "minQuantity" : 1,
+      "minOrderValue" : 0.0,
+      "startDate" : "2010-01-01",
+      "endDate" : "2026-09-08",
+      "timeframe" : "DAILY",
+      "maxHoldingBars" : 20,
+      "stopBufferTicks" : 0,
+      "tickSize" : 0.01,
+      "sameBarPolicy" : "STOP_FIRST",
+      "entryMode" : "NEXT_BAR_OPEN",
+      "stopMode" : "PATTERN_EXTREME",
+      "commissionEnabled" : true,
+      "commission" : {
+        "model" : "IBKR_US_FIXED",
+        "fixedPerOrder" : 0,
+        "perShare" : 0.005,
+        "minimumPerOrder" : 1,
+        "maximumPercentOrderValue" : 1
+      },
+      "slippageEnabled" : true,
+      "slippagePercentPerSide" : 0.03,
+      "maxLongNotional" : 10000.0,
+      "maxShortNotional" : 10000.0,
+      "transactionCostsPerShare" : 0.0,
+      "allowLong" : true,
+      "allowShort" : true,
+      "smallQuantityWarningThreshold" : 4
+    },
+    "symbols" : [ {
+      "enabled" : true,
+      "symbol" : "AAPL",
+      "longConfig" : {
+        "enabled" : true,
+        "pattern" : "BULLISH_ENGULFING",
+        "targetR" : 3
+      },
+      "shortConfig" : {
+        "enabled" : false,
+        "pattern" : null,
+        "targetR" : null
+      },
+      "riskPercent" : null,
+      "maxOrderValuePercent" : null,
+      "maxQuantity" : null,
+      "maxHoldingBars" : null
+    }, {
+      "enabled" : false,
+      "symbol" : "GOOGL",
+      "longConfig" : {
+        "enabled" : true,
+        "pattern" : "BULLISH_HARAMI",
+        "targetR" : 1.5
+      },
+      "shortConfig" : {
+        "enabled" : false,
+        "pattern" : null,
+        "targetR" : null
+      },
+      "riskPercent" : null,
+      "maxOrderValuePercent" : null,
+      "maxQuantity" : null,
+      "maxHoldingBars" : null
+    }, {
+      "enabled" : false,
+      "symbol" : "NFLX",
+      "longConfig" : {
+        "enabled" : true,
+        "pattern" : "HAMMER",
+        "targetR" : 2
+      },
+      "shortConfig" : {
+        "enabled" : false,
+        "pattern" : null,
+        "targetR" : null
+      },
+      "riskPercent" : null,
+      "maxOrderValuePercent" : null,
+      "maxQuantity" : null,
+      "maxHoldingBars" : null
+    }, {
+      "enabled" : true,
+      "symbol" : "NVDA",
+      "longConfig" : {
+        "enabled" : true,
+        "pattern" : "PIERCING_PATTERN",
+        "targetR" : 3
+      },
+      "shortConfig" : {
+        "enabled" : false,
+        "pattern" : null,
+        "targetR" : null
+      },
+      "riskPercent" : null,
+      "maxOrderValuePercent" : null,
+      "maxQuantity" : null,
+      "maxHoldingBars" : null
+    }, {
+      "enabled" : true,
+      "symbol" : "QQQ",
+      "longConfig" : {
+        "enabled" : true,
+        "pattern" : "HAMMER",
+        "targetR" : 3
+      },
+      "shortConfig" : {
+        "enabled" : false,
+        "pattern" : null,
+        "targetR" : null
+      },
+      "riskPercent" : null,
+      "maxOrderValuePercent" : null,
+      "maxQuantity" : null,
+      "maxHoldingBars" : null
+    }, {
+      "enabled" : true,
+      "symbol" : "SPY",
+      "longConfig" : {
+        "enabled" : true,
+        "pattern" : "BULLISH_HARAMI",
+        "targetR" : 3
+      },
+      "shortConfig" : {
+        "enabled" : false,
+        "pattern" : null,
+        "targetR" : null
+      },
+      "riskPercent" : null,
+      "maxOrderValuePercent" : null,
+      "maxQuantity" : null,
+      "maxHoldingBars" : null
+    }, {
+      "enabled" : true,
+      "symbol" : "TSLA",
+      "longConfig" : {
+        "enabled" : true,
+        "pattern" : "BULLISH_ENGULFING",
+        "targetR" : 1
+      },
+      "shortConfig" : {
+        "enabled" : true,
+        "pattern" : "SHOOTING_STAR",
+        "targetR" : 4
+      },
+      "riskPercent" : null,
+      "maxOrderValuePercent" : null,
+      "maxQuantity" : null,
+      "maxHoldingBars" : null
+    }, {
+      "enabled" : true,
+      "symbol" : "XLK",
+      "longConfig" : {
+        "enabled" : true,
+        "pattern" : "HAMMER",
+        "targetR" : 4
+      },
+      "shortConfig" : {
+        "enabled" : false,
+        "pattern" : null,
+        "targetR" : null
+      },
+      "riskPercent" : null,
+      "maxOrderValuePercent" : null,
+      "maxQuantity" : null,
+      "maxHoldingBars" : null
+    }, {
+      "enabled" : false,
+      "symbol" : "XLY",
+      "longConfig" : {
+        "enabled" : true,
+        "pattern" : "BULLISH_ENGULFING",
+        "targetR" : 1.5
+      },
+      "shortConfig" : {
+        "enabled" : false,
+        "pattern" : null,
+        "targetR" : null
+      },
+      "riskPercent" : null,
+      "maxOrderValuePercent" : null,
+      "maxQuantity" : null,
+      "maxHoldingBars" : null
+    } ],
+    "splitCosts" : {
+      "rules" : [ {
+        "symbol" : "NVDA",
+        "basis" : "AUTO_PROVIDER",
+        "validFrom" : "2010-01-01",
+        "adjustedThrough" : "2024-06-10",
+        "splits" : [ {
+          "effectiveDate" : "2021-07-20",
+          "ratio" : 4
+        }, {
+          "effectiveDate" : "2024-06-10",
+          "ratio" : 10
+        } ]
+      } ]
+    }
+  },
+  "example2010" : [ {
+    "trade" : {
+      "tradeId" : "792a0390-beed-4726-9835-584c997282d0-3",
+      "number" : 3,
+      "symbol" : "NVDA",
+      "strategy" : "PATTERN_V2",
+      "pattern" : "PIERCING_PATTERN",
+      "direction" : "LONG",
+      "signalDate" : "2010-01-13",
+      "entryDate" : "2010-01-14",
+      "exitDate" : "2010-01-15",
+      "patternStartIndex" : 6,
+      "signalIndex" : 7,
+      "entryIndex" : 8,
+      "exitIndex" : 9,
+      "patternLow" : 0.392015,
+      "patternHigh" : 0.414773,
+      "patternClose" : 0.410607,
+      "entryPrice" : 0.405164,
+      "stopPrice" : 0.392015,
+      "takeProfitPrice" : 0.444611,
+      "targetR" : 3,
+      "riskPerShare" : 0.013149,
+      "quantity" : 14417,
+      "exitPrice" : 0.392015,
+      "exitReason" : "STOP",
+      "grossPnl" : -189.569133,
+      "netPnl" : -196.6212618929,
+      "entryCosts" : 3.5544998164,
+      "costs" : 7.0521288929,
+      "resultR" : -1.000000000000,
+      "researchResultR" : -1,
+      "mfe" : 0.003426,
+      "mae" : 0.013149,
+      "mfeR" : 0.260552133242,
+      "maeR" : 1.000000000000,
+      "holdingBars" : 2,
+      "sameBarAmbiguous" : false,
+      "closed" : true,
+      "remainingQuantity" : 0,
+      "desiredQuantity" : 14953,
+      "finalQuantity" : 14417,
+      "quantityLimitingReason" : "OTHER",
+      "quantityLimitingReasons" : [ "MAX_ORDER_VALUE", "OTHER" ],
+      "sizeConstrained" : true,
+      "equityAtEntry" : 9831.365643222,
+      "availableCashBeforeEntry" : 9831.365643222,
+      "availableCashAfterEntry" : 3986.5617554056,
+      "orderValue" : 5841.249388,
+      "desiredRiskAmount" : 196.62731286444,
+      "desiredRiskPercent" : 2.0,
+      "actualRiskAmount" : 189.569133,
+      "actualRiskPercent" : 1.928207533718,
+      "realizedPnl" : -196.6212618929,
+      "unrealizedPnl" : 0,
+      "netUnrealizedPnl" : 0,
+      "executedMfeR" : 0.260552133242,
+      "executedMaeR" : 1.000000000000,
+      "rawBarMfeR" : 0.260552133242,
+      "rawBarMaeR" : 1.387329834968,
+      "markDate" : null,
+      "markPrice" : null,
+      "markIndex" : -1,
+      "timeoutExitPrice" : null
+    },
+    "entryTimestamp" : "2010-01-14T00:00:00Z",
+    "exitTimestamp" : "2010-01-15T00:00:00Z",
+    "entryPriceAfterSlippage" : 0.4052855492,
+    "exitPriceAfterSlippage" : 0.3918973955,
+    "commission" : 3.604250,
+    "slippageCost" : 3.4478788929,
+    "transactionCosts" : 0.0,
+    "splitExecution" : {
+      "entryFactor" : 40,
+      "exitFactor" : 40,
+      "entryQuantityEquivalent" : 360.425,
+      "exitQuantityEquivalent" : 360.425,
+      "entryPriceSplitUnadjusted" : 16.206560,
+      "exitPriceSplitUnadjusted" : 15.680600
+    }
+  }, {
+    "trade" : {
+      "tradeId" : "792a0390-beed-4726-9835-584c997282d0-4",
+      "number" : 4,
+      "symbol" : "NVDA",
+      "strategy" : "PATTERN_V2",
+      "pattern" : "PIERCING_PATTERN",
+      "direction" : "LONG",
+      "signalDate" : "2010-01-19",
+      "entryDate" : "2010-01-20",
+      "exitDate" : "2010-01-22",
+      "patternStartIndex" : 9,
+      "signalIndex" : 10,
+      "entryIndex" : 11,
+      "exitIndex" : 13,
+      "patternLow" : 0.386922,
+      "patternHigh" : 0.404695,
+      "patternClose" : 0.399673,
+      "entryPrice" : 0.392484,
+      "stopPrice" : 0.386922,
+      "takeProfitPrice" : 0.409170,
+      "targetR" : 3,
+      "riskPerShare" : 0.005562,
+      "quantity" : 15287,
+      "exitPrice" : 0.386922,
+      "exitReason" : "STOP",
+      "grossPnl" : -85.026294,
+      "netPnl" : -92.4224778566,
+      "entryCosts" : 3.7108458724,
+      "costs" : 7.3961838566,
+      "resultR" : -1.000000000000,
+      "researchResultR" : -1,
+      "mfe" : 0.012431,
+      "mae" : 0.005562,
+      "mfeR" : 2.234987414599,
+      "maeR" : 1.000000000000,
+      "holdingBars" : 3,
+      "sameBarAmbiguous" : false,
+      "closed" : true,
+      "remainingQuantity" : 0,
+      "desiredQuantity" : 34644,
+      "finalQuantity" : 15287,
+      "quantityLimitingReason" : "MAX_ORDER_VALUE",
+      "quantityLimitingReasons" : [ "MAX_ORDER_VALUE" ],
+      "sizeConstrained" : true,
+      "equityAtEntry" : 9634.7443813291,
+      "availableCashBeforeEntry" : 9634.7443813291,
+      "availableCashAfterEntry" : 3631.1306274567,
+      "orderValue" : 5999.902908,
+      "desiredRiskAmount" : 192.694887626582,
+      "desiredRiskPercent" : 2.0,
+      "actualRiskAmount" : 85.026294,
+      "actualRiskPercent" : 0.882496625077,
+      "realizedPnl" : -92.4224778566,
+      "unrealizedPnl" : 0,
+      "netUnrealizedPnl" : 0,
+      "executedMfeR" : 2.234987414599,
+      "executedMaeR" : 1.000000000000,
+      "rawBarMfeR" : 2.234987414599,
+      "rawBarMaeR" : 3.122078389069,
+      "markDate" : null,
+      "markPrice" : null,
+      "markIndex" : -1,
+      "timeoutExitPrice" : null
+    },
+    "entryTimestamp" : "2010-01-20T00:00:00Z",
+    "exitTimestamp" : "2010-01-22T00:00:00Z",
+    "entryPriceAfterSlippage" : 0.3926017452,
+    "exitPriceAfterSlippage" : 0.3868059234,
+    "commission" : 3.821750,
+    "slippageCost" : 3.5744338566,
+    "transactionCosts" : 0.0,
+    "splitExecution" : {
+      "entryFactor" : 40,
+      "exitFactor" : 40,
+      "entryQuantityEquivalent" : 382.175,
+      "exitQuantityEquivalent" : 382.175,
+      "entryPriceSplitUnadjusted" : 15.699360,
+      "exitPriceSplitUnadjusted" : 15.476880
+    }
+  }, {
+    "trade" : {
+      "tradeId" : "792a0390-beed-4726-9835-584c997282d0-8",
+      "number" : 8,
+      "symbol" : "NVDA",
+      "strategy" : "PATTERN_V2",
+      "pattern" : "PIERCING_PATTERN",
+      "direction" : "LONG",
+      "signalDate" : "2010-02-10",
+      "entryDate" : "2010-02-11",
+      "exitDate" : "2010-02-25",
+      "patternStartIndex" : 25,
+      "signalIndex" : 26,
+      "entryIndex" : 27,
+      "exitIndex" : 36,
+      "patternLow" : 0.364567,
+      "patternHigh" : 0.379066,
+      "patternClose" : 0.375369,
+      "entryPrice" : 0.380842,
+      "stopPrice" : 0.364567,
+      "takeProfitPrice" : 0.429667,
+      "targetR" : 3,
+      "riskPerShare" : 0.016275,
+      "quantity" : 133,
+      "exitPrice" : 0.364567,
+      "exitReason" : "STOP",
+      "grossPnl" : -2.164575,
+      "netPnl" : -3.1857107891,
+      "entryCosts" : 0.5217154558,
+      "costs" : 1.0211357891,
+      "resultR" : -1.000000000000,
+      "researchResultR" : -1,
+      "mfe" : 0.029546,
+      "mae" : 0.016275,
+      "mfeR" : 1.815422427035,
+      "maeR" : 1.000000000000,
+      "holdingBars" : 10,
+      "sameBarAmbiguous" : false,
+      "closed" : true,
+      "remainingQuantity" : 0,
+      "desiredQuantity" : 11599,
+      "finalQuantity" : 133,
+      "quantityLimitingReason" : "INSUFFICIENT_CAPITAL",
+      "quantityLimitingReasons" : [ "OTHER", "INSUFFICIENT_CAPITAL", "NO_LEVERAGE" ],
+      "sizeConstrained" : true,
+      "equityAtEntry" : 9439.2254170175,
+      "availableCashBeforeEntry" : 51.1801170175,
+      "availableCashAfterEntry" : 0.0064155617,
+      "orderValue" : 50.651986,
+      "desiredRiskAmount" : 188.78450834035,
+      "desiredRiskPercent" : 2.0,
+      "actualRiskAmount" : 2.164575,
+      "actualRiskPercent" : 0.022931701537,
+      "realizedPnl" : -3.1857107891,
+      "unrealizedPnl" : 0,
+      "netUnrealizedPnl" : 0,
+      "executedMfeR" : 1.815422427035,
+      "executedMaeR" : 1.000000000000,
+      "rawBarMfeR" : 1.815422427035,
+      "rawBarMaeR" : 1.198218125960,
+      "markDate" : null,
+      "markPrice" : null,
+      "markIndex" : -1,
+      "timeoutExitPrice" : null
+    },
+    "entryTimestamp" : "2010-02-11T00:00:00Z",
+    "exitTimestamp" : "2010-02-25T00:00:00Z",
+    "entryPriceAfterSlippage" : 0.3809562526,
+    "exitPriceAfterSlippage" : 0.3644576299,
+    "commission" : 0.99139397,
+    "slippageCost" : 0.0297418191,
+    "transactionCosts" : 0.0,
+    "splitExecution" : {
+      "entryFactor" : 40,
+      "exitFactor" : 40,
+      "entryQuantityEquivalent" : 3.325,
+      "exitQuantityEquivalent" : 3.325,
+      "entryPriceSplitUnadjusted" : 15.233680,
+      "exitPriceSplitUnadjusted" : 14.582680
+    }
+  } ]
+}

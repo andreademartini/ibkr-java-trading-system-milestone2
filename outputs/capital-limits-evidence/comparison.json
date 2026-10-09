@@ -1,0 +1,145 @@
+{
+  "datasetId" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+  "runs" : [ {
+    "runId" : "81c213eb-9e61-47d0-b35c-b5eb42361365",
+    "name" : "V2_BASELINE_FIXED_LIMITS",
+    "limits" : {
+      "initialCapital" : 10000.0,
+      "riskPercent" : 2.0,
+      "maxOrderValuePercent" : 30.0,
+      "maxOrderValue" : null,
+      "maxOrderValueMode" : "CURRENT_EQUITY_PERCENT",
+      "maxPositionValue" : 10000.0,
+      "maxQuantity" : 1000000,
+      "useLeverage" : false,
+      "minQuantity" : 1,
+      "minOrderValue" : 0.0,
+      "startDate" : "2010-01-01",
+      "endDate" : "2026-09-08",
+      "timeframe" : "DAILY",
+      "maxHoldingBars" : 20,
+      "stopBufferTicks" : 0,
+      "tickSize" : 0.01,
+      "sameBarPolicy" : "STOP_FIRST",
+      "entryMode" : "NEXT_BAR_OPEN",
+      "stopMode" : "PATTERN_EXTREME",
+      "commissionEnabled" : true,
+      "commission" : {
+        "model" : "IBKR_US_FIXED",
+        "fixedPerOrder" : 0,
+        "perShare" : 0.005,
+        "minimumPerOrder" : 1,
+        "maximumPercentOrderValue" : 1
+      },
+      "slippageEnabled" : true,
+      "slippagePercentPerSide" : 0.03,
+      "maxLongNotional" : 10000.0,
+      "maxShortNotional" : 10000.0,
+      "transactionCostsPerShare" : 0.0,
+      "allowLong" : true,
+      "allowShort" : true,
+      "smallQuantityWarningThreshold" : 4,
+      "maxPositionValueMode" : "FIXED_AMOUNT",
+      "maxPositionValuePercent" : 100.0,
+      "maxLongNotionalMode" : "FIXED_AMOUNT",
+      "maxLongNotionalPercent" : 100.0,
+      "maxShortNotionalMode" : "FIXED_AMOUNT",
+      "maxShortNotionalPercent" : 100.0
+    }
+  }, {
+    "runId" : "4fc5cbdd-3f55-48b3-8a8f-535e3082952f",
+    "name" : "V2_DYNAMIC_LIMITS",
+    "limits" : {
+      "initialCapital" : 10000.0,
+      "riskPercent" : 2.0,
+      "maxOrderValuePercent" : 30.0,
+      "maxOrderValue" : null,
+      "maxOrderValueMode" : "CURRENT_EQUITY_PERCENT",
+      "maxPositionValue" : 10000.0,
+      "maxQuantity" : 1000000,
+      "useLeverage" : false,
+      "minQuantity" : 1,
+      "minOrderValue" : 0.0,
+      "startDate" : "2010-01-01",
+      "endDate" : "2026-09-08",
+      "timeframe" : "DAILY",
+      "maxHoldingBars" : 20,
+      "stopBufferTicks" : 0,
+      "tickSize" : 0.01,
+      "sameBarPolicy" : "STOP_FIRST",
+      "entryMode" : "NEXT_BAR_OPEN",
+      "stopMode" : "PATTERN_EXTREME",
+      "commissionEnabled" : true,
+      "commission" : {
+        "model" : "IBKR_US_FIXED",
+        "fixedPerOrder" : 0,
+        "perShare" : 0.005,
+        "minimumPerOrder" : 1,
+        "maximumPercentOrderValue" : 1
+      },
+      "slippageEnabled" : true,
+      "slippagePercentPerSide" : 0.03,
+      "maxLongNotional" : 10000.0,
+      "maxShortNotional" : 10000.0,
+      "transactionCostsPerShare" : 0.0,
+      "allowLong" : true,
+      "allowShort" : true,
+      "smallQuantityWarningThreshold" : 4,
+      "maxPositionValueMode" : "CURRENT_EQUITY_PERCENT",
+      "maxPositionValuePercent" : 100.0,
+      "maxLongNotionalMode" : "CURRENT_EQUITY_PERCENT",
+      "maxLongNotionalPercent" : 100.0,
+      "maxShortNotionalMode" : "CURRENT_EQUITY_PERCENT",
+      "maxShortNotionalPercent" : 100.0
+    }
+  } ],
+  "metrics" : [ {
+    "metric" : "Final Equity",
+    "values" : [ 66898.6475434162, 75595.0234224412 ],
+    "difference" : 8696.375879025
+  }, {
+    "metric" : "CAGR %",
+    "values" : [ 12.071860651140632, 12.89619488160836 ],
+    "difference" : 0.824334230467727
+  }, {
+    "metric" : "Max Drawdown %",
+    "values" : [ 20.480014805256648, 20.687698967115157 ],
+    "difference" : 0.20768416185850924
+  }, {
+    "metric" : "PF Net",
+    "values" : [ 1.5932656434827142, 1.5961825411606758 ],
+    "difference" : 0.0029168976779616607
+  }, {
+    "metric" : "Expectancy Net R",
+    "values" : [ 0.1559071306849176, 0.14868080918635174 ],
+    "difference" : -0.007226321498565863
+  }, {
+    "metric" : "Trade Count",
+    "values" : [ 1348.0, 1344.0 ],
+    "difference" : -4.0
+  }, {
+    "metric" : "Win Rate %",
+    "values" : [ 41.246290801186944, 41.220238095238095 ],
+    "difference" : -0.026052705948849564
+  }, {
+    "metric" : "Capital Skips",
+    "values" : [ 55.0, 61.0 ],
+    "difference" : 6.0
+  }, {
+    "metric" : "Average Actual Risk %",
+    "values" : [ 0.5686829370693138, 0.6005423931422574 ],
+    "difference" : 0.031859456072943604
+  }, {
+    "metric" : "Average Order Value",
+    "values" : [ 5694.926966643917, 6547.324432169643 ],
+    "difference" : 852.3974655257261
+  }, {
+    "metric" : "Average Gross Exposure %",
+    "values" : [ 37.9738461752982, 39.80218639298535 ],
+    "difference" : 1.828340217687149
+  }, {
+    "metric" : "CAGR / Max Drawdown",
+    "values" : [ 0.5894458947384219, 0.623375026004968 ],
+    "difference" : 0.033929131266546064
+  } ]
+}

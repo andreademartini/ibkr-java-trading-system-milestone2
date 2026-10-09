@@ -1,0 +1,15 @@
+{
+  "junit": {
+    "tests": 386,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 6
+  },
+  "frontend": {
+    "tests": 57,
+    "failures": 0
+  },
+  "historicalPromotion": "passed exact economic comparison",
+  "backendBuild": "passed",
+  "frontendBuild": "passed"
+}

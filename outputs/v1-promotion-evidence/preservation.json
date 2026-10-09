@@ -1,0 +1,8 @@
+{
+  "existingFilesVerified": 233,
+  "existingPersistedFilesUnchanged": true,
+  "changedSourceFiles": [
+    "src/main/java/it/andreademartini/trading/backtest/patternv1/PatternV1Controller.java",
+    "src/main/java/it/andreademartini/trading/backtest/patternv1/PatternV1RunStore.java"
+  ]
+}
