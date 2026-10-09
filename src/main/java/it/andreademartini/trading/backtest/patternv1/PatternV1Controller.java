@@ -6,7 +6,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/api/backtest/pattern-v1")
+@RequestMapping("/api/backtest/pattern-v1/legacy")
 public class PatternV1Controller {
     private final PatternV1BacktestService service;
     private final PatternV1RunStore store;

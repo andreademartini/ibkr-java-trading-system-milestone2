@@ -7,28 +7,28 @@
   <link rel="stylesheet" href="/trading-chart.css"><link rel="stylesheet" href="/pattern-v1.css">
 </head>
 <body>
-<header class="topbar"><div><h1>PATTERN V1</h1><p>Portafoglio CORE · configurazione congelata · DAILY</p></div>
+<header class="topbar"><div><h1>PATTERN V1</h1><p>STABLE / FROZEN / PAPER VALIDATION - versione 2.1 - solo backtest storico</p></div>
   <nav class="top-actions"><a class="link-button" href="/">Azioni</a><a class="link-button" href="/research.html">Pattern Research</a><a class="link-button active-link" href="/pattern-v1.html">PATTERN V1</a><a class="link-button" href="/pattern-v2.html">PATTERN V2 · Research</a></nav>
 </header>
 <main class="research-shell">
   <section class="panel research-config">
-    <div class="panel-heading"><h2>Simulazione multi-symbol</h2><span class="research-only">BACKTEST</span></div>
-    <form id="v1-form" class="research-form">
-      <label>Strategia<select id="v1-strategy"><option value="PATTERN_V1">PATTERN V1</option></select></label>
-      <label>Data iniziale<input id="v1-start" type="date" value="2010-01-01" required></label>
-      <label>Data finale<input id="v1-end" type="date"><small>Vuoto: ultima barra chiusa disponibile</small></label>
-      <label>Capitale iniziale<input id="v1-capital" type="number" min="1" step="1" value="10000" required></label>
-      <label>Max valore ordine (maxOrderValue)<input id="v1-max-order-value" type="number" min="0.01" step="0.01" placeholder="6000"><small>Vuoto: 60% del capitale iniziale (maxOrderValuePercent)</small></label>
-      <label>Max quantità (maxQuantity)<input id="v1-max-quantity" type="number" min="1" step="1" value="1000000"><small>Vuoto: 1.000.000</small></label>
-      <label>Modello commissioni<select id="v1-commission-model"><option value="IBKR_US_FIXED" selected>IBKR US Fixed</option><option value="FIXED_PER_ORDER">Importo fisso per ordine</option></select></label>
-      <label>Commissione per azione (USD)<input id="v1-commission-per-share" type="number" min="0" step="0.001" value="0.005" required></label>
-      <label>Minimo commissione per ordine (USD)<input id="v1-commission-minimum" type="number" min="0" step="0.01" value="1.00" required></label>
-      <label>Massimo commissione (% valore ordine)<input id="v1-commission-maximum" type="number" min="0" max="100" step="0.01" value="1" required></label>
-      <label>Commissione fissa per ordine (USD)<input id="v1-commission" type="number" min="0" step="0.01" value="1" required disabled><small>Usata solo con il modello Importo fisso</small></label>
-      <label>Slippage %<input id="v1-slippage" type="number" min="0" max="99" step="0.01" value="0.03" required><small>Per esecuzione: 0,03% = 3 basis point, entrata e uscita</small></label>
+    <div class="panel-heading"><h2>PATTERN_V1_STABLE 2.1</h2><span class="research-only">BACKTEST</span></div>
+    <p>Trading disabilitato. Nuovi parametri richiedono una nuova versione esplicita. <a href="/pattern-v1-legacy.html">Apri PATTERN_V1_LEGACY</a></p><details><summary>Configurazione completa congelata</summary><pre id="v1-frozen-config"></pre></details><label>Run History <select id="v1-history"><option value="">Seleziona una run</option></select></label><form id="v1-form" class="research-form">
+      <label>Strategia<select disabled id="v1-strategy"><option value="PATTERN_V1">PATTERN V1</option></select></label>
+      <label>Data iniziale<input disabled id="v1-start" type="date" value="2010-01-01" required></label>
+      <label>Data finale<input disabled id="v1-end" type="date"><small>Periodo congelato dalla run di riferimento</small></label>
+      <label>Capitale iniziale<input disabled id="v1-capital" type="number" min="1" step="1" value="10000" required></label>
+      <label>Max valore ordine (maxOrderValue)<input disabled id="v1-max-order-value" type="number" min="0.01" step="0.01" placeholder="30% equity"><small>CURRENT_EQUITY_PERCENT: 30% equity all'ingresso</small></label>
+      <label>Max quantità (maxQuantity)<input disabled id="v1-max-quantity" type="number" min="1" step="1" value="1000000"><small>Valore congelato dalla run di riferimento</small></label>
+      <label>Modello commissioni<select disabled id="v1-commission-model"><option value="IBKR_US_FIXED" selected>IBKR US Fixed</option><option value="FIXED_PER_ORDER">Importo fisso per ordine</option></select></label>
+      <label>Commissione per azione (USD)<input disabled id="v1-commission-per-share" type="number" min="0" step="0.001" value="0.005" required></label>
+      <label>Minimo commissione per ordine (USD)<input disabled id="v1-commission-minimum" type="number" min="0" step="0.01" value="1.00" required></label>
+      <label>Massimo commissione (% valore ordine)<input disabled id="v1-commission-maximum" type="number" min="0" max="100" step="0.01" value="1" required></label>
+      <label>Commissione fissa per ordine (USD)<input disabled id="v1-commission" type="number" min="0" step="0.01" value="1" required disabled><small>Usata solo con il modello Importo fisso</small></label>
+      <label>Slippage %<input disabled id="v1-slippage" type="number" min="0" max="99" step="0.01" value="0.03" required><small>Per esecuzione: 0,03% = 3 basis point, entrata e uscita</small></label>
       <div class="wide table-scroll"><table id="v1-mapping"><thead><tr><th>Symbol</th><th>LONG Pattern</th><th>LONG Target R</th><th>SHORT Pattern</th><th>SHORT Target R</th><th>Enabled</th></tr></thead><tbody></tbody></table></div>
       <p id="v1-rules" class="wide research-note"></p>
-      <div class="wide run-actions"><button id="v1-run" type="submit">Esegui PATTERN V1</button><a id="v1-excel" class="link-button" hidden>Esporta Excel</a><span id="v1-status" role="status">Caricamento configurazione…</span></div>
+      <div class="wide run-actions"><button disabled id="v1-run" type="submit">Esegui PATTERN V1</button><a id="v1-excel" class="link-button" hidden>Esporta Excel</a><span id="v1-status" role="status">Caricamento configurazione…</span></div>
     </form>
   </section>
   <section id="v1-results" class="panel" hidden>
@@ -49,5 +49,5 @@
   </section>
 </main>
 <script src="/vendor/lightweight-charts.standalone.production.js"></script>
-<script src="/trading-chart.js"></script><script src="/pattern-v1-metrics.js"></script><script src="/pattern-v1.js?v=20261007-ibkr-costs"></script>
+<script src="/trading-chart.js"></script><script src="/pattern-v1-metrics.js"></script><script src="/pattern-v1-stable.js"></script>
 </body></html>

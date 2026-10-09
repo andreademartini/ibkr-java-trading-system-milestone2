@@ -35,4 +35,10 @@ public class PatternV1RunStore {
         try { return mapper.readValue(file.toFile(), PatternV1Result.class); }
         catch (IOException e) { throw new IllegalStateException("Cannot read PATTERN_V1 run", e); }
     }
+    public java.util.List<PatternV1Result> history() {
+        if(!Files.isDirectory(directory))return java.util.List.of();
+        try(var files=Files.list(directory)){return files.filter(p->p.toString().endsWith(".json"))
+            .map(p->{try{return mapper.readValue(p.toFile(),PatternV1Result.class);}catch(IOException e){throw new IllegalStateException(e);}}).toList();}
+        catch(IOException e){throw new IllegalStateException("Cannot read legacy history",e);}
+    }
 }

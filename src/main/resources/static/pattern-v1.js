@@ -24,7 +24,7 @@
     });
     async function initialize() {
         try {
-            const config = await api("/api/backtest/pattern-v1/configuration");
+            const config = await api("/api/backtest/pattern-v1/legacy/configuration");
             $("v1-mapping").querySelector("tbody").innerHTML = Object.entries(config.symbols).sort().map(([symbol, c]) => {
                 const l = c.longConfig, s = c.shortConfig;
                 return `<tr>${[symbol, l?.enabled ? l.pattern : "DISABLED", l?.enabled ? num(l.targetR) + "R" : "—", s?.enabled ? s.pattern : "DISABLED", s?.enabled ? num(s.targetR) + "R" : "—", l?.enabled || s?.enabled ? "Sì" : "No"].map(v => `<td>${escape(v)}</td>`).join("")}</tr>`;
@@ -32,13 +32,13 @@
             $("v1-rules").textContent = `DAILY · NEXT_BAR_OPEN · PATTERN_EXTREME · buffer 0 · STOP_FIRST · massimo 20 barre · ${"TIMEOUT chiuso al Close della holding bar 20 (entry = 1)"} · tutti gli altri simboli disabilitati.`;
             $("v1-run").disabled = !config.enabled; status(config.enabled ? "Pronto" : "Strategia disabilitata");
             const id = new URLSearchParams(location.search).get("run");
-            if (id) show(await api(`/api/backtest/pattern-v1/${encodeURIComponent(id)}`));
+            if (id) show(await api(`/api/backtest/pattern-v1/legacy/${encodeURIComponent(id)}`));
         } catch (error) { status(error.message); $("v1-run").disabled = true; }
     }
     $("v1-form").addEventListener("submit", async event => {
         event.preventDefault(); $("v1-run").disabled = true; status("Backtest in esecuzione…");
         try {
-            show(await api("/api/backtest/pattern-v1/run", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({
+            show(await api("/api/backtest/pattern-v1/legacy/run", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({
                 startDate:$("v1-start").value, endDate:$("v1-end").value || null, timeframe:"DAILY",
                 initialCapital:Number($("v1-capital").value), slippagePercent:Number($("v1-slippage").value),
                 commission:{model:$("v1-commission-model").value, fixedPerOrder:Number($("v1-commission").value),
@@ -62,8 +62,8 @@
             return;
         }
         $("v1-results").hidden = false; $("v1-chart-section").hidden = true;
-        $("v1-excel").hidden = false; $("v1-excel").href = `/api/backtest/pattern-v1/${run.backtestId}/export/excel`;
-        history.replaceState(null, "", `?run=${run.backtestId}`);
+        $("v1-excel").hidden = false; $("v1-excel").href = `/api/backtest/pattern-v1/legacy/${run.backtestId}/export/excel`;
+        history.replaceState(null, "", `/pattern-v1-legacy.html?run=${run.backtestId}`);
         status(`${run.summary.trades} trade · ${run.backtestId}`);
         $("v1-coverage").textContent = `Richiesto ${run.startDate} → ${run.endDate}. Copertura effettiva ${run.actualStartDate ?? "—"} → ${run.actualEndDate ?? "—"}. CAGR sulla copertura effettiva.`;
         
