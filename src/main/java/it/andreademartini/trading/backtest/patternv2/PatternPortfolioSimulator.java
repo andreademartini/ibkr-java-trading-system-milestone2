@@ -25,7 +25,7 @@ public final class PatternPortfolioSimulator {
         this.sizing = new PatternV1PositionSizing(sizing);
         this.detectors = List.copyOf(detectors);
     }
-    public record Simulation(PatternV1Result portfolio, List<String> equityTimestamps, List<PatternRangeAnalysis.SignalAudit> signals,List<CloseStrengthAnalysis.SignalAudit> closeStrengthSignals,List<CapitalSkipAudit> capitalSkipAudits, Map<String,PatternV2CapitalLimits.Audit> capitalLimitsAudits,List<BollingerAtrAnalysis.SignalAudit> bollingerAtrSignals) {}
+    public record Simulation(PatternV1Result portfolio, List<String> equityTimestamps, List<PatternRangeAnalysis.SignalAudit> signals,List<CloseStrengthAnalysis.SignalAudit> closeStrengthSignals,List<CapitalSkipAudit> capitalSkipAudits, Map<String,PatternV2CapitalLimits.Audit> capitalLimitsAudits,List<BollingerAtrAnalysis.SignalAudit> bollingerAtrSignals,List<MarketRegimeFilter.SignalAudit> marketRegimeSignals) {}
     public Simulation run(PatternV2Configuration configuration, Map<String,List<HistoricalBar>> input) {
         return run(configuration,input,UUID.randomUUID().toString());
     }
@@ -82,6 +82,8 @@ public final class PatternPortfolioSimulator {
         List<CloseStrengthAnalysis.SignalAudit> closeAudits = new ArrayList<>();
         List<BollingerAtrAnalysis.SignalAudit> bollingerAudits=new ArrayList<>();
         Map<String,BollingerAtr> indicators=new HashMap<>();
+        List<MarketRegimeFilter.SignalAudit> regimeAudits=new ArrayList<>();
+        Map<String,MarketRegimeIndicators> regimeIndicators=new HashMap<>();
         List<Trade> trades = new ArrayList<>();
         Map<String,PatternV2CapitalLimits.Audit> capitalLimitsAudits=new LinkedHashMap<>();
         List<EquityPoint> equityCurve = new ArrayList<>();
@@ -211,11 +213,18 @@ public final class PatternPortfolioSimulator {
             for (var symbolIndex : day.getValue().entrySet()) {
                 String symbol = symbolIndex.getKey(); int index = symbolIndex.getValue();
                 var indicator=global.timeframe()==BarInterval.DAILY?indicators.computeIfAbsent(symbol,ignored->new BollingerAtr(configuration)).onBar(series.get(symbol).get(index)):new BollingerAtr.Value(null,null,null,null);
+                var regimeValue=global.timeframe()==BarInterval.DAILY?regimeIndicators.computeIfAbsent(symbol,ignored->new MarketRegimeIndicators(configuration,configuration.marketRegimeFilterAdxPeriod())).onBar(series.get(symbol).get(index)):null;
                 for (var signal : strategy.onClosedBar(symbol, series.get(symbol), index)) {
                     signalEquities.put(signalId(datasetId,signal,series),markedEquity(cash,positions,lastPrices));
                     event(events, "PATTERN_DETECTED", null, signal, day.getKey().toLocalDate(), index,
                             Map.of("patternDate", day.getKey().toLocalDate(), "patternLow", signal.patternLow(), "patternHigh", signal.patternHigh(),
                                     "patternClose", signal.patternClose(), "configuredTargetR", signal.targetR(), "patternStartIndex", signal.detection().patternStartBarIndex()));
+                    var regimeAudit=MarketRegimeFilter.audit(signal,regimeValue,configuration);
+                    regimeAudits.add(regimeAudit);
+                    if(!regimeAudit.accepted()) {
+                        event(events,regimeAudit.rejectionReason(),null,signal,day.getKey().toLocalDate(),index,Map.of("rejectReason",regimeAudit.rejectionReason(),"filterThreshold",configuration.marketRegimeFilterAdxThreshold()));
+                        continue;
+                    }
                     var range = new PatternRange(signal.patternHigh(),signal.patternLow(),signal.patternClose());
                     boolean accepted = !configuration.patternRangeFilterEnabled() || range.reaches(configuration.minimumPatternRangePct());
                     signalAudits.add(new PatternRangeAnalysis.SignalAudit(symbol,signal.detection().direction().name(),signal.detection().patternType().name(),
@@ -322,7 +331,7 @@ public final class PatternPortfolioSimulator {
                 maximumDrawdown, maximumDrawdownPercent, averageExposure / 100, positions.size(), summary, directions,
                 List.copyOf(symbolResults), List.copyOf(trades), List.copyOf(equityCurve), List.copyOf(events), Map.copyOf(configurations), Map.copyOf(chartSeries),
                 settings, List.copyOf(warnings), 2, cash, availableCash(cash, positions), finalLong, finalShort, finalLong.subtract(finalShort),
-                averageExposure, timeline.isEmpty() ? 0 : daysInMarket * 100.0 / timeline.size()), timeline.keySet().stream().map(t->t.toInstant(java.time.ZoneOffset.UTC).toString()).toList(), List.copyOf(signalAudits),List.copyOf(closeAudits),List.copyOf(capitalAudits),Map.copyOf(capitalLimitsAudits),List.copyOf(bollingerAudits));
+                averageExposure, timeline.isEmpty() ? 0 : daysInMarket * 100.0 / timeline.size()), timeline.keySet().stream().map(t->t.toInstant(java.time.ZoneOffset.UTC).toString()).toList(), List.copyOf(signalAudits),List.copyOf(closeAudits),List.copyOf(capitalAudits),Map.copyOf(capitalLimitsAudits),List.copyOf(bollingerAudits),List.copyOf(regimeAudits));
     }
     private static double attributionDrawdown(List<Trade> trades, Map<String, List<HistoricalBar>> series, Set<LocalDate> dates) {
         Map<String, NavigableMap<LocalDate, BigDecimal>> closes = new HashMap<>();

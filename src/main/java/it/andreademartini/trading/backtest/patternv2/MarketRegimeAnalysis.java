@@ -37,13 +37,13 @@ public final class MarketRegimeAnalysis {
         boolean down=less(v.ema20(),v.ema50())&&less(v.ema50(),v.ema200())&&trend.equals("DOWN");
         String regime=!v.complete()?"INSUFFICIENT_DATA":v.adx14()<20?"SIDEWAYS_WEAK_TREND":v.adx14()<25?"TRANSITION":up?"STRONG_UPTREND":down?"STRONG_DOWNTREND":"MIXED_UNCLASSIFIED";
         String secondary=v.adx14()==null||v.plusDI14()==null||v.minusDI14()==null?"INSUFFICIENT_DATA":v.adx14()<20?"WEAK_TREND":v.adx14()>=25&&trend.equals("UP")?"DIRECTIONAL_UP":v.adx14()>=25&&trend.equals("DOWN")?"DIRECTIONAL_DOWN":"TRANSITION_OR_MIXED";
-        String relation=v.adx14()!=null&&v.adx14()>=25?relation(direction,trend):"NEUTRAL_OR_MIXED";
+        String relation=!MarketRegimeFilter.available(v)?"INSUFFICIENT_DATA":v.adx14()>=25?relation(direction,trend):"NEUTRAL_OR_MIXED";
         String emaTrend=v.ema50()==null||v.ema200()==null?"MIXED":v.ema50()>v.ema200()?"UP":v.ema50()<v.ema200()?"DOWN":"MIXED";
         return new Context(v,regime,strength,trend,secondary,relation,relation(direction,emaTrend),greater(v.close(),v.ema20()),greater(v.close(),v.ema50()),greater(v.close(),v.ema200()),greater(v.ema20(),v.ema50()),greater(v.ema50(),v.ema200()),greater(v.plusDI14(),v.minusDI14()));
     }
     private static Boolean greater(Double a,Double b){return a==null||b==null?null:a>b;}
     private static boolean less(Double a,Double b){return a!=null&&b!=null&&a<b;}
-    private static String relation(String trade,String trend){return !List.of("UP","DOWN").contains(trend)?"NEUTRAL_OR_MIXED":trade.equals("LONG")==trend.equals("UP")?"WITH_TREND":"COUNTER_TREND";}
+    static String relation(String trade,String trend){return !List.of("UP","DOWN").contains(trend)?"NEUTRAL_OR_MIXED":trade.equals("LONG")==trend.equals("UP")?"WITH_TREND":"COUNTER_TREND";}
     public static String bucket(Double adx){if(adx==null)return "INSUFFICIENT_DATA";double[] limits={15,20,25,30,40};for(int i=0;i<limits.length;i++)if(adx<limits[i])return BUCKETS.get(i);return BUCKETS.get(5);}
     public static String period(LocalDate date){int year=date.getYear();return year<2010?"OUTSIDE_PERIODS":year<2014?"2010-2013":year<2018?"2014-2017":year<2022?"2018-2021":"2022-END";}
     public static String outcome(BigDecimal pnl){return pnl.abs().compareTo(ZERO_TOLERANCE)<=0?"BREAKEVEN":pnl.signum()>0?"WINNER":"LOSER";}

@@ -26,8 +26,30 @@ import java.util.*;
     "trading.mode=BACKTEST","trading.ibkr.auto-connect=false","trading.order-submission-enabled=false","trading.strategy.auto-execute-signals=false"})
 @Import(PatternV2HttpIntegrationTest.IsolatedStore.class)
 class PatternV2HttpIntegrationTest {
+    @Test void regimeFilterPersistsHistoryAndRejectsWithoutBrokerOrders() throws Exception {
+        when(historical.load(anyString(),any(),any(),any())).thenAnswer(i->i.getArgument(0).equals("AAPL")?engulfing("AAPL"):List.of());
+        ObjectNode config=(ObjectNode)mapper.readTree(request("/api/backtest/pattern-v2/baseline","POST",null).body());
+        config.put("marketRegimeFilterEnabled",true).put("marketRegimeFilterAdxPeriod",7).put("marketRegimeFilterAdxThreshold",31.0).put("marketRegimeFilterMode","EXCLUDE_WITH_TREND");
+        config.put("marketRegimeAnalysisEnabled",false);((ObjectNode)config.get("global")).put("startDate",START.toString()).put("endDate",START.plusDays(2).toString());
+        var response=request("/api/backtest/pattern-v2/run","POST",config);assertEquals(200,response.statusCode(),new String(response.body()));var run=mapper.readTree(response.body());var id=run.path("runId").asText();
+        assertEquals(1,run.path("marketRegimeFilterAnalysis").path("summary").path("rejectedInsufficientData").asLong());assertTrue(run.path("marketRegimeAnalysis").isNull());
+        assertEquals(mapper.treeToValue(config,PatternV2Configuration.class),mapper.treeToValue(mapper.readTree(request("/api/backtest/pattern-v2/runs/"+id,"GET",null).body()).path("configuration"),PatternV2Configuration.class));
+        var history=mapper.readTree(request("/api/backtest/pattern-v2/runs","GET",null).body());var entry=java.util.stream.StreamSupport.stream(history.spliterator(),false).filter(r->r.path("runId").asText().equals(id)).findFirst().orElseThrow();assertTrue(entry.path("marketRegimeFilterEnabled").asBoolean());assertEquals(7,entry.path("marketRegimeFilterAdxPeriod").asInt());assertEquals(31,entry.path("marketRegimeFilterAdxThreshold").asDouble());
+        for(var key:List.of("marketRegimeFilterAdxPeriod","marketRegimeFilterAdxThreshold")){var bad=config.deepCopy();bad.putNull(key);assertEquals(400,request("/api/backtest/pattern-v2/run","POST",bad).statusCode());}
+        var fractional=config.deepCopy();fractional.put("marketRegimeFilterAdxPeriod",14.5);assertEquals(400,request("/api/backtest/pattern-v2/run","POST",fractional).statusCode());
+        var export=request("/api/backtest/pattern-v2/runs/"+id+"/export/excel","GET",null);assertEquals(200,export.statusCode());assertEquals(200,request("/pattern-v2-filter.js","GET",null).statusCode());verify(ibkr,never()).placeOrder(anyInt(),any(),any());verify(v1Store,never()).save(any());
+    }
     @TestConfiguration static class IsolatedStore {
         @Bean @Primary PatternV2Store v2TestStore() throws Exception {return new PatternV2Store(Files.createTempDirectory("pattern-v2-http-"));}
+        @Bean @Primary it.andreademartini.trading.backtest.patternv3.PatternV3Store v3TestStore() throws Exception {return new it.andreademartini.trading.backtest.patternv3.PatternV3Store(Files.createTempDirectory("pattern-v3-http-"));}
+    }
+    @Test void reorganizedStableV2AndResearchV3RoutesHaveIndependentSnapshots() throws Exception {
+        when(historical.load(anyString(),any(),any(),any())).thenAnswer(i->i.getArgument(0).equals("AAPL")?engulfing("AAPL"):List.of());
+        var stable=mapper.readTree(request("/api/backtest/pattern-v2-stable/configuration","GET",null).body());assertEquals("PATTERN_V2",stable.path("strategyId").asText());assertEquals("1.0",stable.path("strategyVersion").asText());assertTrue(stable.path("configuration").path("marketRegimeFilterEnabled").asBoolean());assertEquals(400,request("/api/backtest/pattern-v2-stable/run","POST",Map.of("riskPercent",99)).statusCode());
+        var old=mapper.readTree(request("/api/backtest/pattern-v2/configuration","GET",null).body());
+        var config=(ObjectNode)mapper.readTree(request("/api/backtest/pattern-v3/configuration","GET",null).body());config.put("name","V3_HTTP_ISOLATED").put("marketRegimeFilterEnabled",false);((ObjectNode)config.get("global")).put("startDate",START.toString()).put("endDate",START.plusDays(2).toString());
+        var response=request("/api/backtest/pattern-v3/run","POST",config);assertEquals(200,response.statusCode(),new String(response.body()));var run=mapper.readTree(response.body());assertEquals("PATTERN_V3",run.path("strategy").asText());assertEquals("PATTERN_V3",run.path("strategyId").asText());assertEquals("3.0-research",run.path("strategyVersion").asText());assertFalse(run.path("configurationHash").asText().isBlank());
+        var id=run.path("runId").asText();assertEquals(200,request("/api/backtest/pattern-v3/runs/"+id,"GET",null).statusCode());assertEquals(200,request("/api/backtest/pattern-v3/runs/"+id+"/export/excel","GET",null).statusCode());assertEquals(old,mapper.readTree(request("/api/backtest/pattern-v2/configuration","GET",null).body()));verify(ibkr,never()).placeOrder(anyInt(),any(),any());
     }
     @Autowired Environment environment;
     @Autowired PatternV1Properties frozen;

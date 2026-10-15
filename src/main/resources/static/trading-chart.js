@@ -399,8 +399,12 @@
         return finiteSegment(level, start, end);
     }
 
+    function isCandlestickStrategy(strategy) {
+        return strategy === "PATTERN_V1" || strategy === "PATTERN_V2";
+    }
+
     function takeProfitStatus(trade, target) {
-        if (trade?.strategy === "PATTERN_V1") {
+        if (isCandlestickStrategy(trade?.strategy)) {
             return (trade.events || []).some(event => eventType(event) === "TAKE_PROFIT_FILLED") ? "FILLED" : "NOT FILLED";
         }
         const number = finiteNumber(target?.targetNumber);
@@ -705,7 +709,7 @@
                 this.volumeSeries.setData(this.bars.volumes);
             }
             this.volumeSeries.applyOptions({ visible: this.filters.volume });
-            if (simulation.strategy === "PATTERN_V1") {
+            if (isCandlestickStrategy(simulation.strategy)) {
                 const start = this.selectedTrade?.patternStartIndex;
                 const end = this.selectedTrade?.signalIndex;
                 this.priceSeries.setData(this.bars.source.map(bar => ({
@@ -1033,20 +1037,20 @@
                 this.infoPanel.innerHTML = '<p class="chart-empty-copy">Seleziona un trade per visualizzarne i dettagli.</p>';
                 return;
             }
-            const isPatternV1 = this.simulation.strategy === "PATTERN_V1";
-            const displayedPnl = isPatternV1 && !trade.closed ? trade.netUnrealizedPnl : trade.netPnl;
-            const patternDetails = isPatternV1 ? `
+            const isPatternStrategy = isCandlestickStrategy(this.simulation.strategy);
+            const displayedPnl = isPatternStrategy && !trade.closed ? trade.netUnrealizedPnl : trade.netPnl;
+            const patternDetails = isPatternStrategy ? `
                 <div class="trade-info-value"><span>Desired / Final Qty</span><strong>${formatInteger(trade.desiredQuantity)} / ${formatInteger(trade.finalQuantity)}</strong></div>
                 <div class="trade-info-value"><span>Quantity limits</span><strong>${escapeHtml((trade.quantityLimitingReasons || []).join(", ") || "NONE")}</strong></div>
                 <div class="trade-info-value"><span>Target / Actual Risk %</span><strong>${formatNumber(trade.desiredRiskPercent)}% / ${formatNumber(trade.actualRiskPercent)}%</strong></div>
                 <div class="trade-info-value"><span>Order Value</span><strong>${formatNumber(trade.orderValue)}</strong></div>
                 <div class="trade-info-value"><span>Raw Bar MFE / MAE</span><strong>${formatNumber(trade.rawBarMfeR)}R / ${formatNumber(trade.rawBarMaeR)}R</strong></div>
                 ${!trade.closed ? `<div class="trade-info-value"><span>Mark (OPEN)</span><strong>${escapeHtml(trade.markDate)} · ${formatNumber(trade.markPrice)}</strong></div>` : ""}` : "";
-            const rMultiple = isPatternV1 ? trade.resultR
+            const rMultiple = isPatternStrategy ? trade.resultR
                 : finiteNumber(trade.effectiveRisk) ? Number(trade.netPnl) / Number(trade.effectiveRisk) : null;
             const targets = (trade.takeProfits || []).map((target) => `
                 <div class="trade-info-value">
-                    <span>${isPatternV1 ? "Take Profit" : `TP${target.targetNumber}`}</span>
+                    <span>${isPatternStrategy ? "Take Profit" : `TP${target.targetNumber}`}</span>
                     <strong>${formatNumber(target.price)}</strong>
                     <em class="tp-status ${takeProfitStatus(trade, target).toLowerCase().replace(" ", "-")}">${takeProfitStatus(trade, target)}</em>
                 </div>`).join("");
@@ -1063,11 +1067,11 @@
                     <div class="trade-info-value"><span>Quantità</span><strong>${formatInteger(trade.quantity)}</strong></div>
                     ${targets}
                     <div class="trade-info-value"><span>Exit finale</span><strong>${formatNumber(trade.exitPrice)} · ${escapeHtml(trade.exitReason)}</strong></div>
-                    <div class="trade-info-value"><span>${isPatternV1 && !trade.closed ? "Net Unrealized PnL" : "Net PnL"}</span><strong class="${Number(displayedPnl) >= 0 ? "positive" : "negative"}">${formatNumber(displayedPnl)}</strong></div>
+                    <div class="trade-info-value"><span>${isPatternStrategy && !trade.closed ? "Net Unrealized PnL" : "Net PnL"}</span><strong class="${Number(displayedPnl) >= 0 ? "positive" : "negative"}">${formatNumber(displayedPnl)}</strong></div>
                     <div class="trade-info-value"><span>Return</span><strong>${formatNumber(trade.returnPercent)}%</strong></div>
-                    <div class="trade-info-value"><span>R multiple</span><strong>${isPatternV1 && rMultiple == null ? "n/d" : formatNumber(rMultiple) + "R"}</strong></div>
-                    <div class="trade-info-value"><span>${isPatternV1 ? "Executed MFE" : "MFE"}</span><strong>${formatNumber(trade.mfe)} · ${formatNumber(trade.mfeR)}R</strong></div>
-                    <div class="trade-info-value"><span>${isPatternV1 ? "Executed MAE" : "MAE"}</span><strong>${formatNumber(trade.mae)} · ${formatNumber(trade.maeR)}R</strong></div>
+                    <div class="trade-info-value"><span>R multiple</span><strong>${isPatternStrategy && rMultiple == null ? "n/d" : formatNumber(rMultiple) + "R"}</strong></div>
+                    <div class="trade-info-value"><span>${isPatternStrategy ? "Executed MFE" : "MFE"}</span><strong>${formatNumber(trade.mfe)} · ${formatNumber(trade.mfeR)}R</strong></div>
+                    <div class="trade-info-value"><span>${isPatternStrategy ? "Executed MAE" : "MAE"}</span><strong>${formatNumber(trade.mae)} · ${formatNumber(trade.maeR)}R</strong></div>
                     ${patternDetails}
                 </div>`;
         }
@@ -1082,7 +1086,7 @@
                 return;
             }
             const relevant = (trade.events || []).filter((event) => {
-                if (this.simulation.strategy === "PATTERN_V1") return true;
+                if (isCandlestickStrategy(this.simulation.strategy)) return true;
                 const type = eventType(event);
                 return type === "ENTRY" || type.startsWith("EXIT") || type === "TP1_FILLED" || type === "INITIAL STOP"
                     || type === "STOP MOVED" || joeRossLabel(type);

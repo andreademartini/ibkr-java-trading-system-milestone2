@@ -7,7 +7,11 @@
     const table = (headers, rows, click = false) => `<table><thead><tr>${headers.map(v => `<th>${escape(v)}</th>`).join("")}</tr></thead><tbody>${rows.map((row, i) => `<tr ${click ? `data-row="${i}" tabindex="0"` : ""}>${row.map(v => `<td>${escape(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
     let activeVersion, run, chart, equityChart, shownTrades = [], selectedNumber, versions = new Map();
     async function api(url, options) {
-        const response = await fetch(url, options);
+        const isRead = !options?.method || options.method === 'GET';
+        const signal = isRead && typeof AbortSignal !== 'undefined' ? AbortSignal.timeout(15000) : undefined;
+        let response;
+        try { response = await fetch(url, signal ? {...options, signal} : options); }
+        catch (error) { throw new Error(signal?.aborted ? 'Timeout nel caricamento: '+url+'. Verifica il backend e ricarica la pagina.' : 'Backend non raggiungibile: '+url+'. '+error.message); }
         if (!response.ok) throw new Error(await response.text());
         return response.json();
     }
@@ -28,7 +32,8 @@
             for(const [id,value] of Object.entries(fields)){$(id).value=value;$(id).disabled=true;}
             $('v1-strategy').disabled=true;
             $('v1-rules').textContent='DAILY - NEXT_BAR_OPEN - PATTERN_EXTREME - buffer '+g.stopBufferTicks+' - '+g.sameBarPolicy+' - '+g.maxHoldingBars+' barre. Rischio 2%; ordine 30% equity; posizione/LONG/SHORT 100% equity per trade; nessuna leva; filtri OFF. Costi e split della run originale.';
-            await loadHistory();$('v1-run').disabled=false;status('Versione '+activeVersion+' congelata - ordini disabilitati');
+            $('v1-run').disabled=false;status('Versione '+activeVersion+' congelata - ordini disabilitati');
+            loadHistory().catch(error=>status('Configurazione pronta. Run History non disponibile: '+error.message));
             const id=new URLSearchParams(location.search).get('run');if(id)show(await api('/api/backtest/pattern-v1/'+encodeURIComponent(id)));
         }catch(error){status(error.message);$('v1-run').disabled=true;}
     }

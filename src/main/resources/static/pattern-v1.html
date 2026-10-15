@@ -3,16 +3,14 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PATTERN V1 · Backtest</title>
-  <link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/research.css">
-  <link rel="stylesheet" href="/trading-chart.css"><link rel="stylesheet" href="/pattern-v1.css">
-  <link rel="stylesheet" href="/pattern-v1-paper.css">
+  <link rel="stylesheet" href="/app.css?v=sticky-nav-1"><link rel="stylesheet" href="/research.css">
+  <link rel="stylesheet" href="/trading-chart.css"><link rel="stylesheet" href="/pattern-v1.css?v=2">
 </head>
 <body>
-<header class="topbar"><div><h1>PATTERN V1</h1><p>STABLE / FROZEN / PAPER VALIDATION - versione 2.1 - solo backtest storico</p></div>
-  <nav class="top-actions"><a class="link-button" href="/">Azioni</a><a class="link-button" href="/research.html">Pattern Research</a><a class="link-button active-link" href="/pattern-v1.html">PATTERN V1</a><a class="link-button" href="/pattern-v2.html">PATTERN V2 · Research</a></nav>
+<header class="topbar"><div><h1>PATTERN V1</h1><p>STABLE / FROZEN / BACKTEST - versione 2.1</p></div>
+  <nav class="top-actions"><a class="link-button" href="/paper-trading.html">PAPER TRADING</a><a class="link-button active-link" href="/pattern-v1.html">PATTERN V1 — BACKTEST</a><a class="link-button" href="/pattern-v2.html">PATTERN V2 — BACKTEST</a><a class="link-button" href="/pattern-v3.html">PATTERN V3 — RESEARCH</a><a class="link-button" href="/">Azioni</a><a class="link-button" href="/research.html">Pattern Research</a></nav>
 </header>
 <main class="research-shell">
-  <nav class="paper-tabs" aria-label="Modalit? PATTERN V1"><button type="button" id="paper-tab-backtest" class="selected">BACKTEST</button><button type="button" id="paper-tab-paper">PAPER TRADING</button></nav>
   <div id="v1-backtest-panel">
   <section class="panel research-config">
     <div class="panel-heading"><h2>PATTERN_V1_STABLE 2.1</h2><span class="research-only">BACKTEST</span></div>
@@ -52,32 +50,7 @@
   </section>
 
   </div>
-  <section id="paper-panel" class="panel" hidden>
-    <div class="panel-heading"><div><h2>PAPER TRADING ? PATTERN V1</h2><p>Strategia congelata ? conto simulato autorizzato ? equity virtuale dedicata</p></div><strong id="paper-mode" class="paper-badge">DISABLED</strong></div>
-    <p id="paper-message" role="status">Accedi per leggere lo stato del backend e usare i controlli amministrativi.</p>
-    <form id="paper-login" class="paper-login"><label>Accesso amministrativo<input id="paper-token" type="password" autocomplete="off" placeholder="Token amministrativo" required></label><button type="submit">Accedi</button><p id="paper-access-info"></p></form>
-    <div id="paper-controls" hidden>
-      <div class="paper-actions"><button id="paper-connect" type="button">Verifica connessione IBKR</button><button id="paper-start" type="button" class="paper-play">? AVVIA PAPER AUTO</button><button id="paper-stop" type="button" class="paper-stop">? FERMA NUOVI INGRESSI</button><button id="paper-kill" type="button" class="paper-kill">EMERGENZA / KILL SWITCH</button><button id="paper-refresh" type="button">AGGIORNA STATO</button><button id="paper-shadow" type="button">AVVIA SHADOW</button><button id="paper-reset" type="button">Reset amministrativo kill switch</button><a id="paper-export" class="link-button" href="/api/pattern-v1/paper/export/excel">Export Excel PAPER</a><button id="paper-logout" type="button">Esci</button></div>
-      <p class="research-note">Ferma nuovi ingressi mantiene le protezioni e la gestione delle uscite. Il kill switch richiede conferma e reset esplicito. Un refresh aggiorna lo stato senza trasmettere ordini.</p>
-      <div class="paper-grid"><section><h3>Connessione e strategia</h3><dl id="paper-connection"></dl></section><section><h3>Controlli di attivazione</h3><ul id="paper-checks" class="paper-checks"></ul></section></div>
-      <h3>Capitale virtuale V1</h3><div id="paper-capital" class="paper-metrics"></div>
-      <h3>Performance da esecuzioni IBKR</h3><div id="paper-performance" class="paper-metrics"></div><p id="paper-pending-fees"></p>
-      <div id="paper-equity" class="paper-equity" aria-label="Equity curve PAPER"></div>
-      <details><summary>Limiti operativi supplementari</summary><p>Imposta esplicitamente i limiti prima dell'avvio. Questi controlli operativi non modificano la strategia congelata.</p><form id="paper-limits" class="paper-limits"><label>Daily Loss Limit (USD)<input name="dailyLoss" type="number" min="0.01" step="0.01" required></label><label>Portfolio Drawdown Limit (%)<input name="portfolioDrawdownPercent" type="number" min="0.01" max="100" step="0.01" required></label><label>Maximum Open Positions<input name="maxOpenPositions" type="number" min="1" step="1" required></label><label>Maximum New Orders Per Day<input name="maxNewOrdersPerDay" type="number" min="1" step="1" required></label><label>Maximum Aggregate Exposure (%)<input name="maxAggregateExposurePercent" type="number" min="0.01" max="100" step="0.01" required></label><button type="submit">Salva limiti operativi</button></form></details>
-      <h3>Posizioni aperte e protezioni</h3><div id="paper-positions" class="table-scroll"></div>
-      <h3>Ordini pendenti ed eseguiti</h3><div id="paper-orders" class="table-scroll"></div>
-      <h3>Operazioni chiuse</h3><div id="paper-closed" class="table-scroll"></div>
-      <h3>Performance SHADOW sugli stessi segnali</h3><div id="paper-shadow-performance" class="paper-metrics"></div><p>Simulazione su barre complete, separata dalle esecuzioni IBKR. I risultati SHADOW sono nell?export dedicato.</p>
-      <h3>Segnali PAPER / SHADOW</h3><div id="paper-signals" class="table-scroll"></div>
-      <h3>Confronto teorico / PAPER sugli stessi segnali</h3><div id="paper-comparison" class="table-scroll"></div>
-      <h3>Storico eventi</h3><div id="paper-events" class="table-scroll"></div>
-      <details open><summary>Limitazioni e interventi richiesti</summary><ul id="paper-limitations"></ul></details>
-      <details><summary>Configurazione congelata effettiva</summary><pre id="paper-frozen"></pre></details>
-    </div>
-  </section>
-
-</main>
+<noscript>JavaScript deve essere abilitato per caricare la configurazione ed eseguire il backtest.</noscript></main>
 <script src="/vendor/lightweight-charts.standalone.production.js"></script>
-<script src="/trading-chart.js"></script><script src="/pattern-v1-metrics.js"></script><script src="/pattern-v1-stable.js"></script>
-<script src="/pattern-v1-paper.js"></script>
+<script src="/trading-chart.js"></script><script src="/pattern-v1-metrics.js"></script><script src="/pattern-v1-stable.js?v=3" onerror="document.getElementById('v1-status').textContent='Impossibile caricare lo script della pagina. Verifica l?URL del backend e aggiorna con Ctrl+F5.'"></script>
 </body></html>

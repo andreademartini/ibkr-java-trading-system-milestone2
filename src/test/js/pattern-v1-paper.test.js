@@ -16,12 +16,8 @@ function harness(){
     vm.runInNewContext(fs.readFileSync('src/main/resources/static/pattern-v1-paper.js','utf8'),context);
     return {get,calls,data,setConfirmation(value){confirmation=value;},async flush(){await new Promise(resolve=>setImmediate(resolve));},async login(){get('paper-token').value='temporary-test-token';await get('paper-login').handlers.submit({preventDefault(){}});await this.flush();}};
 }
-test('PAPER tab contains all controls and keeps frozen backtest controls separate',()=>{
-    const html=fs.readFileSync('src/main/resources/static/pattern-v1.html','utf8');
-    for(const id of ['paper-panel','paper-start','paper-stop','paper-kill','paper-refresh','paper-reset','paper-equity','paper-orders','paper-positions','v1-backtest-panel'])assert.match(html,new RegExp('id="'+id+'"'));
-    assert.match(html,/AVVIA PAPER AUTO/);assert.match(html,/FERMA NUOVI INGRESSI/);
-    const ids=[...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]);assert.equal(new Set(ids).size,ids.length);
-});
+test('PAPER management moved to its dedicated page while V1 remains backtest only',()=>{const v1=fs.readFileSync('src/main/resources/static/pattern-v1.html','utf8'),paper=fs.readFileSync('src/main/resources/static/paper-trading.html','utf8');assert.doesNotMatch(v1,/id="paper-tab-paper"|id="paper-panel"|src="\/pattern-v1-paper.js/);assert.match(v1,/STABLE \/ FROZEN \/ BACKTEST/);for(const id of ['desk-login','desk-controls','strategies','comparison','orders','positions','desk-equity'])assert.match(paper,new RegExp('id="'+id+'"'));});
+
 test('Opening the tab or signing in never starts or connects trading',async()=>{const h=harness();await h.flush();h.get('paper-tab-paper').handlers.click();await h.login();assert.equal(h.get('paper-token').value,'');assert.equal(h.get('paper-mode').textContent,'ERROR');assert.equal(h.get('paper-message').textContent,h.data.session.reason);assert.equal(h.calls.filter(c=>c.url.endsWith('/start')||c.url.endsWith('/connect')).length,0);assert.equal(h.get('v1-backtest-panel').hidden,true);});
 test('Refresh sends only refresh with session CSRF and an idempotent command ID',async()=>{const h=harness();await h.login();await h.get('paper-refresh').handlers.click();const request=h.calls.find(c=>c.url.endsWith('/refresh'));assert.equal(request.options.headers['X-Paper-CSRF'],'test-csrf');assert.match(request.body.commandId,/^[a-f0-9-]{36}$/);assert.equal(h.calls.filter(c=>c.url.endsWith('/start')).length,0);});
 test('Kill switch requires the exact explicit confirmation',async()=>{const h=harness();await h.login();h.setConfirmation(null);h.get('paper-kill').handlers.click();assert.equal(h.calls.filter(c=>c.url.endsWith('/kill')).length,0);h.setConfirmation('ATTIVA KILL SWITCH');await h.get('paper-kill').handlers.click();await h.flush();assert.equal(h.calls.find(c=>c.url.endsWith('/kill')).body.confirmation,'ATTIVA KILL SWITCH');});

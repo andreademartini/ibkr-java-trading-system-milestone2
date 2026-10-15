@@ -84,6 +84,7 @@ public class PatternV2Service {
         result=result.withBollingerAtr(simulation.bollingerAtrSignals(),null);result=result.withBollingerAtr(simulation.bollingerAtrSignals(),BollingerAtrAnalysis.calculate(result));
         result=result.withCapitalSkipAudits(simulation.capitalSkipAudits()).withResearch(PatternRangeAnalysis.calculate(result,null),null,null).withCloseStrengthResearch(CloseStrengthAnalysis.calculate(result,null));
         if(config.capitalSkipShadowAnalysisEnabled()){var source=result.withResearch(result.patternRangeAnalysis(),PatternV2Dataset.capture(bars).id(),null);result=result.withCapitalSkipShadowAnalysis(new CapitalSkipShadowAnalysis(sizing).analyze(source,bars));}
+        result=result.withMarketRegimeFilterAnalysis(MarketRegimeFilter.calculate(result,simulation.marketRegimeSignals(),null));
         if(config.marketRegimeAnalysisEnabled())result=result.withMarketRegimeAnalysis(MarketRegimeAnalysis.calculate(result));
         return result;
     }
@@ -94,15 +95,34 @@ public class PatternV2Service {
         var dataset=PatternV2Dataset.capture(input);var bars=dataset.bars();
         PatternV2Run baseline=reference;
         if(baseline==null&&(config.patternRangeFilterEnabled()||config.closeStrengthFilterEnabled()||config.bollingerAtrFilterEnabled())) {
-            var baseConfig=config.withName("V2_BASELINE").withRangeFilter(false,config.minimumPatternRangePct()).withCloseStrengthFilter(false,config.maxCloseStrength()).withBollingerAtr(false,config.bollingerPeriod(),config.bollingerStdDev(),config.atrPeriod(),config.maxBollingerDistanceAtr());
+            var baseConfig=config.withName("V2_BASELINE").withRangeFilter(false,config.minimumPatternRangePct()).withCloseStrengthFilter(false,config.maxCloseStrength()).withBollingerAtr(false,config.bollingerPeriod(),config.bollingerStdDev(),config.atrPeriod(),config.maxBollingerDistanceAtr()).withMarketRegimeFilter(false,config.marketRegimeFilterAdxPeriod(),config.marketRegimeFilterAdxThreshold());
             PatternV2RunComparison.requireSameTradingConfiguration(baseConfig,config);
             baseline=simulate(baseConfig,bars);
         }
+        PatternV2Run regimeBaseline=null;
+        if(config.marketRegimeFilterEnabled())regimeBaseline=simulate(config.withMarketRegimeFilter(false,config.marketRegimeFilterAdxPeriod(),config.marketRegimeFilterAdxThreshold()),bars);
         var actual=simulate(config,bars);
+        if(regimeBaseline!=null)actual=actual.withMarketRegimeFilterAnalysis(MarketRegimeFilter.withIndependentPeriods(MarketRegimeFilter.calculate(actual,actual.marketRegimeFilterAnalysis().signals(),regimeBaseline),marketRegimePeriods(config,bars,actual)));
         if(baseline!=null&&reference==null)baseline=baseline.withResearch(PatternRangeAnalysis.calculate(baseline,null),dataset.id(),actual.runId()).withCloseStrengthResearch(CloseStrengthAnalysis.calculate(baseline,null));
         actual=actual.withResearch(PatternRangeAnalysis.calculate(actual,baseline),dataset.id(),baseline==null?null:baseline.runId());
         actual=actual.withCloseStrengthResearch(CloseStrengthAnalysis.calculate(actual,baseline));
+        if(regimeBaseline!=null) {regimeBaseline=regimeBaseline.withResearch(regimeBaseline.patternRangeAnalysis(),dataset.id(),actual.runId());store.save(regimeBaseline);if(baseline==null)actual=actual.withResearch(actual.patternRangeAnalysis(),dataset.id(),regimeBaseline.runId());}
         store.saveDataset(dataset);if(baseline!=null&&reference==null)store.save(baseline);store.save(actual);return actual;
+    }
+    private List<MarketRegimeFilter.PeriodComparison> marketRegimePeriods(PatternV2Configuration config,Map<String,List<HistoricalBar>> bars,PatternV2Run actual) {
+        var result=new ArrayList<MarketRegimeFilter.PeriodComparison>();var p=actual.portfolio();
+        if(p.actualStartDate()==null)return List.of();
+        for(int year:new int[]{2010,2014,2018,2022}) {
+            var from=LocalDate.of(year,1,1);var to=year==2022?p.actualEndDate():LocalDate.of(year+3,12,31);
+            if(from.isBefore(config.global().startDate()))from=config.global().startDate();if(to.isAfter(p.actualEndDate()))to=p.actualEndDate();
+            if(to.isBefore(from)||to.isBefore(p.actualStartDate()))continue;
+            var periodConfig=config.withGlobal(config.global().withDates(from,to));
+            // Disposable real simulations, original sizing/costs/other filters, no providers or orders.
+            var off=simulate(periodConfig.withMarketRegimeFilter(false,config.marketRegimeFilterAdxPeriod(),config.marketRegimeFilterAdxThreshold()),bars);
+            var on=simulate(periodConfig,bars);
+            if(on.portfolio().actualStartDate()!=null)result.add(MarketRegimeFilter.independentPeriod(year+"-"+(year==2022?to.getYear():year+3),off,on));
+        }
+        return List.copyOf(result);
     }
     public PatternV2Run replay(String id) {return replay(id,null);}
     public PatternV2Run replay(String id,PatternV2Configuration configuration) {
@@ -114,8 +134,8 @@ public class PatternV2Service {
         return runOnSnapshot(configuration,store.dataset(source.datasetId()).bars(),reference);
     }
     private PatternV2Run findUnfilteredBaseline(PatternV2Run source) {
-        if(!source.configuration().patternRangeFilterEnabled()&&!source.configuration().closeStrengthFilterEnabled()&&!source.configuration().bollingerAtrFilterEnabled())return source;
-        for(var candidate:store.runs())if(Objects.equals(source.datasetId(),candidate.datasetId())&&!candidate.configuration().patternRangeFilterEnabled()&&!candidate.configuration().closeStrengthFilterEnabled()&&!candidate.configuration().bollingerAtrFilterEnabled()) {
+        if(!source.configuration().patternRangeFilterEnabled()&&!source.configuration().closeStrengthFilterEnabled()&&!source.configuration().bollingerAtrFilterEnabled()&&!source.configuration().marketRegimeFilterEnabled())return source;
+        for(var candidate:store.runs())if(Objects.equals(source.datasetId(),candidate.datasetId())&&!candidate.configuration().patternRangeFilterEnabled()&&!candidate.configuration().closeStrengthFilterEnabled()&&!candidate.configuration().bollingerAtrFilterEnabled()&&!candidate.configuration().marketRegimeFilterEnabled()) {
             try {PatternV2RunComparison.requireSameTradingConfiguration(source.configuration(),candidate.configuration());return candidate;}catch(IllegalArgumentException incompatible) { /* Try another baseline. */ }
         }
         return null;

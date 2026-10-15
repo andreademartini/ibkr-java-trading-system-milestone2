@@ -10,3 +10,6 @@
 #v1-events { max-height: 300px; }
 .v1-selected { background: #e6f3f1; }
 @media(max-width: 680px) { .research-shell { padding: 12px; } .research-form { grid-template-columns: 1fr; } .topbar { flex-wrap: wrap; } }
+
+/* Both stable backtest pages: author display rules must preserve hidden controls. */
+.research-shell [hidden] { display: none !important; }

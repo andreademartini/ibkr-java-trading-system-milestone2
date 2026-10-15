@@ -1,6 +1,7 @@
 (function(root){"use strict";
 const clone=value=>JSON.parse(JSON.stringify(value));
 function validate(config,patterns){
+ validateMarketRegimeFilter(config);
  config.marketRegimeAnalysisEnabled??=false;if(typeof config.marketRegimeAnalysisEnabled!=="boolean")throw Error("Market Regime Analysis deve essere ON/OFF");if(config.marketRegimeAnalysisEnabled&&config.global?.timeframe!=="DAILY")throw Error("Market Regime Analysis requires DAILY bars");
  config.capitalSkipShadowAnalysisEnabled??=false;if(typeof config.capitalSkipShadowAnalysisEnabled!=="boolean")throw Error("Capital Skip Shadow Analysis deve essere ON/OFF");
  normalizeRangeFilter(config);normalizeCloseStrength(config);
@@ -26,6 +27,8 @@ function validate(config,patterns){
  }
  if(!active)throw Error("Abilitare almeno un simbolo e una direzione consentita");return config;
 }
+function normalizeMarketRegimeFilter(config){for(const [k,v] of Object.entries({marketRegimeFilterEnabled:false,marketRegimeFilterAdxPeriod:14,marketRegimeFilterAdxThreshold:25,marketRegimeFilterMode:'EXCLUDE_WITH_TREND'}))if(config[k]===undefined)config[k]=v;return config;}
+function validateMarketRegimeFilter(config){normalizeMarketRegimeFilter(config);if(typeof config.marketRegimeFilterEnabled!=='boolean')throw Error('Market Regime Filter deve essere ON/OFF');if(!Number.isSafeInteger(config.marketRegimeFilterAdxPeriod)||config.marketRegimeFilterAdxPeriod<2)throw Error('ADX Period deve essere un intero >= 2');if(typeof config.marketRegimeFilterAdxThreshold!=='number'||!Number.isFinite(config.marketRegimeFilterAdxThreshold)||config.marketRegimeFilterAdxThreshold<0||config.marketRegimeFilterAdxThreshold>100)throw Error('ADX Threshold deve essere un numero finito tra 0 e 100');if(config.marketRegimeFilterMode!=='EXCLUDE_WITH_TREND')throw Error('Filter Mode non supportata');if(config.marketRegimeFilterEnabled&&config.global?.timeframe!=='DAILY')throw Error('Market Regime Filter requires DAILY bars');return config;}
 function normalizeBollingerAtr(config){config.bollingerAtrFilterEnabled??=false;config.bollingerPeriod??=20;config.bollingerStdDev??=2;config.atrPeriod??=14;config.maxBollingerDistanceAtr??=.5;return config;}
 function normalizeRangeFilter(config){config.patternRangeFilterEnabled??=false;config.minimumPatternRangePct??=2.5;return config;}
 function normalizeCloseStrength(config){config.closeStrengthFilterEnabled??=false;config.maxCloseStrength??=.80;return config;}
@@ -42,5 +45,5 @@ function validateSplitCosts(settings){if(settings==null)return;const names=new S
   if(!["AUTO_PROVIDER","RAW","SPLIT_ADJUSTED"].includes(r.basis)||!validDate(r.validFrom)||!validDate(r.adjustedThrough)||r.adjustedThrough<r.validFrom)throw Error(`${r.symbol}: base prezzi/date split non valide`);
   const dates=new Set();for(const s of r.splits){if(!validDate(s.effectiveDate)||s.effectiveDate<r.validFrom||s.effectiveDate>r.adjustedThrough||dates.has(s.effectiveDate)||!Number.isFinite(Number(s.ratio))||Number(s.ratio)<=0)throw Error(`${r.symbol}: split duplicato, rapporto non valido o data fuori periodo`);dates.add(s.effectiveDate);}
  }}
-const api={clone,validate,preview,compareValue,parseSplitSchedule,validateSplitCosts,normalizeRangeFilter,normalizeCloseStrength,experiment,comparisonMetrics,normalizeCapitalLimits,capitalLimits,capitalExperiment,normalizeBollingerAtr};if(typeof module!=="undefined")module.exports=api;else root.PatternV2Model=api;
+const api={normalizeMarketRegimeFilter,validateMarketRegimeFilter,clone,validate,preview,compareValue,parseSplitSchedule,validateSplitCosts,normalizeRangeFilter,normalizeCloseStrength,experiment,comparisonMetrics,normalizeCapitalLimits,capitalLimits,capitalExperiment,normalizeBollingerAtr};if(typeof module!=="undefined")module.exports=api;else root.PatternV2Model=api;
 })(globalThis);

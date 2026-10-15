@@ -14,7 +14,23 @@ public record PatternV2Configuration(String name, Global global, List<Symbol> sy
         boolean patternRangeFilterEnabled, BigDecimal minimumPatternRangePct,
         boolean closeStrengthFilterEnabled, BigDecimal maxCloseStrength, boolean capitalSkipShadowAnalysisEnabled,
         boolean bollingerAtrFilterEnabled,Integer bollingerPeriod,BigDecimal bollingerStdDev,Integer atrPeriod,BigDecimal maxBollingerDistanceAtr,
-        @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT) Boolean marketRegimeAnalysisEnabled) {
+        @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_DEFAULT) Boolean marketRegimeAnalysisEnabled,
+        @com.fasterxml.jackson.annotation.JsonInclude(value=com.fasterxml.jackson.annotation.JsonInclude.Include.CUSTOM,valueFilter=MarketRegimeFilterJson.DefaultValue.class)
+        @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using=MarketRegimeFilterJson.Enabled.class)
+        @tools.jackson.databind.annotation.JsonDeserialize(using=MarketRegimeFilterHttpJson.Enabled.class) Boolean marketRegimeFilterEnabled,
+        @com.fasterxml.jackson.annotation.JsonInclude(value=com.fasterxml.jackson.annotation.JsonInclude.Include.CUSTOM,valueFilter=MarketRegimeFilterJson.DefaultValue.class)
+        @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using=MarketRegimeFilterJson.Period.class)
+        @tools.jackson.databind.annotation.JsonDeserialize(using=MarketRegimeFilterHttpJson.Period.class) Integer marketRegimeFilterAdxPeriod,
+        @com.fasterxml.jackson.annotation.JsonInclude(value=com.fasterxml.jackson.annotation.JsonInclude.Include.CUSTOM,valueFilter=MarketRegimeFilterJson.DefaultValue.class)
+        @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using=MarketRegimeFilterJson.Threshold.class)
+        @tools.jackson.databind.annotation.JsonDeserialize(using=MarketRegimeFilterHttpJson.Threshold.class) Double marketRegimeFilterAdxThreshold,
+        @com.fasterxml.jackson.annotation.JsonInclude(value=com.fasterxml.jackson.annotation.JsonInclude.Include.CUSTOM,valueFilter=MarketRegimeFilterJson.DefaultValue.class)
+        @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using=MarketRegimeFilterJson.Mode.class)
+        @tools.jackson.databind.annotation.JsonDeserialize(using=MarketRegimeFilterHttpJson.Mode.class) MarketRegimeFilterMode marketRegimeFilterMode) {
+    public enum MarketRegimeFilterMode { EXCLUDE_WITH_TREND }
+    public PatternV2Configuration(String name,Global global,List<Symbol> symbols,PatternV2SplitCosts splitCosts,boolean rangeEnabled,BigDecimal minimum,boolean closeEnabled,BigDecimal maximum,boolean shadowEnabled,boolean bollingerEnabled,Integer bollingerPeriod,BigDecimal bollingerStdDev,Integer atrPeriod,BigDecimal maxDistance,Boolean analysisEnabled) {
+        this(name,global,symbols,splitCosts,rangeEnabled,minimum,closeEnabled,maximum,shadowEnabled,bollingerEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxDistance,analysisEnabled,false,14,25.0,MarketRegimeFilterMode.EXCLUDE_WITH_TREND);
+    }
     public PatternV2Configuration(String name, Global global,List<Symbol> symbols,PatternV2SplitCosts splitCosts,boolean rangeEnabled,BigDecimal minimum,boolean closeEnabled,BigDecimal maximum,boolean shadowEnabled,boolean bollingerEnabled,Integer bollingerPeriod,BigDecimal bollingerStdDev,Integer atrPeriod,BigDecimal maxDistance) {
         this(name,global,symbols,splitCosts,rangeEnabled,minimum,closeEnabled,maximum,shadowEnabled,bollingerEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxDistance,false);
     }
@@ -43,6 +59,9 @@ public record PatternV2Configuration(String name, Global global, List<Symbol> sy
             double maxLongNotional, double maxShortNotional, double transactionCostsPerShare,
             boolean allowLong, boolean allowShort, long smallQuantityWarningThreshold,
             CapitalLimitMode maxPositionValueMode, Double maxPositionValuePercent, CapitalLimitMode maxLongNotionalMode, Double maxLongNotionalPercent, CapitalLimitMode maxShortNotionalMode, Double maxShortNotionalPercent) {
+        public Global withDates(LocalDate from,LocalDate to) {
+            return new Global(initialCapital,riskPercent,maxOrderValuePercent,maxOrderValue,maxOrderValueMode,maxPositionValue,maxQuantity,useLeverage,minQuantity,minOrderValue,from,to,timeframe,maxHoldingBars,stopBufferTicks,tickSize,sameBarPolicy,entryMode,stopMode,commissionEnabled,commission,slippageEnabled,slippagePercentPerSide,maxLongNotional,maxShortNotional,transactionCostsPerShare,allowLong,allowShort,smallQuantityWarningThreshold,maxPositionValueMode,maxPositionValuePercent,maxLongNotionalMode,maxLongNotionalPercent,maxShortNotionalMode,maxShortNotionalPercent);
+        }
         public Global {
             maxPositionValueMode = maxPositionValueMode == null ? CapitalLimitMode.FIXED_AMOUNT : maxPositionValueMode;
             maxPositionValuePercent = maxPositionValuePercent == null ? 100.0 : maxPositionValuePercent;
@@ -78,6 +97,11 @@ public record PatternV2Configuration(String name, Global global, List<Symbol> sy
     }
     public PatternV2Configuration {
         marketRegimeAnalysisEnabled=Boolean.TRUE.equals(marketRegimeAnalysisEnabled);
+        if(marketRegimeFilterEnabled==null||marketRegimeFilterAdxPeriod==null||marketRegimeFilterAdxThreshold==null||marketRegimeFilterMode==null)throw new IllegalArgumentException("Market Regime Filter parameters cannot be null");
+        marketRegimeFilterAdxPeriod=marketRegimeFilterAdxPeriod==null?14:marketRegimeFilterAdxPeriod;
+        marketRegimeFilterAdxThreshold=marketRegimeFilterAdxThreshold==null?25.0:marketRegimeFilterAdxThreshold;
+        marketRegimeFilterMode=marketRegimeFilterMode==null?MarketRegimeFilterMode.EXCLUDE_WITH_TREND:marketRegimeFilterMode;
+        if(marketRegimeFilterAdxPeriod<2||!Double.isFinite(marketRegimeFilterAdxThreshold)||marketRegimeFilterAdxThreshold<0||marketRegimeFilterAdxThreshold>100)throw new IllegalArgumentException("Invalid Market Regime Filter period (minimum 2) or threshold (0..100)");
         name = name == null || name.isBlank() ? "V2_BASELINE" : name.trim();
         if (name.length() > 100) throw new IllegalArgumentException("Nome configurazione troppo lungo");
         symbols = symbols == null ? List.of() : List.copyOf(symbols);
@@ -86,26 +110,29 @@ public record PatternV2Configuration(String name, Global global, List<Symbol> sy
         bollingerStdDev=bollingerStdDev==null?new BigDecimal("2.0"):bollingerStdDev;maxBollingerDistanceAtr=maxBollingerDistanceAtr==null?new BigDecimal("0.50"):maxBollingerDistanceAtr;
         maxCloseStrength = maxCloseStrength == null ? new BigDecimal("0.80") : maxCloseStrength;
     }
-    public PatternV2Configuration withGlobal(Global value) { return new PatternV2Configuration(name,value,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled); }
-    public PatternV2Configuration withSymbols(List<Symbol> value) { return new PatternV2Configuration(name,global,value,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled); }
-    public PatternV2Configuration withSplitCosts(PatternV2SplitCosts value) { return new PatternV2Configuration(name,global,symbols,value,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled); }
+    public PatternV2Configuration withGlobal(Global value) { return new PatternV2Configuration(name,value,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled,marketRegimeFilterEnabled,marketRegimeFilterAdxPeriod,marketRegimeFilterAdxThreshold,marketRegimeFilterMode); }
+    public PatternV2Configuration withSymbols(List<Symbol> value) { return new PatternV2Configuration(name,global,value,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled,marketRegimeFilterEnabled,marketRegimeFilterAdxPeriod,marketRegimeFilterAdxThreshold,marketRegimeFilterMode); }
+    public PatternV2Configuration withSplitCosts(PatternV2SplitCosts value) { return new PatternV2Configuration(name,global,symbols,value,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled,marketRegimeFilterEnabled,marketRegimeFilterAdxPeriod,marketRegimeFilterAdxThreshold,marketRegimeFilterMode); }
     public PatternV2Configuration forNewRun() { return splitCosts==null?withSplitCosts(PatternV2SplitCosts.defaults()):this; }
     public PatternV2Configuration withRangeFilter(boolean enabled, BigDecimal minimum) {
-        return new PatternV2Configuration(name,global,symbols,splitCosts,enabled,minimum,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled);
+        return new PatternV2Configuration(name,global,symbols,splitCosts,enabled,minimum,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled,marketRegimeFilterEnabled,marketRegimeFilterAdxPeriod,marketRegimeFilterAdxThreshold,marketRegimeFilterMode);
     }
     public PatternV2Configuration withName(String value) {
-        return new PatternV2Configuration(value,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled);
+        return new PatternV2Configuration(value,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled,marketRegimeFilterEnabled,marketRegimeFilterAdxPeriod,marketRegimeFilterAdxThreshold,marketRegimeFilterMode);
     }
     public PatternV2Configuration withCloseStrengthFilter(boolean enabled,BigDecimal maximum) {
-        return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,enabled,maximum,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled);
+        return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,enabled,maximum,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled,marketRegimeFilterEnabled,marketRegimeFilterAdxPeriod,marketRegimeFilterAdxThreshold,marketRegimeFilterMode);
     }
-    public PatternV2Configuration withCapitalSkipShadowAnalysis(boolean enabled){return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,enabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled);}
+    public PatternV2Configuration withCapitalSkipShadowAnalysis(boolean enabled){return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,enabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled,marketRegimeFilterEnabled,marketRegimeFilterAdxPeriod,marketRegimeFilterAdxThreshold,marketRegimeFilterMode);}
     public PatternV2Configuration withBollingerAtr(boolean enabled,int period,BigDecimal stdDev,int atr,BigDecimal distance) {
-        return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,enabled,period,stdDev,atr,distance,marketRegimeAnalysisEnabled);
+        return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,enabled,period,stdDev,atr,distance,marketRegimeAnalysisEnabled,marketRegimeFilterEnabled,marketRegimeFilterAdxPeriod,marketRegimeFilterAdxThreshold,marketRegimeFilterMode);
     }
-    public PatternV2Configuration withMarketRegimeAnalysis(boolean enabled) {return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,enabled);}
+    public PatternV2Configuration withMarketRegimeAnalysis(boolean enabled) {return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,enabled,marketRegimeFilterEnabled,marketRegimeFilterAdxPeriod,marketRegimeFilterAdxThreshold,marketRegimeFilterMode);}
+    public PatternV2Configuration withMarketRegimeFilter(boolean enabled,int period,double threshold) {
+        return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,marketRegimeAnalysisEnabled,enabled,period,threshold,MarketRegimeFilterMode.EXCLUDE_WITH_TREND);
+    }
     public void validate(List<PatternDetector> detectors) {
-        if(marketRegimeAnalysisEnabled&&global!=null&&global.timeframe()!=BarInterval.DAILY)throw new IllegalArgumentException("Market Regime Analysis requires DAILY bars");
+        if((marketRegimeAnalysisEnabled||marketRegimeFilterEnabled)&&global!=null&&global.timeframe()!=BarInterval.DAILY)throw new IllegalArgumentException("Market Regime Analysis requires DAILY bars");
         if(bollingerPeriod<2||atrPeriod<1||bollingerStdDev.signum()<=0||maxBollingerDistanceAtr.signum()<0)throw new IllegalArgumentException("Invalid Bollinger/ATR periods, multiplier or distance");
         if(bollingerAtrFilterEnabled&&global!=null&&global.timeframe()!=BarInterval.DAILY)throw new IllegalArgumentException("Bollinger + ATR filter requires DAILY bars");
         if(maxCloseStrength.signum()<0||maxCloseStrength.compareTo(BigDecimal.ONE)>0)

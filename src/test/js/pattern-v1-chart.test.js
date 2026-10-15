@@ -24,3 +24,13 @@ test("PATTERN V1 single target recognizes TAKE_PROFIT_FILLED without partial tar
     assert.equal(chart.takeProfitStatus({strategy:"PATTERN_V1",events:[{eventType:"TAKE_PROFIT_FILLED"}]},{targetNumber:1}),"FILLED");
     assert.equal(chart.takeProfitStatus({strategy:"PATTERN_V1",events:[{eventType:"STOP_FILLED"}]},{targetNumber:1}),"NOT FILLED");
 });
+
+
+test('V2 candlestick charts retain the V1 completed-signal and next-open markers and single target status',()=>{
+const bars=chart.normaliseBars([{index:0,timestamp:'2020-01-01',open:100,high:101,low:98,close:99},{index:1,timestamp:'2020-01-02',open:99,high:103,low:98,close:102},{index:2,timestamp:'2020-01-03',open:102,high:106,low:101,close:105}]);
+const events=[{eventType:'PATTERN_DETECTED',index:1},{eventType:'SIGNAL',index:1},{eventType:'ENTRY',index:2},{eventType:'TAKE_PROFIT_FILLED',index:2}];
+const markers=strategy=>chart.buildMarkers({strategy},{strategy,pattern:'BULLISH_ENGULFING',direction:'LONG',events},{},bars).map(m=>({time:m.time,text:m.text,color:m.color,position:m.position}));
+assert.deepEqual(markers('PATTERN_V2'),markers('PATTERN_V1'));
+assert.equal(chart.takeProfitStatus({strategy:'PATTERN_V2',events},{targetNumber:1}),'FILLED');
+assert.equal(chart.takeProfitStatus({strategy:'PATTERN_V2',events:[{eventType:'STOP_FILLED'}]},{targetNumber:1}),'NOT FILLED');
+});

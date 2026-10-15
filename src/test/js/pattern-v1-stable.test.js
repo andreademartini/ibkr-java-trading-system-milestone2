@@ -18,11 +18,11 @@ test('Stable V1 displays reference values read-only and sends no trading overrid
     assert.equal(sent.url,'/api/backtest/pattern-v1/run');assert.deepEqual(sent.body,{});
 });
 
-test('Stable and legacy pages have explicit independent routes; V2 remains experimental',()=>{
+test('Stable and legacy pages have explicit independent routes; V2 is stable and V3 is experimental',()=>{
     const html=fs.readFileSync('src/main/resources/static/pattern-v1.html','utf8');
-    assert.match(html,/STABLE \/ FROZEN \/ PAPER VALIDATION/);assert.match(html,/pattern-v1-stable.js/);assert.match(html,/pattern-v1-legacy.html/);
+    assert.match(html,/STABLE \/ FROZEN \/ BACKTEST/);assert.match(html,/pattern-v1-stable.js/);assert.match(html,/pattern-v1-legacy.html/);
     assert.match(fs.readFileSync('src/main/resources/static/pattern-v1.js','utf8'),/\/api\/backtest\/pattern-v1\/legacy/);
-    assert.match(fs.readFileSync('src/main/resources/static/pattern-v2.html','utf8'),/RESEARCH \/ EXPERIMENTAL/);
+    assert.match(fs.readFileSync('src/main/resources/static/pattern-v2.html','utf8'),/STABLE \/ FROZEN \/ BACKTEST/);assert.match(fs.readFileSync('src/main/resources/static/pattern-v3.html','utf8'),/RESEARCH \/ EXPERIMENTAL/);
 });
 
 test('Stable results render equity and trades when the legacy Research comparison is absent',async()=>{
