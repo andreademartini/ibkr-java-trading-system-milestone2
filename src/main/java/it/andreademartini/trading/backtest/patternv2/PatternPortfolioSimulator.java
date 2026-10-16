@@ -180,18 +180,23 @@ public final class PatternPortfolioSimulator {
                 var bar = series.get(symbol).get(index); lastPrices.put(symbol, bar.getClose());
                 Position p = positions.get(symbol); if (p == null) continue;
                 p.holdingBars++;
-                var exitDecision=PatternV2BarRules.exit(p.plan,bar,p.holdingBars,p.maxHoldingBars,global.sameBarPolicy());
-                boolean stop=exitDecision.stop(),target=exitDecision.target(),exitOnStop=exitDecision.exitOnStop();p.measure(bar,exitOnStop,target&&!exitOnStop);
+                var exitDecision=PatternV2BarRules.exit(p.plan,bar,p.holdingBars,p.maxHoldingBars,global.sameBarPolicy(),configuration.exitFillPolicy());
+                boolean stop=exitDecision.stop(),target=exitDecision.target(),exitOnStop=exitDecision.exitOnStop();p.measure(bar,exitDecision);
                 if(exitDecision.completed()){
                     p.ambiguous=stop&&target;String reason=exitDecision.reason();var exit=exitDecision.price();
                     var gross = pnl(p, exit);
                     var exitFactor=splitCosts.factor(symbol,bar);
                     var exitCommission = PatternV2SplitCosts.commission(commission,exitFactor).charge(p.quantity, exit);
-                    var exitCosts = exitCommission.add(exit.multiply(slippage).divide(bd(100), MATH)
+                    var exitCosts = exitCommission.add(it.andreademartini.trading.backtest.execution.Slippage.perShare(exit,slippage)
                             .add(bd(PatternV2SplitCosts.perShare(bd(global.transactionCostsPerShare()),exitFactor).doubleValue())).multiply(bd(p.quantity)));
                     var costs = p.entryCosts.add(exitCosts); var net = gross.subtract(costs);
                     var resultR = divide(p.isLong() ? exit.subtract(p.plan.entryPrice()) : p.plan.entryPrice().subtract(exit), p.plan.riskPerShare());
-                    var researchR = exitOnStop ? BigDecimal.ONE.negate() : target ? p.plan.signal().targetR() : null;
+                    var researchR = exitDecision.atOpen() ? resultR : exitOnStop ? BigDecimal.ONE.negate() : target ? p.plan.signal().targetR() : null;
+                    if(configuration.exitFillPolicy()==ExitFillPolicy.OPEN_FIRST && exitDecision.completed()){
+                        event(events,"EXIT_EXECUTION",p.id,p.plan.signal(),day.getKey().toLocalDate(),index,Map.of(
+                            "exitFillPolicy","OPEN_FIRST","atOpen",exitDecision.atOpen(),"exitPrice",exit,
+                            "levelPrice",exitOnStop?p.plan.stopPrice():target?p.plan.takeProfitPrice():bar.getClose()));
+                    }
                     if (p.ambiguous) event(events, "SAME_BAR_AMBIGUITY", p.id, p.plan.signal(), day.getKey().toLocalDate(), index,
                             Map.of("sameBarAmbiguous", true, "resolution", global.sameBarPolicy().name()));
                     event(events, exitOnStop ? "STOP_FILLED" : target ? "TAKE_PROFIT_FILLED" : "TIMEOUT", p.id, p.plan.signal(), day.getKey().toLocalDate(), index,
@@ -209,7 +214,7 @@ public final class PatternPortfolioSimulator {
             }
             for (var p : positions.values()) if (p.quantity <= 0 || p.holdingBars >= p.maxHoldingBars)
                 throw new IllegalStateException("OPEN holding/quantity invariant: " + p.id);
-            if (!risk.isUseLeverage() && cash.signum() < 0) throw new IllegalStateException("Negative cash without leverage");
+            if (configuration.exitFillPolicy()!=ExitFillPolicy.OPEN_FIRST && !risk.isUseLeverage() && cash.signum() < 0) throw new IllegalStateException("Negative cash without leverage");
             for (var symbolIndex : day.getValue().entrySet()) {
                 String symbol = symbolIndex.getKey(); int index = symbolIndex.getValue();
                 var indicator=global.timeframe()==BarInterval.DAILY?indicators.computeIfAbsent(symbol,ignored->new BollingerAtr(configuration)).onBar(series.get(symbol).get(index)):new BollingerAtr.Value(null,null,null,null);
@@ -283,7 +288,7 @@ public final class PatternPortfolioSimulator {
         }
         trades.sort(Comparator.comparingInt(Trade::number));
         BigDecimal reconciled = initial;
-        for (var t : trades) { PatternV1PortfolioEngine.validateTrade(t, configuration.symbols().stream().filter(s->s.symbol().equals(t.symbol())).findFirst().orElseThrow().holding(global)); reconciled = reconciled.add(t.closed() ? t.netPnl() : t.netUnrealizedPnl()); }
+        for (var t : trades) { PatternV1PortfolioEngine.validateTrade(t, configuration.symbols().stream().filter(s->s.symbol().equals(t.symbol())).findFirst().orElseThrow().holding(global),configuration.exitFillPolicy()==ExitFillPolicy.OPEN_FIRST); reconciled = reconciled.add(t.closed() ? t.netPnl() : t.netUnrealizedPnl()); }
         if (equity.compareTo(reconciled) != 0) throw new IllegalStateException("Equity / realized + unrealized reconciliation failed");
         var dates=new TreeSet<LocalDate>();timeline.keySet().forEach(t->dates.add(t.toLocalDate()));
         var symbolResults = new ArrayList<SymbolResult>();
@@ -421,9 +426,9 @@ public final class PatternPortfolioSimulator {
         boolean isLong() { return plan.signal().detection().direction() == PatternDirection.LONG; }
         BigDecimal favorable(BigDecimal price) { return (isLong() ? price.subtract(plan.entryPrice()) : plan.entryPrice().subtract(price)).max(BigDecimal.ZERO); }
         BigDecimal adverse(BigDecimal price) { return (isLong() ? plan.entryPrice().subtract(price) : price.subtract(plan.entryPrice())).max(BigDecimal.ZERO); }
-        void measure(HistoricalBar bar, boolean stop, boolean target) {
+        void measure(HistoricalBar bar, PatternV2BarRules.Exit exit) {
             var values=new PatternV2BarRules.Excursions();values.mfe=mfe;values.mae=mae;values.rawMfe=rawMfe;values.rawMae=rawMae;
-            values.measure(plan,bar,stop,target);mfe=values.mfe;mae=values.mae;rawMfe=values.rawMfe;rawMae=values.rawMae;
+            values.measure(plan,bar,exit);mfe=values.mfe;mae=values.mae;rawMfe=values.rawMfe;rawMae=values.rawMae;
         }
     }
 }

@@ -16,8 +16,8 @@ test('Selected run renders rejections and clears them when a legacy run is reope
 test('Form collects ON period and precise threshold independently of analysis',()=>{
  const vm=require('node:vm'),source=fs.readFileSync('src/main/resources/static/pattern-v3.js','utf8');
  const config=JSON.parse(fs.readFileSync('src/main/resources/pattern-stable/2.1.json','utf8'));
- const elements={};for(const [id,value] of Object.entries({'v3-regime-filter-period':'7','v3-regime-filter-threshold':'24.99','v3-bollinger-period':'20','v3-bollinger-stddev':'2','v3-atr-period':'14','v3-bollinger-distance':'.5','v3-name':'FILTER_TEST','v3-close-maximum':'.8','v3-range-minimum':'2.5'}))elements[id]={value};
- for(const id of ['v3-regime-filter-enabled','v3-regime-enabled','v3-bollinger-enabled','v3-shadow-enabled','v3-close-enabled','v3-range-enabled'])elements[id]={checked:id==='v3-regime-filter-enabled'};
+ const elements={};for(const [id,value] of Object.entries({'v3-range-maximum':'','v3-close-rule':'LEGACY_MAX_LE','v3-rvol-period':'20','v3-rvol-minimum':'1.2','v3-rvol-maximum':'','v3-rvol-basis':'UNVERIFIED','v3-signal-timeframe':'DAILY','v3-regime-filter-period':'7','v3-regime-filter-threshold':'24.99','v3-bollinger-period':'20','v3-bollinger-stddev':'2','v3-atr-period':'14','v3-bollinger-distance':'.5','v3-name':'FILTER_TEST','v3-close-maximum':'.8','v3-range-minimum':'2.5'}))elements[id]={value};
+ for(const id of ['v3-rvol-enabled','v3-regime-filter-enabled','v3-regime-enabled','v3-bollinger-enabled','v3-shadow-enabled','v3-close-enabled','v3-range-enabled'])elements[id]={checked:id==='v3-regime-filter-enabled'};
  for(const id of ['v3-capital-limits','v3-global','v3-symbol-rows','v3-split-rows'])elements[id]={querySelectorAll:()=>[]};
  const patterns={LONG:['BULLISH_ENGULFING','BULLISH_HARAMI','HAMMER','PIERCING_PATTERN'],SHORT:['SHOOTING_STAR']};const ctx={config,M:m,patterns,$:id=>elements[id],set:()=>{}};
  vm.runInNewContext(source.slice(source.indexOf('function collect('),source.indexOf('function updatePreview('))+'result=collect();',ctx);

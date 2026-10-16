@@ -19,13 +19,13 @@ public class PatternStableController {
     public PatternStableController(PatternStableService stable,PatternV1RunStore legacy,PatternV1ExcelExporter legacyExcel,PatternV2ExcelExporter excel){this.stable=stable;this.legacy=legacy;this.legacyExcel=legacyExcel;this.excel=excel;}
     @GetMapping("/configuration") public PatternStableService.Version configuration(){return stable.version();}
     @PostMapping("/run") public PatternV1Result run(@RequestBody(required=false) Map<String,Object> request){
-        if(request!=null&&!request.isEmpty())throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"PATTERN_V1_STABLE "+PatternStableService.VERSION+" is frozen; overrides require a new explicit version");
-        return stable.run().simulation().portfolio();
+        try {var risk=BacktestRiskParameter.parse(request);return (risk==null?stable.run():stable.runWithRisk(risk)).simulation().portfolio();}
+        catch(IllegalArgumentException invalid){throw new ResponseStatusException(HttpStatus.BAD_REQUEST,invalid.getMessage());}
     }
     @GetMapping("/runs") public List<Map<String,Object>> history(){
         List<Map<String,Object>> entries=new ArrayList<>();
-        for(var r:stable.history())entries.add(Map.of("runId",r.runId(),"strategyId",r.strategyId(),"strategyVersion",r.strategyVersion(),"timestamp",r.timestamp(),"configurationHash",r.configurationHash()));
-        for(var r:legacy.history())entries.add(Map.of("runId",r.backtestId(),"strategyId",r.strategy(),"strategyVersion","1.0-legacy","configurationHash",PatternStableStore.hash(Map.of("configuration",r.configuration(),"settings",r.settings()))));
+        for(var r:stable.history())entries.add(Map.of("runId",r.runId(),"strategyId",r.strategyId(),"strategyVersion",r.strategyVersion(),"timestamp",r.timestamp(),"configurationHash",r.configurationHash(),"riskPercent",r.simulation().configuration().global().riskPercent()));
+        for(var r:legacy.history())entries.add(Map.of("runId",r.backtestId(),"strategyId",r.strategy(),"strategyVersion","1.0-legacy","configurationHash",PatternStableStore.hash(Map.of("configuration",r.configuration(),"settings",r.settings())),"riskPercent",r.settings().riskPercent()));
         return entries;
     }
     @GetMapping("/{id}/metadata") public PatternStableService.Run metadata(@PathVariable String id){return stable.result(id);}

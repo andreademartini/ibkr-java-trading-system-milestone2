@@ -13,10 +13,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 class StrategySeparationTest {
     @TempDir Path root;
-    @Test void frozenV2ExactlyMatchesRequestedReferenceAndHasNoOverrides(){
+    @Test void frozenV2ExactlyMatchesRequestedReferenceAndRejectsOtherOverrides(){
         var stable=new FrozenPatternV2Service(null,null,root);var v=stable.version();var c=v.configuration();var g=c.global();
-        assertEquals("PATTERN_V2",v.strategyId());assertEquals("1.0",v.strategyVersion());assertEquals(13,g.maxHoldingBars());assertTrue(c.marketRegimeFilterEnabled());assertEquals(14,c.marketRegimeFilterAdxPeriod());assertEquals(25,c.marketRegimeFilterAdxThreshold());assertFalse(g.useLeverage());assertEquals(10000,g.initialCapital());assertEquals(30,g.maxOrderValuePercent());assertEquals(2,g.riskPercent());assertEquals(PatternV2Configuration.OrderValueMode.CURRENT_EQUITY_PERCENT,g.maxOrderValueMode());assertFalse(c.patternRangeFilterEnabled());assertFalse(c.closeStrengthFilterEnabled());assertFalse(c.bollingerAtrFilterEnabled());
-        var controller=new FrozenPatternV2Controller(stable,null);assertThrows(org.springframework.web.server.ResponseStatusException.class,()->controller.run(Map.of("riskPercent",3)));
+        assertEquals("PATTERN_V2",v.strategyId());assertEquals("1.2",v.strategyVersion());assertEquals(13,g.maxHoldingBars());assertTrue(c.marketRegimeFilterEnabled());assertEquals(14,c.marketRegimeFilterAdxPeriod());assertEquals(25,c.marketRegimeFilterAdxThreshold());assertFalse(g.useLeverage());assertEquals(10000,g.initialCapital());assertEquals(30,g.maxOrderValuePercent());assertEquals(4,g.riskPercent());assertEquals(PatternV2Configuration.OrderValueMode.CURRENT_EQUITY_PERCENT,g.maxOrderValueMode());assertFalse(c.patternRangeFilterEnabled());assertFalse(c.closeStrengthFilterEnabled());assertFalse(c.bollingerAtrFilterEnabled());
+        var controller=new FrozenPatternV2Controller(stable,null);assertThrows(org.springframework.web.server.ResponseStatusException.class,()->controller.run(Map.of("initialCapital",20000)));
     }
     @Test void researchV3PersistsOnlyItsOwnConfigurationAndRun() throws Exception {
         var frozen=configuration();var before=it.andreademartini.trading.backtest.patternstable.PatternStableStore.hash(frozen);

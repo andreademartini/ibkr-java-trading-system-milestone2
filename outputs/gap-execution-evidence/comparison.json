@@ -1,0 +1,1945 @@
+{
+  "historicalArchivesUnchanged" : true,
+  "V2" : {
+    "newFinalEquity" : 63596.2058626152,
+    "changedCommonExits" : [ {
+      "newExit" : 12.323800,
+      "signal" : "XLY|LONG|2010-02-11",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 12.2175000
+    }, {
+      "newExit" : 0.412225,
+      "signal" : "NVDA|LONG|2010-04-09",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 0.408615
+    }, {
+      "newExit" : 81.798800,
+      "signal" : "SPY|LONG|2010-06-25",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 82.375000
+    }, {
+      "newExit" : 40.832900,
+      "signal" : "QQQ|LONG|2010-08-27",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 40.713600
+    }, {
+      "newExit" : 9.799490,
+      "signal" : "AAPL|LONG|2011-01-05",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 9.831860
+    }, {
+      "newExit" : 2.571300,
+      "signal" : "NFLX|LONG|2011-01-20",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 2.590000
+    }, {
+      "newExit" : 1.632000,
+      "signal" : "TSLA|LONG|2011-02-24",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 1.624670
+    }, {
+      "newExit" : 10.243000,
+      "signal" : "AAPL|LONG|2011-03-11",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 10.335300
+    }, {
+      "newExit" : 13.578800,
+      "signal" : "GOOGL|LONG|2011-04-06",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 14.091000
+    }, {
+      "newExit" : 2.528600,
+      "signal" : "NFLX|LONG|2011-09-13",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 2.915000
+    }, {
+      "newExit" : 47.723600,
+      "signal" : "QQQ|LONG|2011-09-15",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 48.926400
+    }, {
+      "newExit" : 16.251100,
+      "signal" : "GOOGL|LONG|2011-12-22",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 16.2303500
+    }, {
+      "newExit" : 14.709700,
+      "signal" : "GOOGL|LONG|2012-01-11",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 15.367300
+    }, {
+      "newExit" : 0.345465,
+      "signal" : "NVDA|LONG|2012-02-14",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 0.362767
+    }, {
+      "newExit" : 2.433330,
+      "signal" : "TSLA|LONG|2012-02-23",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 2.431990
+    }, {
+      "newExit" : 17.290300,
+      "signal" : "AAPL|LONG|2012-05-02",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 17.343200
+    }, {
+      "newExit" : 11.850600,
+      "signal" : "XLK|LONG|2012-06-04",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 11.788500
+    }, {
+      "newExit" : 16.191300,
+      "signal" : "GOOGL|LONG|2012-11-09",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 16.198800
+    }, {
+      "newExit" : 12.568200,
+      "signal" : "XLK|LONG|2013-01-15",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 12.567700
+    }, {
+      "newExit" : 0.299042,
+      "signal" : "NVDA|LONG|2013-02-26",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 0.298556
+    }, {
+      "newExit" : 123.734000,
+      "signal" : "SPY|LONG|2013-02-26",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 123.492000
+    }, {
+      "newExit" : 2.824000,
+      "signal" : "TSLA|SHORT|2013-03-25",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 2.568000
+    }, {
+      "newExit" : 67.124800,
+      "signal" : "QQQ|LONG|2013-06-25",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 66.739000
+    }, {
+      "newExit" : 13.485000,
+      "signal" : "XLK|LONG|2013-08-22",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 13.493700
+    }, {
+      "newExit" : 68.509000,
+      "signal" : "QQQ|LONG|2013-08-23",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 69.030600
+    }, {
+      "newExit" : 136.818000,
+      "signal" : "SPY|LONG|2013-09-13",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 137.161000
+    }, {
+      "newExit" : 5.534300,
+      "signal" : "NFLX|LONG|2014-01-15",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 4.958600
+    }, {
+      "newExit" : 13.682700,
+      "signal" : "TSLA|LONG|2014-02-13",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 13.530100
+    }, {
+      "newExit" : 5.380400,
+      "signal" : "NFLX|LONG|2014-04-15",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 5.314500
+    }, {
+      "newExit" : 30.254300,
+      "signal" : "XLY|LONG|2014-08-08",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 30.2373500
+    }, {
+      "newExit" : 22.166900,
+      "signal" : "AAPL|LONG|2014-09-23",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 22.172800
+    }, {
+      "newExit" : 27.452400,
+      "signal" : "GOOGL|LONG|2014-11-19",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 27.2231000
+    }, {
+      "newExit" : 0.537648,
+      "signal" : "NVDA|LONG|2015-02-02",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 0.532916
+    }, {
+      "newExit" : 101.990000,
+      "signal" : "QQQ|LONG|2015-04-22",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 101.934200
+    }, {
+      "newExit" : 0.506233,
+      "signal" : "NVDA|LONG|2015-04-27",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 0.524758
+    }, {
+      "newExit" : 99.472200,
+      "signal" : "QQQ|LONG|2015-07-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 99.609300
+    }, {
+      "newExit" : 33.879300,
+      "signal" : "XLY|LONG|2015-08-13",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 34.115000
+    }, {
+      "newExit" : 0.571228,
+      "signal" : "NVDA|LONG|2015-09-10",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 0.566968
+    }, {
+      "newExit" : 10.900000,
+      "signal" : "NFLX|LONG|2015-12-28",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 11.385000
+    }, {
+      "newExit" : 34.474500,
+      "signal" : "XLY|LONG|2015-12-28",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 35.048400
+    }, {
+      "newExit" : 18.555600,
+      "signal" : "XLK|LONG|2016-01-04",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 18.585800
+    }, {
+      "newExit" : 35.350900,
+      "signal" : "XLY|LONG|2016-04-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 35.409500
+    }, {
+      "newExit" : 37.061200,
+      "signal" : "GOOGL|LONG|2016-04-12",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 37.442600
+    }, {
+      "newExit" : 19.709300,
+      "signal" : "XLK|LONG|2016-05-31",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 19.722500
+    }, {
+      "newExit" : 102.138000,
+      "signal" : "QQQ|LONG|2016-06-03",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 102.268000
+    }, {
+      "newExit" : 19.561400,
+      "signal" : "XLK|LONG|2016-06-03",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 19.618700
+    }, {
+      "newExit" : 13.298000,
+      "signal" : "TSLA|SHORT|2016-06-08",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 14.101300
+    }, {
+      "newExit" : 175.887000,
+      "signal" : "SPY|LONG|2016-06-21",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 179.446000
+    }, {
+      "newExit" : 8.543000,
+      "signal" : "NFLX|LONG|2016-07-07",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 9.318000
+    }, {
+      "newExit" : 20.919900,
+      "signal" : "XLK|LONG|2016-07-12",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 20.845600
+    }, {
+      "newExit" : 36.210900,
+      "signal" : "XLY|LONG|2016-09-15",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 36.0610500
+    }, {
+      "newExit" : 29.249100,
+      "signal" : "AAPL|LONG|2017-01-17",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 28.859400
+    }, {
+      "newExit" : 2.550200,
+      "signal" : "NVDA|LONG|2017-03-27",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 2.554600
+    }, {
+      "newExit" : 33.673500,
+      "signal" : "AAPL|LONG|2017-06-23",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 33.696200
+    }, {
+      "newExit" : 22.026700,
+      "signal" : "TSLA|LONG|2017-07-10",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 21.924700
+    }, {
+      "newExit" : 3.879620,
+      "signal" : "NVDA|LONG|2017-08-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 3.965770
+    }, {
+      "newExit" : 46.753000,
+      "signal" : "GOOGL|LONG|2017-08-04",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 46.802400
+    }, {
+      "newExit" : 28.102500,
+      "signal" : "XLK|LONG|2017-10-10",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 28.071900
+    }, {
+      "newExit" : 140.529000,
+      "signal" : "QQQ|LONG|2017-10-16",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 140.889000
+    }, {
+      "newExit" : 20.008700,
+      "signal" : "TSLA|SHORT|2017-10-24",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 20.820300
+    }, {
+      "newExit" : 39.766200,
+      "signal" : "AAPL|LONG|2017-11-06",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 39.892600
+    }, {
+      "newExit" : 24.000000,
+      "signal" : "TSLA|LONG|2018-01-08",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 23.888000
+    }, {
+      "newExit" : 239.448000,
+      "signal" : "SPY|LONG|2018-03-20",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 240.090000
+    }, {
+      "newExit" : 19.000700,
+      "signal" : "TSLA|SHORT|2018-05-10",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 19.102500
+    }, {
+      "newExit" : 5.796140,
+      "signal" : "NVDA|LONG|2018-06-28",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 5.819120
+    }, {
+      "newExit" : 20.122700,
+      "signal" : "TSLA|LONG|2018-07-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 20.416700
+    }, {
+      "newExit" : 18.017300,
+      "signal" : "TSLA|LONG|2018-09-19",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 18.366700
+    }, {
+      "newExit" : 32.256100,
+      "signal" : "XLK|LONG|2018-10-12",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 32.409900
+    }, {
+      "newExit" : 4.045950,
+      "signal" : "NVDA|LONG|2018-10-30",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 4.360700
+    }, {
+      "newExit" : 35.229000,
+      "signal" : "NFLX|LONG|2019-05-09",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 35.275000
+    }, {
+      "newExit" : 54.651400,
+      "signal" : "GOOGL|LONG|2019-06-04",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 54.6497500
+    }, {
+      "newExit" : 3.895900,
+      "signal" : "NVDA|LONG|2019-06-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 3.891400
+    }, {
+      "newExit" : 59.107300,
+      "signal" : "GOOGL|LONG|2019-08-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 58.8054500
+    }, {
+      "newExit" : 58.604900,
+      "signal" : "XLY|LONG|2019-12-11",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 58.4429500
+    }, {
+      "newExit" : 7.151520,
+      "signal" : "NVDA|LONG|2020-02-03",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 6.968640
+    }, {
+      "newExit" : 237.540000,
+      "signal" : "QQQ|LONG|2020-05-27",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 236.934000
+    }, {
+      "newExit" : 298.941000,
+      "signal" : "SPY|LONG|2020-06-29",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 298.025000
+    }, {
+      "newExit" : 147.333000,
+      "signal" : "TSLA|SHORT|2020-10-02",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 146.377000
+    }, {
+      "newExit" : 56.195300,
+      "signal" : "XLK|LONG|2020-10-22",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 56.235300
+    }, {
+      "newExit" : 84.970900,
+      "signal" : "GOOGL|LONG|2020-11-02",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 83.4248000
+    }, {
+      "newExit" : 153.390000,
+      "signal" : "TSLA|SHORT|2020-11-12",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 141.000000
+    }, {
+      "newExit" : 114.354000,
+      "signal" : "AAPL|LONG|2020-11-16",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 114.624000
+    }, {
+      "newExit" : 235.903000,
+      "signal" : "TSLA|LONG|2021-03-30",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 234.077000
+    }, {
+      "newExit" : 67.322000,
+      "signal" : "XLK|LONG|2021-03-30",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 66.926100
+    }, {
+      "newExit" : 63.516200,
+      "signal" : "XLK|LONG|2021-05-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 64.452300
+    }, {
+      "newExit" : 134.544000,
+      "signal" : "AAPL|LONG|2021-06-17",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 134.080000
+    }, {
+      "newExit" : 87.010700,
+      "signal" : "XLY|LONG|2021-09-15",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 87.185800
+    }, {
+      "newExit" : 387.443000,
+      "signal" : "TSLA|LONG|2021-11-16",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 382.806000
+    }, {
+      "newExit" : 139.614000,
+      "signal" : "GOOGL|LONG|2021-12-06",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 139.643000
+    }, {
+      "newExit" : 382.583000,
+      "signal" : "TSLA|SHORT|2021-12-30",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 365.183000
+    }, {
+      "newExit" : 351.039000,
+      "signal" : "QQQ|LONG|2022-02-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 351.638000
+    }, {
+      "newExit" : 355.033000,
+      "signal" : "TSLA|SHORT|2022-03-23",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 346.900000
+    }, {
+      "newExit" : 348.648000,
+      "signal" : "QQQ|LONG|2022-04-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 351.531000
+    }, {
+      "newExit" : 75.452100,
+      "signal" : "XLK|LONG|2022-04-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 76.058200
+    }, {
+      "newExit" : 249.367000,
+      "signal" : "TSLA|SHORT|2022-06-22",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 246.833000
+    }, {
+      "newExit" : 146.966000,
+      "signal" : "AAPL|LONG|2022-07-01",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 146.947000
+    }, {
+      "newExit" : 244.937000,
+      "signal" : "TSLA|LONG|2022-07-13",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 244.761000
+    }, {
+      "newExit" : 71.216000,
+      "signal" : "XLY|LONG|2022-07-13",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 70.5825500
+    }, {
+      "newExit" : 145.069000,
+      "signal" : "AAPL|LONG|2022-09-19",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 145.787000
+    }, {
+      "newExit" : 142.850000,
+      "signal" : "AAPL|LONG|2022-11-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 143.841000
+    }, {
+      "newExit" : 94.756500,
+      "signal" : "GOOGL|LONG|2023-01-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 93.2717500
+    }, {
+      "newExit" : 136.555000,
+      "signal" : "TSLA|LONG|2023-01-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 136.110000
+    }, {
+      "newExit" : 70.292800,
+      "signal" : "XLY|LONG|2023-01-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 69.4677000
+    }, {
+      "newExit" : 81.241900,
+      "signal" : "XLK|LONG|2023-09-27",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 81.153100
+    }, {
+      "newExit" : 380.116000,
+      "signal" : "QQQ|LONG|2023-11-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 376.793000
+    }, {
+      "newExit" : 202.060000,
+      "signal" : "TSLA|LONG|2024-02-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 201.350000
+    }, {
+      "newExit" : 89.156400,
+      "signal" : "XLY|LONG|2024-02-28",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 89.363000
+    }, {
+      "newExit" : 164.750000,
+      "signal" : "TSLA|SHORT|2024-03-26",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 170.050000
+    }, {
+      "newExit" : 102.095000,
+      "signal" : "XLK|LONG|2024-03-27",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 102.387000
+    }, {
+      "newExit" : 188.420000,
+      "signal" : "TSLA|LONG|2024-04-25",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 180.190000
+    }, {
+      "newExit" : 517.929000,
+      "signal" : "SPY|LONG|2024-05-24",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 518.127000
+    }, {
+      "newExit" : 188.390000,
+      "signal" : "TSLA|SHORT|2024-06-03",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 182.638900
+    }, {
+      "newExit" : 471.691000,
+      "signal" : "QQQ|LONG|2024-07-22",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 475.560000
+    }, {
+      "newExit" : 130.000000,
+      "signal" : "NVDA|LONG|2024-08-08",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 129.981000
+    }, {
+      "newExit" : 570.738000,
+      "signal" : "SPY|LONG|2024-09-09",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 569.728000
+    }, {
+      "newExit" : 352.380000,
+      "signal" : "TSLA|SHORT|2024-11-26",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 346.960000
+    }, {
+      "newExit" : 124.800000,
+      "signal" : "NVDA|LONG|2025-01-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 133.490000
+    }, {
+      "newExit" : 394.800000,
+      "signal" : "TSLA|SHORT|2025-01-17",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 404.240000
+    }, {
+      "newExit" : 112.309000,
+      "signal" : "XLY|LONG|2025-01-23",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 113.557000
+    }, {
+      "newExit" : 512.706000,
+      "signal" : "QQQ|LONG|2025-01-29",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 516.129000
+    }, {
+      "newExit" : 597.403000,
+      "signal" : "SPY|LONG|2025-02-10",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 598.251000
+    }, {
+      "newExit" : 243.269000,
+      "signal" : "AAPL|LONG|2025-02-24",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 243.359000
+    }, {
+      "newExit" : 270.930000,
+      "signal" : "TSLA|LONG|2025-02-28",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 273.600000
+    }, {
+      "newExit" : 204.648000,
+      "signal" : "AAPL|LONG|2025-03-31",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 215.292000
+    }, {
+      "newExit" : 140.437000,
+      "signal" : "XLK|LONG|2025-11-07",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 140.586000
+    }, {
+      "newExit" : 120.090000,
+      "signal" : "XLY|LONG|2026-01-08",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 120.400000
+    }, {
+      "newExit" : 390.600000,
+      "signal" : "TSLA|LONG|2026-02-24",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 394.040000
+    }, {
+      "newExit" : 178.010000,
+      "signal" : "NVDA|LONG|2026-03-16",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 179.940000
+    }, {
+      "newExit" : 357.095000,
+      "signal" : "TSLA|SHORT|2026-08-25",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 357.000000
+    } ],
+    "oldFinalEquity" : 76243.9396085769,
+    "oldSummary" : {
+      "trades" : 1108,
+      "wins" : 487,
+      "losses" : 621,
+      "timeouts" : 169,
+      "grossPnl" : 75359.512951,
+      "netPnl" : 66243.9396085769,
+      "winRate" : 0.4395306859205776,
+      "profitFactor" : 1.7342012040873027,
+      "expectancyR" : 0.3259480039684359,
+      "averageR" : 0.3259480039684359,
+      "averageWinner" : 357.2509215078692,
+      "averageLoser" : -173.4899503474322,
+      "mfe" : 2.75344208032491,
+      "mae" : 1.5629761886281588,
+      "mfeR" : 1.2373026142397816,
+      "maeR" : 0.729961472750083,
+      "ambiguities" : 33,
+      "skippedPositionOpen" : 175,
+      "skippedCapital" : 20,
+      "closedTrades" : 1108,
+      "openTrades" : 0,
+      "breakevens" : 0,
+      "signalsDetected" : 1775,
+      "realizedGrossPnl" : 75359.512951,
+      "realizedNetPnl" : 66243.9396085769,
+      "unrealizedPnl" : 0.0,
+      "netUnrealizedPnl" : 0.0,
+      "profitFactorR" : 1.5940614179828605,
+      "profitFactorNet" : 1.6148656474234198,
+      "averageWinnerR" : 1.989907220730842,
+      "averageLoserR" : -0.9789604317212448,
+      "averageActualRiskPercent" : 0.6409812401024801,
+      "averageOrderValue" : 8157.484526311372,
+      "maxDrawdown" : 10454.3343307,
+      "weightedExpectancyR" : 0.3259480039684359
+    },
+    "newCosts" : {
+      "commissions" : 3536.20539800,
+      "slippage" : 4841.9679913848,
+      "transactionCosts" : 0.0
+    },
+    "newVersion" : "1.1",
+    "oldCosts" : {
+      "commissions" : 3676.696050500,
+      "slippage" : 5438.8772919231,
+      "transactionCosts" : 0.0
+    },
+    "newSummary" : {
+      "trades" : 1108,
+      "wins" : 486,
+      "losses" : 622,
+      "timeouts" : 170,
+      "grossPnl" : 61974.379252,
+      "netPnl" : 53596.2058626152,
+      "winRate" : 0.43862815884476536,
+      "profitFactor" : 1.6200568068627883,
+      "expectancyR" : 0.2910490724985632,
+      "averageR" : 0.2910490724985632,
+      "averageWinner" : 325.56952721711747,
+      "averageLoser" : -168.21637357701593,
+      "mfe" : 2.784688188628159,
+      "mae" : 1.662213261732852,
+      "mfeR" : 1.2581058840259747,
+      "maeR" : 0.7859560854051282,
+      "ambiguities" : 32,
+      "skippedPositionOpen" : 173,
+      "skippedCapital" : 23,
+      "closedTrades" : 1108,
+      "openTrades" : 0,
+      "breakevens" : 0,
+      "signalsDetected" : 1775,
+      "realizedGrossPnl" : 61974.379252,
+      "realizedNetPnl" : 53596.2058626152,
+      "unrealizedPnl" : 0.0,
+      "netUnrealizedPnl" : 0.0,
+      "profitFactorR" : 1.4818489417361724,
+      "profitFactorNet" : 1.5122422491276184,
+      "averageWinnerR" : 2.0406228040368664,
+      "averageLoserR" : -1.0759812064847412,
+      "averageActualRiskPercent" : 0.6420070665257689,
+      "averageOrderValue" : 7263.256159631769,
+      "maxDrawdown" : 9132.833924,
+      "weightedExpectancyR" : 0.2910490724985632
+    },
+    "datasetId" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+    "oldVersion" : "1.0"
+  },
+  "V1" : {
+    "newFinalEquity" : 57076.4777241303,
+    "changedCommonExits" : [ {
+      "newExit" : 0.386292,
+      "signal" : "NVDA|LONG|2010-01-19",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 0.386922
+    }, {
+      "newExit" : 7.738520,
+      "signal" : "AAPL|LONG|2010-04-05",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 7.633250
+    }, {
+      "newExit" : 0.412225,
+      "signal" : "NVDA|LONG|2010-04-09",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 0.408615
+    }, {
+      "newExit" : 81.798800,
+      "signal" : "SPY|LONG|2010-06-25",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 82.375000
+    }, {
+      "newExit" : 40.832900,
+      "signal" : "QQQ|LONG|2010-08-27",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 40.713600
+    }, {
+      "newExit" : 9.799490,
+      "signal" : "AAPL|LONG|2011-01-05",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 9.831860
+    }, {
+      "newExit" : 2.571300,
+      "signal" : "NFLX|LONG|2011-01-20",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 2.590000
+    }, {
+      "newExit" : 10.899400,
+      "signal" : "XLK|LONG|2011-02-16",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 10.980800
+    }, {
+      "newExit" : 1.632000,
+      "signal" : "TSLA|LONG|2011-02-24",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 1.624670
+    }, {
+      "newExit" : 10.243000,
+      "signal" : "AAPL|LONG|2011-03-11",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 10.335300
+    }, {
+      "newExit" : 13.578800,
+      "signal" : "GOOGL|LONG|2011-04-06",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 14.091000
+    }, {
+      "newExit" : 2.528600,
+      "signal" : "NFLX|LONG|2011-09-13",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 2.915000
+    }, {
+      "newExit" : 47.723600,
+      "signal" : "QQQ|LONG|2011-09-15",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 48.926400
+    }, {
+      "newExit" : 16.251100,
+      "signal" : "GOOGL|LONG|2011-12-22",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 16.2303500
+    }, {
+      "newExit" : 14.709700,
+      "signal" : "GOOGL|LONG|2012-01-11",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 15.367300
+    }, {
+      "newExit" : 0.345465,
+      "signal" : "NVDA|LONG|2012-02-14",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 0.362767
+    }, {
+      "newExit" : 2.433330,
+      "signal" : "TSLA|LONG|2012-02-23",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 2.431990
+    }, {
+      "newExit" : 17.290300,
+      "signal" : "AAPL|LONG|2012-05-02",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 17.343200
+    }, {
+      "newExit" : 11.850600,
+      "signal" : "XLK|LONG|2012-06-04",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 11.788500
+    }, {
+      "newExit" : 0.326463,
+      "signal" : "NVDA|LONG|2012-08-24",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 0.326691
+    }, {
+      "newExit" : 16.191300,
+      "signal" : "GOOGL|LONG|2012-11-09",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 16.198800
+    }, {
+      "newExit" : 12.568200,
+      "signal" : "XLK|LONG|2013-01-15",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 12.567700
+    }, {
+      "newExit" : 2.657100,
+      "signal" : "NFLX|LONG|2013-02-15",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 2.660900
+    }, {
+      "newExit" : 0.299042,
+      "signal" : "NVDA|LONG|2013-02-26",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 0.298556
+    }, {
+      "newExit" : 123.734000,
+      "signal" : "SPY|LONG|2013-02-26",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 123.492000
+    }, {
+      "newExit" : 2.824000,
+      "signal" : "TSLA|SHORT|2013-03-25",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 2.568000
+    }, {
+      "newExit" : 2.994700,
+      "signal" : "NFLX|LONG|2013-05-02",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 3.002700
+    }, {
+      "newExit" : 67.124800,
+      "signal" : "QQQ|LONG|2013-06-25",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 66.739000
+    }, {
+      "newExit" : 13.485000,
+      "signal" : "XLK|LONG|2013-08-22",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 13.493700
+    }, {
+      "newExit" : 68.509000,
+      "signal" : "QQQ|LONG|2013-08-23",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 69.030600
+    }, {
+      "newExit" : 136.818000,
+      "signal" : "SPY|LONG|2013-09-13",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 137.161000
+    }, {
+      "newExit" : 5.534300,
+      "signal" : "NFLX|LONG|2014-01-15",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 4.958600
+    }, {
+      "newExit" : 13.682700,
+      "signal" : "TSLA|LONG|2014-02-13",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 13.530100
+    }, {
+      "newExit" : 5.380400,
+      "signal" : "NFLX|LONG|2014-04-15",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 5.314500
+    }, {
+      "newExit" : 30.254300,
+      "signal" : "XLY|LONG|2014-08-08",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 30.2373500
+    }, {
+      "newExit" : 22.166900,
+      "signal" : "AAPL|LONG|2014-09-23",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 22.172800
+    }, {
+      "newExit" : 27.452400,
+      "signal" : "GOOGL|LONG|2014-11-19",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 27.2231000
+    }, {
+      "newExit" : 171.523000,
+      "signal" : "SPY|LONG|2014-11-24",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 171.579000
+    }, {
+      "newExit" : 0.537648,
+      "signal" : "NVDA|LONG|2015-02-02",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 0.532916
+    }, {
+      "newExit" : 0.545475,
+      "signal" : "NVDA|LONG|2015-03-19",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 0.545973
+    }, {
+      "newExit" : 101.990000,
+      "signal" : "QQQ|LONG|2015-04-22",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 101.934200
+    }, {
+      "newExit" : 0.506233,
+      "signal" : "NVDA|LONG|2015-04-27",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 0.524758
+    }, {
+      "newExit" : 10.001000,
+      "signal" : "NFLX|LONG|2015-06-15",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 9.941100
+    }, {
+      "newExit" : 99.472200,
+      "signal" : "QQQ|LONG|2015-07-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 99.609300
+    }, {
+      "newExit" : 33.879300,
+      "signal" : "XLY|LONG|2015-08-13",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 34.115000
+    }, {
+      "newExit" : 0.571228,
+      "signal" : "NVDA|LONG|2015-09-10",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 0.566968
+    }, {
+      "newExit" : 19.286200,
+      "signal" : "XLK|LONG|2015-11-10",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 19.306900
+    }, {
+      "newExit" : 35.468000,
+      "signal" : "XLY|LONG|2015-11-10",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 35.655200
+    }, {
+      "newExit" : 18.787600,
+      "signal" : "XLK|LONG|2015-12-21",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 18.867800
+    }, {
+      "newExit" : 10.900000,
+      "signal" : "NFLX|LONG|2015-12-28",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 11.385000
+    }, {
+      "newExit" : 34.474500,
+      "signal" : "XLY|LONG|2015-12-28",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 35.048400
+    }, {
+      "newExit" : 18.555600,
+      "signal" : "XLK|LONG|2016-01-04",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 18.585800
+    }, {
+      "newExit" : 35.350900,
+      "signal" : "XLY|LONG|2016-04-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 35.409500
+    }, {
+      "newExit" : 37.061200,
+      "signal" : "GOOGL|LONG|2016-04-12",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 37.442600
+    }, {
+      "newExit" : 19.709300,
+      "signal" : "XLK|LONG|2016-05-31",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 19.722500
+    }, {
+      "newExit" : 102.138000,
+      "signal" : "QQQ|LONG|2016-06-03",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 102.268000
+    }, {
+      "newExit" : 19.561400,
+      "signal" : "XLK|LONG|2016-06-03",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 19.618700
+    }, {
+      "newExit" : 13.298000,
+      "signal" : "TSLA|SHORT|2016-06-08",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 14.101300
+    }, {
+      "newExit" : 175.887000,
+      "signal" : "SPY|LONG|2016-06-21",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 179.446000
+    }, {
+      "newExit" : 8.543000,
+      "signal" : "NFLX|LONG|2016-07-07",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 9.318000
+    }, {
+      "newExit" : 20.919900,
+      "signal" : "XLK|LONG|2016-07-12",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 20.845600
+    }, {
+      "newExit" : 38.303100,
+      "signal" : "GOOGL|LONG|2016-07-26",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 38.2763500
+    }, {
+      "newExit" : 36.210900,
+      "signal" : "XLY|LONG|2016-09-15",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 36.0610500
+    }, {
+      "newExit" : 29.249100,
+      "signal" : "AAPL|LONG|2017-01-17",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 28.859400
+    }, {
+      "newExit" : 39.742000,
+      "signal" : "XLY|LONG|2017-02-14",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 39.6921500
+    }, {
+      "newExit" : 2.550200,
+      "signal" : "NVDA|LONG|2017-03-27",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 2.554600
+    }, {
+      "newExit" : 25.578400,
+      "signal" : "XLK|LONG|2017-05-03",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 25.540100
+    }, {
+      "newExit" : 33.673500,
+      "signal" : "AAPL|LONG|2017-06-23",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 33.696200
+    }, {
+      "newExit" : 22.026700,
+      "signal" : "TSLA|LONG|2017-07-10",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 21.924700
+    }, {
+      "newExit" : 3.879620,
+      "signal" : "NVDA|LONG|2017-08-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 3.965770
+    }, {
+      "newExit" : 46.753000,
+      "signal" : "GOOGL|LONG|2017-08-04",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 46.802400
+    }, {
+      "newExit" : 28.102500,
+      "signal" : "XLK|LONG|2017-10-10",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 28.071900
+    }, {
+      "newExit" : 140.529000,
+      "signal" : "QQQ|LONG|2017-10-16",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 140.889000
+    }, {
+      "newExit" : 20.008700,
+      "signal" : "TSLA|SHORT|2017-10-24",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 20.820300
+    }, {
+      "newExit" : 39.766200,
+      "signal" : "AAPL|LONG|2017-11-06",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 39.892600
+    }, {
+      "newExit" : 24.000000,
+      "signal" : "TSLA|LONG|2018-01-08",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 23.888000
+    }, {
+      "newExit" : 56.167400,
+      "signal" : "GOOGL|LONG|2018-01-25",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 58.159100
+    }, {
+      "newExit" : 31.294200,
+      "signal" : "XLK|LONG|2018-01-31",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 31.415000
+    }, {
+      "newExit" : 239.448000,
+      "signal" : "SPY|LONG|2018-03-20",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 240.090000
+    }, {
+      "newExit" : 19.000700,
+      "signal" : "TSLA|SHORT|2018-05-10",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 19.102500
+    }, {
+      "newExit" : 5.796140,
+      "signal" : "NVDA|LONG|2018-06-28",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 5.819120
+    }, {
+      "newExit" : 20.122700,
+      "signal" : "TSLA|LONG|2018-07-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 20.416700
+    }, {
+      "newExit" : 18.017300,
+      "signal" : "TSLA|LONG|2018-09-19",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 18.366700
+    }, {
+      "newExit" : 32.256100,
+      "signal" : "XLK|LONG|2018-10-12",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 32.409900
+    }, {
+      "newExit" : 4.045950,
+      "signal" : "NVDA|LONG|2018-10-30",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 4.360700
+    }, {
+      "newExit" : 4.486120,
+      "signal" : "NVDA|LONG|2019-04-16",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 4.545840
+    }, {
+      "newExit" : 36.189000,
+      "signal" : "XLK|LONG|2019-04-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 36.310800
+    }, {
+      "newExit" : 35.229000,
+      "signal" : "NFLX|LONG|2019-05-09",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 35.275000
+    }, {
+      "newExit" : 54.651400,
+      "signal" : "GOOGL|LONG|2019-06-04",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 54.6497500
+    }, {
+      "newExit" : 3.895900,
+      "signal" : "NVDA|LONG|2019-06-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 3.891400
+    }, {
+      "newExit" : 59.107300,
+      "signal" : "GOOGL|LONG|2019-08-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 58.8054500
+    }, {
+      "newExit" : 58.604900,
+      "signal" : "XLY|LONG|2019-12-11",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 58.4429500
+    }, {
+      "newExit" : 7.151520,
+      "signal" : "NVDA|LONG|2020-02-03",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 6.968640
+    }, {
+      "newExit" : 56.106700,
+      "signal" : "TSLA|LONG|2020-02-13",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 55.960000
+    }, {
+      "newExit" : 31.820000,
+      "signal" : "TSLA|SHORT|2020-03-20",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 31.800000
+    }, {
+      "newExit" : 63.853500,
+      "signal" : "GOOGL|LONG|2020-04-08",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 63.7476500
+    }, {
+      "newExit" : 204.208000,
+      "signal" : "QQQ|LONG|2020-04-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 205.621000
+    }, {
+      "newExit" : 237.540000,
+      "signal" : "QQQ|LONG|2020-05-27",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 236.934000
+    }, {
+      "newExit" : 298.941000,
+      "signal" : "SPY|LONG|2020-06-29",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 298.025000
+    }, {
+      "newExit" : 246.803000,
+      "signal" : "QQQ|LONG|2020-07-16",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 248.274000
+    }, {
+      "newExit" : 147.333000,
+      "signal" : "TSLA|SHORT|2020-10-02",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 146.377000
+    }, {
+      "newExit" : 56.195300,
+      "signal" : "XLK|LONG|2020-10-22",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 56.235300
+    }, {
+      "newExit" : 84.970900,
+      "signal" : "GOOGL|LONG|2020-11-02",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 83.4248000
+    }, {
+      "newExit" : 153.390000,
+      "signal" : "TSLA|SHORT|2020-11-12",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 141.000000
+    }, {
+      "newExit" : 114.354000,
+      "signal" : "AAPL|LONG|2020-11-16",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 114.624000
+    }, {
+      "newExit" : 235.903000,
+      "signal" : "TSLA|LONG|2021-03-30",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 234.077000
+    }, {
+      "newExit" : 67.322000,
+      "signal" : "XLK|LONG|2021-03-30",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 66.926100
+    }, {
+      "newExit" : 14.605300,
+      "signal" : "NVDA|LONG|2021-04-23",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 14.751000
+    }, {
+      "newExit" : 63.516200,
+      "signal" : "XLK|LONG|2021-05-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 64.452300
+    }, {
+      "newExit" : 134.544000,
+      "signal" : "AAPL|LONG|2021-06-17",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 134.080000
+    }, {
+      "newExit" : 347.491000,
+      "signal" : "QQQ|LONG|2021-07-06",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 348.216000
+    }, {
+      "newExit" : 87.010700,
+      "signal" : "XLY|LONG|2021-09-15",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 87.185800
+    }, {
+      "newExit" : 385.752000,
+      "signal" : "QQQ|LONG|2021-11-01",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 385.242000
+    }, {
+      "newExit" : 387.443000,
+      "signal" : "TSLA|LONG|2021-11-16",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 382.806000
+    }, {
+      "newExit" : 139.614000,
+      "signal" : "GOOGL|LONG|2021-12-06",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 139.643000
+    }, {
+      "newExit" : 382.583000,
+      "signal" : "TSLA|SHORT|2021-12-30",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 365.183000
+    }, {
+      "newExit" : 351.039000,
+      "signal" : "QQQ|LONG|2022-02-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 351.638000
+    }, {
+      "newExit" : 355.033000,
+      "signal" : "TSLA|SHORT|2022-03-23",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 346.900000
+    }, {
+      "newExit" : 348.648000,
+      "signal" : "QQQ|LONG|2022-04-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 351.531000
+    }, {
+      "newExit" : 75.452100,
+      "signal" : "XLK|LONG|2022-04-01",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 76.058200
+    }, {
+      "newExit" : 249.367000,
+      "signal" : "TSLA|SHORT|2022-06-22",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 246.833000
+    }, {
+      "newExit" : 146.966000,
+      "signal" : "AAPL|LONG|2022-07-01",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 146.947000
+    }, {
+      "newExit" : 244.937000,
+      "signal" : "TSLA|LONG|2022-07-13",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 244.761000
+    }, {
+      "newExit" : 71.216000,
+      "signal" : "XLY|LONG|2022-07-13",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 70.5825500
+    }, {
+      "newExit" : 71.096200,
+      "signal" : "XLK|LONG|2022-08-10",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 71.324900
+    }, {
+      "newExit" : 145.069000,
+      "signal" : "AAPL|LONG|2022-09-19",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 145.787000
+    }, {
+      "newExit" : 142.850000,
+      "signal" : "AAPL|LONG|2022-11-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 143.841000
+    }, {
+      "newExit" : 94.756500,
+      "signal" : "GOOGL|LONG|2023-01-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 93.2717500
+    }, {
+      "newExit" : 136.555000,
+      "signal" : "TSLA|LONG|2023-01-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 136.110000
+    }, {
+      "newExit" : 70.292800,
+      "signal" : "XLY|LONG|2023-01-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 69.4677000
+    }, {
+      "newExit" : 311.854000,
+      "signal" : "QQQ|LONG|2023-04-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 312.200000
+    }, {
+      "newExit" : 72.499100,
+      "signal" : "XLK|LONG|2023-04-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 72.587500
+    }, {
+      "newExit" : 249.070000,
+      "signal" : "TSLA|LONG|2023-06-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 243.470000
+    }, {
+      "newExit" : 240.250000,
+      "signal" : "TSLA|SHORT|2023-08-16",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 233.970000
+    }, {
+      "newExit" : 81.241900,
+      "signal" : "XLK|LONG|2023-09-27",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 81.153100
+    }, {
+      "newExit" : 380.116000,
+      "signal" : "QQQ|LONG|2023-11-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 376.793000
+    }, {
+      "newExit" : 45.936000,
+      "signal" : "NFLX|LONG|2023-12-07",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 45.564000
+    }, {
+      "newExit" : 93.700500,
+      "signal" : "XLK|LONG|2023-12-22",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 94.312100
+    }, {
+      "newExit" : 53.775000,
+      "signal" : "NFLX|LONG|2024-01-19",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 51.053000
+    }, {
+      "newExit" : 202.060000,
+      "signal" : "TSLA|LONG|2024-02-06",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 201.350000
+    }, {
+      "newExit" : 89.156400,
+      "signal" : "XLY|LONG|2024-02-28",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 89.363000
+    }, {
+      "newExit" : 164.750000,
+      "signal" : "TSLA|SHORT|2024-03-26",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 170.050000
+    }, {
+      "newExit" : 102.095000,
+      "signal" : "XLK|LONG|2024-03-27",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 102.387000
+    }, {
+      "newExit" : 188.420000,
+      "signal" : "TSLA|LONG|2024-04-25",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 180.190000
+    }, {
+      "newExit" : 517.929000,
+      "signal" : "SPY|LONG|2024-05-24",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 518.127000
+    }, {
+      "newExit" : 188.390000,
+      "signal" : "TSLA|SHORT|2024-06-03",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 182.638900
+    }, {
+      "newExit" : 471.691000,
+      "signal" : "QQQ|LONG|2024-07-22",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 475.560000
+    }, {
+      "newExit" : 130.000000,
+      "signal" : "NVDA|LONG|2024-08-08",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 129.981000
+    }, {
+      "newExit" : 570.738000,
+      "signal" : "SPY|LONG|2024-09-09",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 569.728000
+    }, {
+      "newExit" : 352.380000,
+      "signal" : "TSLA|SHORT|2024-11-26",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 346.960000
+    }, {
+      "newExit" : 124.800000,
+      "signal" : "NVDA|LONG|2025-01-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 133.490000
+    }, {
+      "newExit" : 394.800000,
+      "signal" : "TSLA|SHORT|2025-01-17",
+      "newReason" : "TARGET",
+      "oldReason" : "TARGET",
+      "oldExit" : 404.240000
+    }, {
+      "newExit" : 112.309000,
+      "signal" : "XLY|LONG|2025-01-23",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 113.557000
+    }, {
+      "newExit" : 512.706000,
+      "signal" : "QQQ|LONG|2025-01-29",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 516.129000
+    }, {
+      "newExit" : 597.403000,
+      "signal" : "SPY|LONG|2025-02-10",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 598.251000
+    }, {
+      "newExit" : 243.269000,
+      "signal" : "AAPL|LONG|2025-02-24",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 243.359000
+    }, {
+      "newExit" : 270.930000,
+      "signal" : "TSLA|LONG|2025-02-28",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 273.600000
+    }, {
+      "newExit" : 204.648000,
+      "signal" : "AAPL|LONG|2025-03-31",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 215.292000
+    }, {
+      "newExit" : 420.000000,
+      "signal" : "TSLA|LONG|2025-10-17",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 421.310100
+    }, {
+      "newExit" : 140.437000,
+      "signal" : "XLK|LONG|2025-11-07",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 140.586000
+    }, {
+      "newExit" : 120.090000,
+      "signal" : "XLY|LONG|2026-01-08",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 120.400000
+    }, {
+      "newExit" : 390.600000,
+      "signal" : "TSLA|LONG|2026-02-24",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 394.040000
+    }, {
+      "newExit" : 178.010000,
+      "signal" : "NVDA|LONG|2026-03-16",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 179.940000
+    }, {
+      "newExit" : 357.095000,
+      "signal" : "TSLA|SHORT|2026-08-25",
+      "newReason" : "STOP",
+      "oldReason" : "STOP",
+      "oldExit" : 357.000000
+    } ],
+    "oldFinalEquity" : 72226.3573103939,
+    "oldSummary" : {
+      "trades" : 1403,
+      "wins" : 606,
+      "losses" : 797,
+      "timeouts" : 203,
+      "grossPnl" : 72451.670283,
+      "netPnl" : 62226.3573103939,
+      "winRate" : 0.43193157519600855,
+      "profitFactor" : 1.6489856724632226,
+      "expectancyR" : 0.31376772359249605,
+      "averageR" : 0.31376772359249605,
+      "averageWinner" : 296.53267178830083,
+      "averageLoser" : -147.3932770305099,
+      "mfe" : 2.567451387740556,
+      "mae" : 1.4451741261582323,
+      "mfeR" : 1.2519560822070428,
+      "maeR" : 0.7319427194237235,
+      "ambiguities" : 37,
+      "skippedPositionOpen" : 259,
+      "skippedCapital" : 38,
+      "closedTrades" : 1403,
+      "openTrades" : 0,
+      "breakevens" : 0,
+      "signalsDetected" : 1775,
+      "realizedGrossPnl" : 72451.670283,
+      "realizedNetPnl" : 62226.3573103939,
+      "unrealizedPnl" : 0.0,
+      "netUnrealizedPnl" : 0.0,
+      "profitFactorR" : 1.5655283804658244,
+      "profitFactorNet" : 1.5297102568096468,
+      "averageWinnerR" : 1.9991132239461256,
+      "averageLoserR" : -0.9676869479436386,
+      "averageActualRiskPercent" : 0.6069335710002645,
+      "averageOrderValue" : 7068.033837670706,
+      "maxDrawdown" : 8512.4088809,
+      "weightedExpectancyR" : 0.3137677235924962
+    },
+    "newCosts" : {
+      "commissions" : 4083.42550060,
+      "slippage" : 5102.2974182697,
+      "transactionCosts" : 0.0
+    },
+    "newVersion" : "2.2",
+    "oldCosts" : {
+      "commissions" : 4257.563143100,
+      "slippage" : 5967.7498295061,
+      "transactionCosts" : 0.0
+    },
+    "newSummary" : {
+      "trades" : 1393,
+      "wins" : 599,
+      "losses" : 794,
+      "timeouts" : 200,
+      "grossPnl" : 56262.200643,
+      "netPnl" : 47076.4777241303,
+      "winRate" : 0.43000717875089733,
+      "profitFactor" : 1.5410302030491092,
+      "expectancyR" : 0.278453414957318,
+      "averageR" : 0.278453414957318,
+      "averageWinner" : 260.976665821008,
+      "averageLoser" : -137.59262607387092,
+      "mfe" : 2.6011417480258436,
+      "mae" : 1.5421212864321607,
+      "mfeR" : 1.2726498542874531,
+      "maeR" : 0.7859048646791206,
+      "ambiguities" : 37,
+      "skippedPositionOpen" : 254,
+      "skippedCapital" : 52,
+      "closedTrades" : 1393,
+      "openTrades" : 0,
+      "breakevens" : 0,
+      "signalsDetected" : 1775,
+      "realizedGrossPnl" : 56262.200643,
+      "realizedNetPnl" : 47076.4777241303,
+      "unrealizedPnl" : 0.0,
+      "netUnrealizedPnl" : 0.0,
+      "profitFactorR" : 1.4569681783075352,
+      "profitFactorNet" : 1.4309117131024092,
+      "averageWinnerR" : 2.055994339689791,
+      "averageLoserR" : -1.062537786446651,
+      "averageActualRiskPercent" : 0.6109494314430797,
+      "averageOrderValue" : 6087.2563798837045,
+      "maxDrawdown" : 7094.6810617,
+      "weightedExpectancyR" : 0.278453414957318
+    },
+    "datasetId" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+    "oldVersion" : "2.1"
+  }
+}

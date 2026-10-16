@@ -10,6 +10,7 @@ import java.util.*;
 public class PatternV3Controller {
     private final PatternV3Service service;private final PatternV3Store store;private final PatternV3ExcelExporter excel;
     public PatternV3Controller(PatternV3Service service,PatternV3Store store,PatternV3ExcelExporter excel) {this.service=service;this.store=store;this.excel=excel;}
+    @GetMapping("/research-filter-capabilities") public Map<String,Object> researchFilterCapabilities(){return Map.of("filterModelVersion",SignalFilterAudit.VERSION,"closeStrengthModes",List.of("LEGACY_MAX_LE","MIN_GE"),"volumeBases",List.of("UNVERIFIED","CONSISTENT_DATASET_UNITS"));}
     @GetMapping("/configuration") public PatternV3Configuration configuration() {return service.current();}
     @PutMapping("/configuration") public PatternV3Configuration update(@RequestBody PatternV3Configuration config) {var normalized=config.forNewRun();service.current(normalized);return normalized;}
     @GetMapping("/patterns") public Map<String,List<String>> patterns() {return service.patterns();}
@@ -21,9 +22,11 @@ public class PatternV3Controller {
     @PostMapping("/run") public PatternV3Run run(@RequestBody PatternV3Configuration config) {return service.run(config);}
     @GetMapping("/runs") public List<Map<String,Object>> history() {
         return store.runs().stream().map(r->{Map<String,Object> m=new LinkedHashMap<>();var p=r.portfolio();
+            m.put("closeStrengthMin",r.configuration().closeStrengthMin());m.put("patternRangeMinPct",r.configuration().rangeMinimum());m.put("patternRangeMaxPct",r.configuration().patternRangeMaxPct());m.put("relativeVolumeFilterEnabled",r.configuration().rvolEnabled());m.put("relativeVolumePeriod",r.configuration().rvolPeriod());m.put("relativeVolumeMin",r.configuration().rvolMinimum());m.put("relativeVolumeMax",r.configuration().relativeVolumeMax());m.put("relativeVolumeBasis",r.configuration().rvolBasis());m.put("filterModelVersion",r.filterModelVersion());m.put("signalFilterAuditAvailable",r.signalFilterAudit()!=null);
+            m.put("signalTimeframe",r.signalTimeframe());m.put("executionTimeframe","DAILY");m.put("managementTimeframe","DAILY");m.put("signalCalendarVersion",r.signalCalendarVersion());m.put("executionModelVersion",r.executionModelVersion());m.put("executionAuditAvailable",r.executionAudit()!=null);
             m.put("strategyId",r.strategyId());m.put("strategyVersion",r.strategyVersion());m.put("configurationHash",r.configurationHash());m.put("runId",r.runId());m.put("timestamp",r.timestamp());m.put("configurationName",r.configuration().name());
             m.put("marketRegimeFilterEnabled",r.configuration().marketRegimeFilterEnabled());m.put("marketRegimeFilterAdxPeriod",r.configuration().marketRegimeFilterAdxPeriod());m.put("marketRegimeFilterAdxThreshold",r.configuration().marketRegimeFilterAdxThreshold());m.put("marketRegimeFilterMode",r.configuration().marketRegimeFilterMode());
-            m.put("marketRegimeAnalysisEnabled",r.configuration().marketRegimeAnalysisEnabled());m.put("patternRangeFilterEnabled",r.configuration().patternRangeFilterEnabled());m.put("minimumPatternRangePct",r.configuration().minimumPatternRangePct());m.put("pairedRunId",r.pairedRunId());
+            m.put("marketRegimeAnalysisEnabled",r.configuration().marketRegimeAnalysisEnabled());m.put("patternRangeFilterEnabled",r.configuration().patternRangeFilterEnabled());m.put("minimumPatternRangePct",r.configuration().rangeMinimum());m.put("pairedRunId",r.pairedRunId());
             m.put("closeStrengthFilterEnabled",r.configuration().closeStrengthFilterEnabled());m.put("maxCloseStrength",r.configuration().maxCloseStrength());m.put("datasetId",r.datasetId());
             m.put("bollingerAtrFilterEnabled",r.configuration().bollingerAtrFilterEnabled());m.put("bollingerPeriod",r.configuration().bollingerPeriod());m.put("bollingerStdDev",r.configuration().bollingerStdDev());m.put("atrPeriod",r.configuration().atrPeriod());m.put("maxBollingerDistanceAtr",r.configuration().maxBollingerDistanceAtr());
             var g=r.configuration().global();

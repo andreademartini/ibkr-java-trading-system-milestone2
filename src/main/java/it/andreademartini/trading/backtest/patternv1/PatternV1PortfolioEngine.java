@@ -250,6 +250,9 @@ public final class PatternV1PortfolioEngine {
                 averageExposure, timeline.isEmpty() ? 0 : daysInMarket * 100.0 / timeline.size());
     }
     public static void validateTrade(Trade t, int maxHoldingBars) {
+        validateTrade(t,maxHoldingBars,false);
+    }
+    public static void validateTrade(Trade t, int maxHoldingBars, boolean openingGapFills) {
         if (t.quantity() <= 0 || t.finalQuantity() != t.quantity() || t.remainingQuantity() < 0 || t.actualRiskAmount().signum() < 0
                 || t.holdingBars() > maxHoldingBars
                 || (t.closed() && (t.remainingQuantity() != 0 || t.exitDate() == null || t.exitPrice() == null || t.resultR() == null))
@@ -257,8 +260,9 @@ public final class PatternV1PortfolioEngine {
                 || (Set.of("TIMEOUT", "TARGET", "STOP").contains(t.exitReason()) && !t.closed()))
             throw new IllegalStateException("Trade invariant failed: " + t.tradeId());
         if (t.actualRiskPercent().compareTo(t.desiredRiskPercent()) > 0) throw new IllegalStateException("Risk budget invariant: " + t.tradeId());
-        if ("STOP".equals(t.exitReason()) && t.executedMaeR().compareTo(BigDecimal.ONE) > 0)
-            throw new IllegalStateException("Executed stop MAE > 1R");
+        BigDecimal maximumStopMae=openingGapFills && t.resultR()!=null ? t.resultR().negate().max(BigDecimal.ONE) : BigDecimal.ONE;
+        if ("STOP".equals(t.exitReason()) && t.executedMaeR().compareTo(maximumStopMae) > 0)
+            throw new IllegalStateException("Executed stop MAE exceeds fill loss");
     }
     private List<SymbolResult> comparison(Map<String, List<HistoricalBar>> series, Map<String, SymbolPatternConfiguration> configs,
             List<Trade> trades, List<Event> events, LocalDate from, LocalDate to, Set<LocalDate> dates) {

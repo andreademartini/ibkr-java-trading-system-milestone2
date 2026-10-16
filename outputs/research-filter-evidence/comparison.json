@@ -1,0 +1,4162 @@
+{
+  "DatasetId" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+  "Results" : {
+    "DAILY" : {
+      "BASELINE" : {
+        "Final Equity" : 62846.7229315320,
+        "CAGR %" : 11.652752971421076,
+        "Max Drawdown %" : 20.308565261333705,
+        "Profit Factor Net" : 1.4583797203736506,
+        "Win Rate %" : 43.13304721030043,
+        "Closed Trades" : 1398,
+        "Average Net R" : 0.1310386423076442,
+        "Gap Stops" : 103,
+        "Gap Targets" : 65,
+        "Total Costs" : 9412.6306484680,
+        "Average Exposure %" : 35.82843597531573,
+        "Capital Skips" : 46,
+        "Negative Years" : 3,
+        "Periods" : [ {
+          "label" : "2010–2013",
+          "start" : "2010-01-04",
+          "end" : "2013-12-31",
+          "trades" : 304,
+          "returnPercent" : 15.569759642391002,
+          "cagr" : 3.694133085746021,
+          "maxDrawdownPercent" : 17.154976435159444,
+          "pfNet" : 1.1074253518326178,
+          "expectancyR" : 0.27981767041858224,
+          "winRate" : 0.4342105263157895,
+          "netPnl" : 1556.9759642391
+        }, {
+          "label" : "2014–2017",
+          "start" : "2014-01-01",
+          "end" : "2017-12-31",
+          "trades" : 375,
+          "returnPercent" : 57.37246352509349,
+          "cagr" : 12.012349423373658,
+          "maxDrawdownPercent" : 17.14274018563233,
+          "pfNet" : 1.407766508964698,
+          "expectancyR" : 0.19299527347148532,
+          "winRate" : 0.3973333333333333,
+          "netPnl" : 6630.521819686899
+        }, {
+          "label" : "2018–2021",
+          "start" : "2018-01-01",
+          "end" : "2021-12-31",
+          "trades" : 318,
+          "returnPercent" : 61.080454239994886,
+          "cagr" : 12.66685303519135,
+          "maxDrawdownPercent" : 20.308565261333705,
+          "pfNet" : 1.4099895788618113,
+          "expectancyR" : 0.29091951855277987,
+          "winRate" : 0.44654088050314467,
+          "netPnl" : 11109.006261311002
+        }, {
+          "label" : "2022–2026",
+          "start" : "2022-01-01",
+          "end" : "2026-09-08",
+          "trades" : 401,
+          "returnPercent" : 114.51953050264905,
+          "cagr" : 17.695206198930478,
+          "maxDrawdownPercent" : 16.354955155811002,
+          "pfNet" : 1.578043175162605,
+          "expectancyR" : 0.3495407526869876,
+          "winRate" : 0.4488778054862843,
+          "netPnl" : 33550.218886295
+        } ],
+        "Years" : [ {
+          "label" : "2010",
+          "start" : "2010-01-04",
+          "end" : "2010-12-31",
+          "trades" : 74,
+          "returnPercent" : 13.452937789536001,
+          "cagr" : 13.621647935743963,
+          "maxDrawdownPercent" : 7.882233842350242,
+          "pfNet" : 1.4758711467400358,
+          "expectancyR" : 0.4622360791622703,
+          "winRate" : 0.4864864864864865,
+          "netPnl" : 1345.2937789536008
+        }, {
+          "label" : "2011",
+          "start" : "2011-01-01",
+          "end" : "2011-12-31",
+          "trades" : 73,
+          "returnPercent" : -5.129250565417043,
+          "cagr" : -5.14640353339092,
+          "maxDrawdownPercent" : 11.512354985290939,
+          "pfNet" : 0.8651029408060766,
+          "expectancyR" : 4.2533945108219086E-4,
+          "winRate" : 0.3561643835616438,
+          "netPnl" : -581.9285453052016
+        }, {
+          "label" : "2012",
+          "start" : "2012-01-01",
+          "end" : "2012-12-31",
+          "trades" : 78,
+          "returnPercent" : 3.6705792163700846,
+          "cagr" : 3.6731389298465977,
+          "maxDrawdownPercent" : 10.998674272846735,
+          "pfNet" : 1.093264538642976,
+          "expectancyR" : 0.3291048708773846,
+          "winRate" : 0.4358974358974359,
+          "netPnl" : 395.0778472483016
+        }, {
+          "label" : "2013",
+          "start" : "2013-01-01",
+          "end" : "2013-12-31",
+          "trades" : 79,
+          "returnPercent" : 3.571581451400596,
+          "cagr" : 3.5840637157636968,
+          "maxDrawdownPercent" : 13.288488843097463,
+          "pfNet" : 1.1197773404689717,
+          "expectancyR" : 0.31845407899843037,
+          "winRate" : 0.45569620253164556,
+          "netPnl" : 398.53288334239915
+        }, {
+          "label" : "2014",
+          "start" : "2014-01-01",
+          "end" : "2014-12-31",
+          "trades" : 96,
+          "returnPercent" : 17.006953996274966,
+          "cagr" : 17.070080512749207,
+          "maxDrawdownPercent" : 7.074424914563386,
+          "pfNet" : 1.4868610548695902,
+          "expectancyR" : 0.3480933841616458,
+          "winRate" : 0.4375,
+          "netPnl" : 1965.4895855986997
+        }, {
+          "label" : "2015",
+          "start" : "2015-01-01",
+          "end" : "2015-12-31",
+          "trades" : 76,
+          "returnPercent" : 9.220366114834388,
+          "cagr" : 9.253451304383642,
+          "maxDrawdownPercent" : 6.427385131491308,
+          "pfNet" : 1.4578618796730938,
+          "expectancyR" : 0.14448468883669738,
+          "winRate" : 0.42105263157894735,
+          "netPnl" : 1246.8208314473995
+        }, {
+          "label" : "2016",
+          "start" : "2016-01-01",
+          "end" : "2016-12-31",
+          "trades" : 100,
+          "returnPercent" : 2.5469286023017013,
+          "cagr" : 2.5486951181496798,
+          "maxDrawdownPercent" : 11.712956330476846,
+          "pfNet" : 1.0301990915141712,
+          "expectancyR" : -0.0411494364228,
+          "winRate" : 0.33,
+          "netPnl" : 376.1631792008011
+        }, {
+          "label" : "2017",
+          "start" : "2017-01-01",
+          "end" : "2017-12-31",
+          "trades" : 103,
+          "returnPercent" : 20.08555910665475,
+          "cagr" : 20.161062832092334,
+          "maxDrawdownPercent" : 6.9561248303876555,
+          "pfNet" : 1.7638291706760827,
+          "expectancyR" : 0.31155698993184466,
+          "winRate" : 0.4077669902912621,
+          "netPnl" : 3042.0482234399988
+        }, {
+          "label" : "2018",
+          "start" : "2018-01-01",
+          "end" : "2018-12-31",
+          "trades" : 84,
+          "returnPercent" : -5.398860166195119,
+          "cagr" : -5.416888756438132,
+          "maxDrawdownPercent" : 16.6874400778005,
+          "pfNet" : 0.8839464793280862,
+          "expectancyR" : 0.19083215935613096,
+          "winRate" : 0.44047619047619047,
+          "netPnl" : -981.9175730839997
+        }, {
+          "label" : "2019",
+          "start" : "2019-01-01",
+          "end" : "2019-12-31",
+          "trades" : 82,
+          "returnPercent" : 16.471801781808715,
+          "cagr" : 16.532805064171296,
+          "maxDrawdownPercent" : 7.216488268064975,
+          "pfNet" : 1.6342296413758461,
+          "expectancyR" : 0.3536048895882195,
+          "winRate" : 0.45121951219512196,
+          "netPnl" : 2834.0690677400016
+        }, {
+          "label" : "2020",
+          "start" : "2020-01-01",
+          "end" : "2020-12-31",
+          "trades" : 74,
+          "returnPercent" : 30.22733272719542,
+          "cagr" : 30.250892755201342,
+          "maxDrawdownPercent" : 7.647645928309058,
+          "pfNet" : 1.760948819410633,
+          "expectancyR" : 0.2900228765768919,
+          "winRate" : 0.4594594594594595,
+          "netPnl" : 6057.4514648
+        }, {
+          "label" : "2021",
+          "start" : "2021-01-01",
+          "end" : "2021-12-31",
+          "trades" : 78,
+          "returnPercent" : 12.259612028613343,
+          "cagr" : 12.304202430609434,
+          "maxDrawdownPercent" : 8.168306316253075,
+          "pfNet" : 1.4470834686068113,
+          "expectancyR" : 0.33365656026852564,
+          "winRate" : 0.4358974358974359,
+          "netPnl" : 3199.403301855
+        }, {
+          "label" : "2022",
+          "start" : "2022-01-01",
+          "end" : "2022-12-31",
+          "trades" : 83,
+          "returnPercent" : -1.6421449140557653,
+          "cagr" : -1.6477374312179105,
+          "maxDrawdownPercent" : 16.354955155811002,
+          "pfNet" : 0.9740476523398786,
+          "expectancyR" : 0.025814924556566275,
+          "winRate" : 0.37349397590361444,
+          "netPnl" : -481.09105117500076
+        }, {
+          "label" : "2023",
+          "start" : "2023-01-01",
+          "end" : "2023-12-31",
+          "trades" : 85,
+          "returnPercent" : 13.180726199526172,
+          "cagr" : 13.228859890160717,
+          "maxDrawdownPercent" : 13.307026502944899,
+          "pfNet" : 1.4012192488618294,
+          "expectancyR" : 0.4376125966082,
+          "winRate" : 0.4470588235294118,
+          "netPnl" : 3798.0806900099997
+        }, {
+          "label" : "2024",
+          "start" : "2024-01-01",
+          "end" : "2024-12-31",
+          "trades" : 100,
+          "returnPercent" : 52.6687144093338,
+          "cagr" : 52.71296339028966,
+          "maxDrawdownPercent" : 5.059509581941734,
+          "pfNet" : 2.7830655872390984,
+          "expectancyR" : 0.7034536905087699,
+          "winRate" : 0.54,
+          "netPnl" : 17177.10784737
+        }, {
+          "label" : "2025",
+          "start" : "2025-01-01",
+          "end" : "2025-12-31",
+          "trades" : 83,
+          "returnPercent" : 12.002139215462758,
+          "cagr" : 12.045743836026013,
+          "maxDrawdownPercent" : 14.172998195834701,
+          "pfNet" : 1.391445900861887,
+          "expectancyR" : 0.2356207071547229,
+          "winRate" : 0.4457831325301205,
+          "netPnl" : 5975.937312020003
+        }, {
+          "label" : "2026",
+          "start" : "2026-01-01",
+          "end" : "2026-09-08",
+          "trades" : 50,
+          "returnPercent" : 12.696115331712154,
+          "cagr" : 19.08003953782693,
+          "maxDrawdownPercent" : 11.438735736309422,
+          "pfNet" : 1.6757180630461344,
+          "expectancyR" : 0.21848489265742,
+          "winRate" : 0.4,
+          "netPnl" : 7080.1840880699965
+        } ],
+        "RunId" : "8b07861c-0cc9-455d-af93-c51c4ebb37b5",
+        "StrategyVersion" : "3.0-research",
+        "SignalTimeframe" : "DAILY",
+        "ExecutionTimeframe" : "DAILY",
+        "ManagementTimeframe" : "DAILY",
+        "StartDate" : "2010-01-01",
+        "EndDate" : "2026-09-08",
+        "ConfigurationHash" : "96ed1953a2252e9365c10670b4845c663fc7f427c0f096829264b5dbbeb8925e",
+        "DataFingerprint" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+        "Configuration" : {
+          "name" : "V3_RESEARCH_INITIAL_SNAPSHOT",
+          "global" : {
+            "initialCapital" : 10000.0,
+            "riskPercent" : 4.0,
+            "maxOrderValuePercent" : 30.0,
+            "maxOrderValue" : null,
+            "maxOrderValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValue" : 10000.0,
+            "maxQuantity" : 1000000,
+            "useLeverage" : false,
+            "minQuantity" : 1,
+            "minOrderValue" : 0.0,
+            "startDate" : "2010-01-01",
+            "endDate" : "2026-09-08",
+            "timeframe" : "DAILY",
+            "maxHoldingBars" : 13,
+            "stopBufferTicks" : 0,
+            "tickSize" : 0.01,
+            "sameBarPolicy" : "STOP_FIRST",
+            "entryMode" : "NEXT_BAR_OPEN",
+            "stopMode" : "PATTERN_EXTREME",
+            "commissionEnabled" : true,
+            "commission" : {
+              "model" : "IBKR_US_FIXED",
+              "fixedPerOrder" : 0,
+              "perShare" : 0.005,
+              "minimumPerOrder" : 1,
+              "maximumPercentOrderValue" : 1
+            },
+            "slippageEnabled" : true,
+            "slippagePercentPerSide" : 0.03,
+            "maxLongNotional" : 10000.0,
+            "maxShortNotional" : 10000.0,
+            "transactionCostsPerShare" : 0.0,
+            "allowLong" : true,
+            "allowShort" : true,
+            "smallQuantityWarningThreshold" : 4,
+            "maxPositionValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValuePercent" : 100.0,
+            "maxLongNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxLongNotionalPercent" : 100.0,
+            "maxShortNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxShortNotionalPercent" : 100.0
+          },
+          "symbols" : [ {
+            "enabled" : true,
+            "symbol" : "AAPL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "GOOGL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NFLX",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 2
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NVDA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "PIERCING_PATTERN",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "QQQ",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "SPY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "TSLA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1
+            },
+            "shortConfig" : {
+              "enabled" : true,
+              "pattern" : "SHOOTING_STAR",
+              "targetR" : 4
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLK",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 4
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          } ],
+          "splitCosts" : {
+            "rules" : [ {
+              "symbol" : "NVDA",
+              "basis" : "AUTO_PROVIDER",
+              "validFrom" : "2010-01-01",
+              "adjustedThrough" : "2024-06-10",
+              "splits" : [ {
+                "effectiveDate" : "2021-07-20",
+                "ratio" : 4
+              }, {
+                "effectiveDate" : "2024-06-10",
+                "ratio" : 10
+              } ]
+            } ]
+          },
+          "patternRangeFilterEnabled" : false,
+          "minimumPatternRangePct" : 2.50,
+          "closeStrengthFilterEnabled" : false,
+          "maxCloseStrength" : 0.80,
+          "capitalSkipShadowAnalysisEnabled" : false,
+          "bollingerAtrFilterEnabled" : false,
+          "bollingerPeriod" : 20,
+          "bollingerStdDev" : 2,
+          "atrPeriod" : 2,
+          "maxBollingerDistanceAtr" : 1,
+          "marketRegimeAnalysisEnabled" : true
+        },
+        "ExecutionModelVersion" : "OPEN_FIRST/1",
+        "FilterModelVersion" : "V3_RESEARCH_FILTERS/1",
+        "Raw Signals" : 1775,
+        "Accepted Signals" : 1775,
+        "Executed Signals" : 1398,
+        "RVOL Available" : 0,
+        "Volume Issues" : {
+          "CURRENT_VOLUME_NOT_AVAILABLE" : 1,
+          "HISTORICAL_VOLUME_NOT_AVAILABLE" : 1,
+          "RVOL_WARMUP" : 7,
+          "UNVERIFIED_VOLUME_ADJUSTMENT" : 1766
+        }
+      },
+      "A" : {
+        "Final Equity" : 26961.6571511896,
+        "CAGR %" : 6.127991218367357,
+        "Max Drawdown %" : 16.09596448221675,
+        "Profit Factor Net" : 1.8998942396438159,
+        "Win Rate %" : 51.55709342560554,
+        "Closed Trades" : 289,
+        "Average Net R" : 0.3599879696955694,
+        "Gap Stops" : 15,
+        "Gap Targets" : 15,
+        "Total Costs" : 1742.4067348104,
+        "Average Exposure %" : 10.359437888750147,
+        "Capital Skips" : 0,
+        "Negative Years" : 5,
+        "Periods" : [ {
+          "label" : "2010–2013",
+          "start" : "2010-01-04",
+          "end" : "2013-12-31",
+          "trades" : 59,
+          "returnPercent" : 13.720849544663993,
+          "cagr" : 3.275748023098335,
+          "maxDrawdownPercent" : 7.4291684013394175,
+          "pfNet" : 1.4559250589835409,
+          "expectancyR" : 0.18706137908491524,
+          "winRate" : 0.4406779661016949,
+          "netPnl" : 1372.0849544663997
+        }, {
+          "label" : "2014–2017",
+          "start" : "2014-01-01",
+          "end" : "2017-12-31",
+          "trades" : 75,
+          "returnPercent" : 18.622652053231793,
+          "cagr" : 4.364935075260923,
+          "maxDrawdownPercent" : 8.544555602979845,
+          "pfNet" : 1.544850045190222,
+          "expectancyR" : 0.4352712606101866,
+          "winRate" : 0.52,
+          "netPnl" : 2117.7838122682006
+        }, {
+          "label" : "2018–2021",
+          "start" : "2018-01-01",
+          "end" : "2021-12-31",
+          "trades" : 71,
+          "returnPercent" : 13.54973152950436,
+          "cagr" : 3.230011948984246,
+          "maxDrawdownPercent" : 16.095964482216747,
+          "pfNet" : 1.327369045098449,
+          "expectancyR" : 0.3629576291342535,
+          "winRate" : 0.5070422535211268,
+          "netPnl" : 1827.8410015749996
+        }, {
+          "label" : "2022–2026",
+          "start" : "2022-01-01",
+          "end" : "2026-09-08",
+          "trades" : 84,
+          "returnPercent" : 76.01624236914223,
+          "cagr" : 12.828431477911263,
+          "maxDrawdownPercent" : 7.8830347201631135,
+          "pfNet" : 2.8207760952672043,
+          "expectancyR" : 0.6401072734461072,
+          "winRate" : 0.5714285714285714,
+          "netPnl" : 11643.94738288
+        } ],
+        "Years" : [ {
+          "label" : "2010",
+          "start" : "2010-01-04",
+          "end" : "2010-12-31",
+          "trades" : 21,
+          "returnPercent" : 15.262158432600014,
+          "cagr" : 15.455061532215208,
+          "maxDrawdownPercent" : 4.859682567065173,
+          "pfNet" : 3.6097638238940988,
+          "expectancyR" : 0.7708712889882857,
+          "winRate" : 0.6190476190476191,
+          "netPnl" : 1526.2158432600008
+        }, {
+          "label" : "2011",
+          "start" : "2011-01-01",
+          "end" : "2011-12-31",
+          "trades" : 17,
+          "returnPercent" : -2.0599834626769065,
+          "cagr" : -2.066983963130231,
+          "maxDrawdownPercent" : 5.782001573349471,
+          "pfNet" : 0.7975158516623849,
+          "expectancyR" : -0.2932892547778235,
+          "winRate" : 0.29411764705882354,
+          "netPnl" : -237.43814024360108
+        }, {
+          "label" : "2012",
+          "start" : "2012-01-01",
+          "end" : "2012-12-31",
+          "trades" : 11,
+          "returnPercent" : -2.587246731521331,
+          "cagr" : -2.5889956781951717,
+          "maxDrawdownPercent" : 6.687498856131806,
+          "pfNet" : 0.5847513722706342,
+          "expectancyR" : -0.4714825018220909,
+          "winRate" : 0.2727272727272727,
+          "netPnl" : -292.06853215000046
+        }, {
+          "label" : "2013",
+          "start" : "2013-01-01",
+          "end" : "2013-12-31",
+          "trades" : 10,
+          "returnPercent" : 3.413528336227034,
+          "cagr" : 3.425449137895953,
+          "maxDrawdownPercent" : 1.4234086336925074,
+          "pfNet" : 2.2103800373682727,
+          "expectancyR" : 0.5020549148522,
+          "winRate" : 0.5,
+          "netPnl" : 375.37578360000043
+        }, {
+          "label" : "2014",
+          "start" : "2014-01-01",
+          "end" : "2014-12-31",
+          "trades" : 24,
+          "returnPercent" : -0.25996803025277737,
+          "cagr" : -0.2608596121886908,
+          "maxDrawdownPercent" : 5.133372311511694,
+          "pfNet" : 1.0291458369057318,
+          "expectancyR" : 0.18401273980391666,
+          "winRate" : 0.5,
+          "netPnl" : -29.56378525479886
+        }, {
+          "label" : "2015",
+          "start" : "2015-01-01",
+          "end" : "2015-12-31",
+          "trades" : 17,
+          "returnPercent" : 8.601010912574814,
+          "cagr" : 8.631786999767987,
+          "maxDrawdownPercent" : 4.496361020042835,
+          "pfNet" : 2.4305577011053567,
+          "expectancyR" : 1.0095262872974704,
+          "winRate" : 0.7058823529411765,
+          "netPnl" : 975.5714835249983
+        }, {
+          "label" : "2016",
+          "start" : "2016-01-01",
+          "end" : "2016-12-31",
+          "trades" : 19,
+          "returnPercent" : 5.27855092911278,
+          "cagr" : 5.282260225870972,
+          "maxDrawdownPercent" : 4.238785690445347,
+          "pfNet" : 1.4922460273745566,
+          "expectancyR" : 0.3173781098107895,
+          "winRate" : 0.47368421052631576,
+          "netPnl" : 650.2167941700009
+        }, {
+          "label" : "2017",
+          "start" : "2017-01-01",
+          "end" : "2017-12-31",
+          "trades" : 15,
+          "returnPercent" : 4.021798847130453,
+          "cagr" : 4.035885000874084,
+          "maxDrawdownPercent" : 3.2814730900378626,
+          "pfNet" : 1.7521430914672804,
+          "expectancyR" : 0.3357938546672,
+          "winRate" : 0.4,
+          "netPnl" : 521.5593198280003
+        }, {
+          "label" : "2018",
+          "start" : "2018-01-01",
+          "end" : "2018-12-31",
+          "trades" : 19,
+          "returnPercent" : -6.559679170446076,
+          "cagr" : -6.581447469780466,
+          "maxDrawdownPercent" : 12.58671382415314,
+          "pfNet" : 0.6224114508906489,
+          "expectancyR" : 0.052888852243947376,
+          "winRate" : 0.42105263157894735,
+          "netPnl" : -884.892111612
+        }, {
+          "label" : "2019",
+          "start" : "2019-01-01",
+          "end" : "2019-12-31",
+          "trades" : 15,
+          "returnPercent" : -2.1825800846540733,
+          "cagr" : -2.1899925325141845,
+          "maxDrawdownPercent" : 4.014550661102184,
+          "pfNet" : 0.7352982390623659,
+          "expectancyR" : 0.13227303490413336,
+          "winRate" : 0.4666666666666667,
+          "netPnl" : -275.11371015000077
+        }, {
+          "label" : "2020",
+          "start" : "2020-01-01",
+          "end" : "2020-12-31",
+          "trades" : 17,
+          "returnPercent" : 13.580697841452949,
+          "cagr" : 13.590604952534058,
+          "maxDrawdownPercent" : 4.642807356527659,
+          "pfNet" : 2.148750198907891,
+          "expectancyR" : 0.8258457019341177,
+          "winRate" : 0.5294117647058824,
+          "netPnl" : 1674.4814308220011
+        }, {
+          "label" : "2021",
+          "start" : "2021-01-01",
+          "end" : "2021-12-31",
+          "trades" : 20,
+          "returnPercent" : 9.37827117979937,
+          "cagr" : 9.411947016101617,
+          "maxDrawdownPercent" : 2.745830884393782,
+          "pfNet" : 2.7678862051455244,
+          "expectancyR" : 0.43708155097275,
+          "winRate" : 0.6,
+          "netPnl" : 1313.3653925149993
+        }, {
+          "label" : "2022",
+          "start" : "2022-01-01",
+          "end" : "2022-12-31",
+          "trades" : 20,
+          "returnPercent" : 8.355622262134311,
+          "cagr" : 8.385486846121326,
+          "maxDrawdownPercent" : 4.015645753818775,
+          "pfNet" : 1.812026452491657,
+          "expectancyR" : 0.14989961214625,
+          "winRate" : 0.4,
+          "netPnl" : 1279.889967449999
+        }, {
+          "label" : "2023",
+          "start" : "2023-01-01",
+          "end" : "2023-12-31",
+          "trades" : 16,
+          "returnPercent" : 8.139281571054081,
+          "cagr" : 8.168344139947248,
+          "maxDrawdownPercent" : 4.831434543920201,
+          "pfNet" : 2.123283493155736,
+          "expectancyR" : 0.5456833640995624,
+          "winRate" : 0.625,
+          "netPnl" : 1350.9253765300018
+        }, {
+          "label" : "2024",
+          "start" : "2024-01-01",
+          "end" : "2024-12-31",
+          "trades" : 15,
+          "returnPercent" : 25.384184206591918,
+          "cagr" : 25.40361272958096,
+          "maxDrawdownPercent" : 1.7725852719757031,
+          "pfNet" : 12.802331800436814,
+          "expectancyR" : 1.9965494200376666,
+          "winRate" : 0.8,
+          "netPnl" : 4556.08667687
+        }, {
+          "label" : "2025",
+          "start" : "2025-01-01",
+          "end" : "2025-12-31",
+          "trades" : 21,
+          "returnPercent" : 13.1885131927034,
+          "cagr" : 13.236676948347492,
+          "maxDrawdownPercent" : 4.406045291828384,
+          "pfNet" : 2.7115819827870014,
+          "expectancyR" : 0.4305194257781905,
+          "winRate" : 0.5714285714285714,
+          "netPnl" : 2968.0236947800004
+        }, {
+          "label" : "2026",
+          "start" : "2026-01-01",
+          "end" : "2026-09-08",
+          "trades" : 12,
+          "returnPercent" : 5.845573647802649,
+          "cagr" : 8.654274461379519,
+          "maxDrawdownPercent" : 3.998727753869046,
+          "pfNet" : 1.9952647986803236,
+          "expectancyR" : 0.254244638254,
+          "winRate" : 0.5,
+          "netPnl" : 1489.0216672499992
+        } ],
+        "RunId" : "90a8e75c-fcee-40cd-9667-a77a96842ce2",
+        "StrategyVersion" : "3.0-research",
+        "SignalTimeframe" : "DAILY",
+        "ExecutionTimeframe" : "DAILY",
+        "ManagementTimeframe" : "DAILY",
+        "StartDate" : "2010-01-01",
+        "EndDate" : "2026-09-08",
+        "ConfigurationHash" : "f7274978e10a09f13203ae3f6fdfa21c47e2c1646232d15e15b0e13b452c4a24",
+        "DataFingerprint" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+        "Configuration" : {
+          "name" : "V3_RESEARCH_INITIAL_SNAPSHOT",
+          "global" : {
+            "initialCapital" : 10000.0,
+            "riskPercent" : 4.0,
+            "maxOrderValuePercent" : 30.0,
+            "maxOrderValue" : null,
+            "maxOrderValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValue" : 10000.0,
+            "maxQuantity" : 1000000,
+            "useLeverage" : false,
+            "minQuantity" : 1,
+            "minOrderValue" : 0.0,
+            "startDate" : "2010-01-01",
+            "endDate" : "2026-09-08",
+            "timeframe" : "DAILY",
+            "maxHoldingBars" : 13,
+            "stopBufferTicks" : 0,
+            "tickSize" : 0.01,
+            "sameBarPolicy" : "STOP_FIRST",
+            "entryMode" : "NEXT_BAR_OPEN",
+            "stopMode" : "PATTERN_EXTREME",
+            "commissionEnabled" : true,
+            "commission" : {
+              "model" : "IBKR_US_FIXED",
+              "fixedPerOrder" : 0,
+              "perShare" : 0.005,
+              "minimumPerOrder" : 1,
+              "maximumPercentOrderValue" : 1
+            },
+            "slippageEnabled" : true,
+            "slippagePercentPerSide" : 0.03,
+            "maxLongNotional" : 10000.0,
+            "maxShortNotional" : 10000.0,
+            "transactionCostsPerShare" : 0.0,
+            "allowLong" : true,
+            "allowShort" : true,
+            "smallQuantityWarningThreshold" : 4,
+            "maxPositionValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValuePercent" : 100.0,
+            "maxLongNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxLongNotionalPercent" : 100.0,
+            "maxShortNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxShortNotionalPercent" : 100.0
+          },
+          "symbols" : [ {
+            "enabled" : true,
+            "symbol" : "AAPL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "GOOGL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NFLX",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 2
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NVDA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "PIERCING_PATTERN",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "QQQ",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "SPY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "TSLA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1
+            },
+            "shortConfig" : {
+              "enabled" : true,
+              "pattern" : "SHOOTING_STAR",
+              "targetR" : 4
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLK",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 4
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          } ],
+          "splitCosts" : {
+            "rules" : [ {
+              "symbol" : "NVDA",
+              "basis" : "AUTO_PROVIDER",
+              "validFrom" : "2010-01-01",
+              "adjustedThrough" : "2024-06-10",
+              "splits" : [ {
+                "effectiveDate" : "2021-07-20",
+                "ratio" : 4
+              }, {
+                "effectiveDate" : "2024-06-10",
+                "ratio" : 10
+              } ]
+            } ]
+          },
+          "patternRangeFilterEnabled" : true,
+          "minimumPatternRangePct" : 1.38,
+          "closeStrengthFilterEnabled" : true,
+          "maxCloseStrength" : 0.80,
+          "capitalSkipShadowAnalysisEnabled" : false,
+          "bollingerAtrFilterEnabled" : false,
+          "bollingerPeriod" : 20,
+          "bollingerStdDev" : 2,
+          "atrPeriod" : 2,
+          "maxBollingerDistanceAtr" : 1,
+          "marketRegimeAnalysisEnabled" : true,
+          "closeStrengthMin" : 0.906,
+          "patternRangeMinPct" : 1.38,
+          "relativeVolumePeriod" : 20,
+          "relativeVolumeMin" : 1.20
+        },
+        "ExecutionModelVersion" : "OPEN_FIRST/1",
+        "FilterModelVersion" : "V3_RESEARCH_FILTERS/1",
+        "Raw Signals" : 1775,
+        "Accepted Signals" : 308,
+        "Executed Signals" : 289,
+        "RVOL Available" : 0,
+        "Volume Issues" : {
+          "CURRENT_VOLUME_NOT_AVAILABLE" : 1,
+          "HISTORICAL_VOLUME_NOT_AVAILABLE" : 1,
+          "RVOL_WARMUP" : 7,
+          "UNVERIFIED_VOLUME_ADJUSTMENT" : 1766
+        }
+      },
+      "B" : {
+        "Final Equity" : 18578.4317559604,
+        "CAGR %" : 3.784206318457728,
+        "Max Drawdown %" : 15.898822962897238,
+        "Profit Factor Net" : 2.098687492261703,
+        "Win Rate %" : 57.291666666666664,
+        "Closed Trades" : 96,
+        "Average Net R" : 0.3948138444695404,
+        "Gap Stops" : 7,
+        "Gap Targets" : 9,
+        "Total Costs" : 599.2904100396,
+        "Average Exposure %" : 3.6062848151689946,
+        "Capital Skips" : 0,
+        "Negative Years" : 4,
+        "Periods" : [ {
+          "label" : "2010–2013",
+          "start" : "2010-01-04",
+          "end" : "2013-12-31",
+          "trades" : 16,
+          "returnPercent" : 19.620049017754006,
+          "cagr" : 4.593427302677999,
+          "maxDrawdownPercent" : 4.3789718382520935,
+          "pfNet" : 5.422979878035368,
+          "expectancyR" : 0.6907229994000625,
+          "winRate" : 0.75,
+          "netPnl" : 1962.0049017754009
+        }, {
+          "label" : "2014–2017",
+          "start" : "2014-01-01",
+          "end" : "2017-12-31",
+          "trades" : 19,
+          "returnPercent" : 13.79354756936364,
+          "cagr" : 3.2854196572406957,
+          "maxDrawdownPercent" : 3.717333785655262,
+          "pfNet" : 2.427360161489139,
+          "expectancyR" : 0.6517509347502105,
+          "winRate" : 0.631578947368421,
+          "netPnl" : 1649.9848363759993
+        }, {
+          "label" : "2018–2021",
+          "start" : "2018-01-01",
+          "end" : "2021-12-31",
+          "trades" : 25,
+          "returnPercent" : -0.04966652815679984,
+          "cagr" : -0.01242745089905517,
+          "maxDrawdownPercent" : 15.898822962897242,
+          "pfNet" : 0.9980268150356251,
+          "expectancyR" : -0.10115335952448,
+          "winRate" : 0.4,
+          "netPnl" : -6.760602715999994
+        }, {
+          "label" : "2022–2026",
+          "start" : "2022-01-01",
+          "end" : "2026-09-08",
+          "trades" : 36,
+          "returnPercent" : 36.55361163724968,
+          "cagr" : 6.8767886501938325,
+          "maxDrawdownPercent" : 5.177262491816851,
+          "pfNet" : 2.7875785946514795,
+          "expectancyR" : 0.5615528545266666,
+          "winRate" : 0.5833333333333334,
+          "netPnl" : 4973.202620524999
+        } ],
+        "Years" : [ {
+          "label" : "2010",
+          "start" : "2010-01-04",
+          "end" : "2010-12-31",
+          "trades" : 6,
+          "returnPercent" : 9.707235175829986,
+          "cagr" : 9.82695786752914,
+          "maxDrawdownPercent" : 4.3789718382520935,
+          "pfNet" : 15.893742026615897,
+          "expectancyR" : 0.812202030364,
+          "winRate" : 0.8333333333333334,
+          "netPnl" : 970.7235175829992
+        }, {
+          "label" : "2011",
+          "start" : "2011-01-01",
+          "end" : "2011-12-31",
+          "trades" : 7,
+          "returnPercent" : 3.8177589386709343,
+          "cagr" : 3.831117370990933,
+          "maxDrawdownPercent" : 3.0062703200987593,
+          "pfNet" : 2.1068106029668985,
+          "expectancyR" : 0.3694615810388571,
+          "winRate" : 0.5714285714285714,
+          "netPnl" : 418.83577772940043
+        }, {
+          "label" : "2012",
+          "start" : "2012-01-01",
+          "end" : "2012-12-31",
+          "trades" : 2,
+          "returnPercent" : 4.12684885477923,
+          "cagr" : 4.129733042293049,
+          "maxDrawdownPercent" : 3.73022194585748,
+          "pfNet" : null,
+          "expectancyR" : 1.2960623704724998,
+          "winRate" : 1.0,
+          "netPnl" : 470.0298973429999
+        }, {
+          "label" : "2013",
+          "start" : "2013-01-01",
+          "end" : "2013-12-31",
+          "trades" : 1,
+          "returnPercent" : 0.8635687750754961,
+          "cagr" : 0.8665471392503399,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : 1.0,
+          "winRate" : 1.0,
+          "netPnl" : 102.41570912000134
+        }, {
+          "label" : "2014",
+          "start" : "2014-01-01",
+          "end" : "2014-12-31",
+          "trades" : 6,
+          "returnPercent" : 6.592503904700431,
+          "cagr" : 6.615875922677117,
+          "maxDrawdownPercent" : 3.246697817520993,
+          "pfNet" : 2.9541504312567124,
+          "expectancyR" : 0.6330180547995,
+          "winRate" : 0.8333333333333334,
+          "netPnl" : 788.5956402299998
+        }, {
+          "label" : "2015",
+          "start" : "2015-01-01",
+          "end" : "2015-12-31",
+          "trades" : 6,
+          "returnPercent" : -0.8351211537778513,
+          "cagr" : -0.8379769652276714,
+          "maxDrawdownPercent" : 2.2846852463492753,
+          "pfNet" : 1.1414837001668938,
+          "expectancyR" : 0.15457908874366666,
+          "winRate" : 0.5,
+          "netPnl" : -106.48296235999987
+        }, {
+          "label" : "2016",
+          "start" : "2016-01-01",
+          "end" : "2016-12-31",
+          "trades" : 3,
+          "returnPercent" : 4.033512200337364,
+          "cagr" : 4.036329900234081,
+          "maxDrawdownPercent" : 1.4661453457094473,
+          "pfNet" : 3.75109982249791,
+          "expectancyR" : 1.394876260977,
+          "winRate" : 0.6666666666666666,
+          "netPnl" : 510.0020251999995
+        }, {
+          "label" : "2017",
+          "start" : "2017-01-01",
+          "end" : "2017-12-31",
+          "trades" : 4,
+          "returnPercent" : 3.480811692918939,
+          "cagr" : 3.4929714080846663,
+          "maxDrawdownPercent" : 3.0526396677976555,
+          "pfNet" : 3.6969224088698494,
+          "expectancyR" : 0.868264029016,
+          "winRate" : 0.5,
+          "netPnl" : 457.87013330599984
+        }, {
+          "label" : "2018",
+          "start" : "2018-01-01",
+          "end" : "2018-12-31",
+          "trades" : 9,
+          "returnPercent" : -10.11234369526447,
+          "cagr" : -10.145245925399172,
+          "maxDrawdownPercent" : 13.140111313169461,
+          "pfNet" : 0.2578011763487652,
+          "expectancyR" : -0.49612539522288895,
+          "winRate" : 0.2222222222222222,
+          "netPnl" : -1376.4911860859993
+        }, {
+          "label" : "2019",
+          "start" : "2019-01-01",
+          "end" : "2019-12-31",
+          "trades" : 4,
+          "returnPercent" : -0.9805555163074908,
+          "cagr" : -0.983906188598771,
+          "maxDrawdownPercent" : 3.176047875992788,
+          "pfNet" : 0.6912655115436562,
+          "expectancyR" : 0.013389146182250011,
+          "winRate" : 0.5,
+          "netPnl" : -119.97585600000093
+        }, {
+          "label" : "2020",
+          "start" : "2020-01-01",
+          "end" : "2020-12-31",
+          "trades" : 7,
+          "returnPercent" : 6.003968039333807,
+          "cagr" : 6.008201482488285,
+          "maxDrawdownPercent" : 4.952265979121912,
+          "pfNet" : 1.6844211875004518,
+          "expectancyR" : -0.10972868911428571,
+          "winRate" : 0.2857142857142857,
+          "netPnl" : 727.4121104700007
+        }, {
+          "label" : "2021",
+          "start" : "2021-01-01",
+          "end" : "2021-12-31",
+          "trades" : 5,
+          "returnPercent" : 5.935515054643825,
+          "cagr" : 5.9564933728304625,
+          "maxDrawdownPercent" : 1.6968728899028773,
+          "pfNet" : 7.34149173659545,
+          "expectancyR" : 0.530167761593,
+          "winRate" : 0.8,
+          "netPnl" : 762.2943288999995
+        }, {
+          "label" : "2022",
+          "start" : "2022-01-01",
+          "end" : "2022-12-31",
+          "trades" : 12,
+          "returnPercent" : 9.829301515267751,
+          "cagr" : 9.86466876245835,
+          "maxDrawdownPercent" : 3.0505532215150626,
+          "pfNet" : 2.522230138463605,
+          "expectancyR" : 0.49983268691041666,
+          "winRate" : 0.5,
+          "netPnl" : 1337.2989935650003
+        }, {
+          "label" : "2023",
+          "start" : "2023-01-01",
+          "end" : "2023-12-31",
+          "trades" : 7,
+          "returnPercent" : 3.278292808091021,
+          "cagr" : 3.2897338643496754,
+          "maxDrawdownPercent" : 4.755998071768537,
+          "pfNet" : 1.6912014264271333,
+          "expectancyR" : 0.0811513168915714,
+          "winRate" : 0.5714285714285714,
+          "netPnl" : 489.85982499999955
+        }, {
+          "label" : "2024",
+          "start" : "2024-01-01",
+          "end" : "2024-12-31",
+          "trades" : 3,
+          "returnPercent" : 10.890870343654878,
+          "cagr" : 10.898722331863997,
+          "maxDrawdownPercent" : 1.786669541505805,
+          "pfNet" : null,
+          "expectancyR" : 3.776194751443333,
+          "winRate" : 1.0,
+          "netPnl" : 1680.7213629999987
+        }, {
+          "label" : "2025",
+          "start" : "2025-01-01",
+          "end" : "2025-12-31",
+          "trades" : 10,
+          "returnPercent" : 8.824234456679637,
+          "cagr" : 8.855841374275485,
+          "maxDrawdownPercent" : 3.5449671072768765,
+          "pfNet" : 3.342245723278246,
+          "expectancyR" : 0.2511217351164,
+          "winRate" : 0.6,
+          "netPnl" : 1510.1008889600016
+        }, {
+          "label" : "2026",
+          "start" : "2026-01-01",
+          "end" : "2026-09-08",
+          "trades" : 4,
+          "returnPercent" : -0.24044431386845977,
+          "cagr" : -0.3510943654527643,
+          "maxDrawdownPercent" : 3.7467667582820456,
+          "pfNet" : 0.9186060392755814,
+          "expectancyR" : -0.047487575925000025,
+          "winRate" : 0.5,
+          "netPnl" : -44.77845000000161
+        } ],
+        "RunId" : "bf9b3e2b-0125-4d9c-9405-be17f15dd021",
+        "StrategyVersion" : "3.0-research",
+        "SignalTimeframe" : "DAILY",
+        "ExecutionTimeframe" : "DAILY",
+        "ManagementTimeframe" : "DAILY",
+        "StartDate" : "2010-01-01",
+        "EndDate" : "2026-09-08",
+        "ConfigurationHash" : "b729114ba3b2bad18d5f66703dd3e8f0eaa860a516bbed7dc7e7ed5f18ca0228",
+        "DataFingerprint" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+        "Configuration" : {
+          "name" : "V3_RESEARCH_INITIAL_SNAPSHOT",
+          "global" : {
+            "initialCapital" : 10000.0,
+            "riskPercent" : 4.0,
+            "maxOrderValuePercent" : 30.0,
+            "maxOrderValue" : null,
+            "maxOrderValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValue" : 10000.0,
+            "maxQuantity" : 1000000,
+            "useLeverage" : false,
+            "minQuantity" : 1,
+            "minOrderValue" : 0.0,
+            "startDate" : "2010-01-01",
+            "endDate" : "2026-09-08",
+            "timeframe" : "DAILY",
+            "maxHoldingBars" : 13,
+            "stopBufferTicks" : 0,
+            "tickSize" : 0.01,
+            "sameBarPolicy" : "STOP_FIRST",
+            "entryMode" : "NEXT_BAR_OPEN",
+            "stopMode" : "PATTERN_EXTREME",
+            "commissionEnabled" : true,
+            "commission" : {
+              "model" : "IBKR_US_FIXED",
+              "fixedPerOrder" : 0,
+              "perShare" : 0.005,
+              "minimumPerOrder" : 1,
+              "maximumPercentOrderValue" : 1
+            },
+            "slippageEnabled" : true,
+            "slippagePercentPerSide" : 0.03,
+            "maxLongNotional" : 10000.0,
+            "maxShortNotional" : 10000.0,
+            "transactionCostsPerShare" : 0.0,
+            "allowLong" : true,
+            "allowShort" : true,
+            "smallQuantityWarningThreshold" : 4,
+            "maxPositionValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValuePercent" : 100.0,
+            "maxLongNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxLongNotionalPercent" : 100.0,
+            "maxShortNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxShortNotionalPercent" : 100.0
+          },
+          "symbols" : [ {
+            "enabled" : true,
+            "symbol" : "AAPL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "GOOGL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NFLX",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 2
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NVDA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "PIERCING_PATTERN",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "QQQ",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "SPY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "TSLA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1
+            },
+            "shortConfig" : {
+              "enabled" : true,
+              "pattern" : "SHOOTING_STAR",
+              "targetR" : 4
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLK",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 4
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          } ],
+          "splitCosts" : {
+            "rules" : [ {
+              "symbol" : "NVDA",
+              "basis" : "AUTO_PROVIDER",
+              "validFrom" : "2010-01-01",
+              "adjustedThrough" : "2024-06-10",
+              "splits" : [ {
+                "effectiveDate" : "2021-07-20",
+                "ratio" : 4
+              }, {
+                "effectiveDate" : "2024-06-10",
+                "ratio" : 10
+              } ]
+            } ]
+          },
+          "patternRangeFilterEnabled" : true,
+          "minimumPatternRangePct" : 3.63,
+          "closeStrengthFilterEnabled" : true,
+          "maxCloseStrength" : 0.80,
+          "capitalSkipShadowAnalysisEnabled" : false,
+          "bollingerAtrFilterEnabled" : false,
+          "bollingerPeriod" : 20,
+          "bollingerStdDev" : 2,
+          "atrPeriod" : 2,
+          "maxBollingerDistanceAtr" : 1,
+          "marketRegimeAnalysisEnabled" : true,
+          "closeStrengthMin" : 0.906,
+          "patternRangeMinPct" : 3.63,
+          "relativeVolumePeriod" : 20,
+          "relativeVolumeMin" : 1.20
+        },
+        "ExecutionModelVersion" : "OPEN_FIRST/1",
+        "FilterModelVersion" : "V3_RESEARCH_FILTERS/1",
+        "Raw Signals" : 1775,
+        "Accepted Signals" : 103,
+        "Executed Signals" : 96,
+        "RVOL Available" : 0,
+        "Volume Issues" : {
+          "CURRENT_VOLUME_NOT_AVAILABLE" : 1,
+          "HISTORICAL_VOLUME_NOT_AVAILABLE" : 1,
+          "RVOL_WARMUP" : 7,
+          "UNVERIFIED_VOLUME_ADJUSTMENT" : 1766
+        }
+      },
+      "RVOL" : {
+        "Final Equity" : 10000.0,
+        "CAGR %" : 0.0,
+        "Max Drawdown %" : 0.0,
+        "Profit Factor Net" : null,
+        "Win Rate %" : null,
+        "Closed Trades" : 0,
+        "Average Net R" : null,
+        "Gap Stops" : 0,
+        "Gap Targets" : 0,
+        "Total Costs" : 0,
+        "Average Exposure %" : 0.0,
+        "Capital Skips" : 0,
+        "Negative Years" : 0,
+        "Periods" : [ {
+          "label" : "2010–2013",
+          "start" : "2010-01-04",
+          "end" : "2013-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2014–2017",
+          "start" : "2014-01-01",
+          "end" : "2017-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2018–2021",
+          "start" : "2018-01-01",
+          "end" : "2021-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2022–2026",
+          "start" : "2022-01-01",
+          "end" : "2026-09-08",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        } ],
+        "Years" : [ {
+          "label" : "2010",
+          "start" : "2010-01-04",
+          "end" : "2010-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2011",
+          "start" : "2011-01-01",
+          "end" : "2011-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2012",
+          "start" : "2012-01-01",
+          "end" : "2012-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2013",
+          "start" : "2013-01-01",
+          "end" : "2013-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2014",
+          "start" : "2014-01-01",
+          "end" : "2014-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2015",
+          "start" : "2015-01-01",
+          "end" : "2015-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2016",
+          "start" : "2016-01-01",
+          "end" : "2016-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2017",
+          "start" : "2017-01-01",
+          "end" : "2017-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2018",
+          "start" : "2018-01-01",
+          "end" : "2018-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2019",
+          "start" : "2019-01-01",
+          "end" : "2019-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2020",
+          "start" : "2020-01-01",
+          "end" : "2020-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2021",
+          "start" : "2021-01-01",
+          "end" : "2021-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2022",
+          "start" : "2022-01-01",
+          "end" : "2022-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2023",
+          "start" : "2023-01-01",
+          "end" : "2023-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2024",
+          "start" : "2024-01-01",
+          "end" : "2024-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2025",
+          "start" : "2025-01-01",
+          "end" : "2025-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2026",
+          "start" : "2026-01-01",
+          "end" : "2026-09-08",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        } ],
+        "RunId" : "b5edc04c-6c44-42e9-b314-13d353b9f748",
+        "StrategyVersion" : "3.0-research",
+        "SignalTimeframe" : "DAILY",
+        "ExecutionTimeframe" : "DAILY",
+        "ManagementTimeframe" : "DAILY",
+        "StartDate" : "2010-01-01",
+        "EndDate" : "2026-09-08",
+        "ConfigurationHash" : "030bfc80df67a7b6e3e28f1c79e16d3ef74b25338e0fcb6b566f825c5c3d1183",
+        "DataFingerprint" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+        "Configuration" : {
+          "name" : "V3_RESEARCH_INITIAL_SNAPSHOT",
+          "global" : {
+            "initialCapital" : 10000.0,
+            "riskPercent" : 4.0,
+            "maxOrderValuePercent" : 30.0,
+            "maxOrderValue" : null,
+            "maxOrderValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValue" : 10000.0,
+            "maxQuantity" : 1000000,
+            "useLeverage" : false,
+            "minQuantity" : 1,
+            "minOrderValue" : 0.0,
+            "startDate" : "2010-01-01",
+            "endDate" : "2026-09-08",
+            "timeframe" : "DAILY",
+            "maxHoldingBars" : 13,
+            "stopBufferTicks" : 0,
+            "tickSize" : 0.01,
+            "sameBarPolicy" : "STOP_FIRST",
+            "entryMode" : "NEXT_BAR_OPEN",
+            "stopMode" : "PATTERN_EXTREME",
+            "commissionEnabled" : true,
+            "commission" : {
+              "model" : "IBKR_US_FIXED",
+              "fixedPerOrder" : 0,
+              "perShare" : 0.005,
+              "minimumPerOrder" : 1,
+              "maximumPercentOrderValue" : 1
+            },
+            "slippageEnabled" : true,
+            "slippagePercentPerSide" : 0.03,
+            "maxLongNotional" : 10000.0,
+            "maxShortNotional" : 10000.0,
+            "transactionCostsPerShare" : 0.0,
+            "allowLong" : true,
+            "allowShort" : true,
+            "smallQuantityWarningThreshold" : 4,
+            "maxPositionValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValuePercent" : 100.0,
+            "maxLongNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxLongNotionalPercent" : 100.0,
+            "maxShortNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxShortNotionalPercent" : 100.0
+          },
+          "symbols" : [ {
+            "enabled" : true,
+            "symbol" : "AAPL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "GOOGL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NFLX",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 2
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NVDA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "PIERCING_PATTERN",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "QQQ",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "SPY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "TSLA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1
+            },
+            "shortConfig" : {
+              "enabled" : true,
+              "pattern" : "SHOOTING_STAR",
+              "targetR" : 4
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLK",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 4
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          } ],
+          "splitCosts" : {
+            "rules" : [ {
+              "symbol" : "NVDA",
+              "basis" : "AUTO_PROVIDER",
+              "validFrom" : "2010-01-01",
+              "adjustedThrough" : "2024-06-10",
+              "splits" : [ {
+                "effectiveDate" : "2021-07-20",
+                "ratio" : 4
+              }, {
+                "effectiveDate" : "2024-06-10",
+                "ratio" : 10
+              } ]
+            } ]
+          },
+          "patternRangeFilterEnabled" : false,
+          "minimumPatternRangePct" : 2.50,
+          "closeStrengthFilterEnabled" : false,
+          "maxCloseStrength" : 0.80,
+          "capitalSkipShadowAnalysisEnabled" : false,
+          "bollingerAtrFilterEnabled" : false,
+          "bollingerPeriod" : 20,
+          "bollingerStdDev" : 2,
+          "atrPeriod" : 2,
+          "maxBollingerDistanceAtr" : 1,
+          "marketRegimeAnalysisEnabled" : true,
+          "patternRangeMinPct" : 2.50,
+          "relativeVolumeFilterEnabled" : true,
+          "relativeVolumePeriod" : 20,
+          "relativeVolumeMin" : 1.20
+        },
+        "ExecutionModelVersion" : "OPEN_FIRST/1",
+        "FilterModelVersion" : "V3_RESEARCH_FILTERS/1",
+        "Raw Signals" : 1775,
+        "Accepted Signals" : 0,
+        "Executed Signals" : 0,
+        "RVOL Available" : 0,
+        "Volume Issues" : {
+          "CURRENT_VOLUME_NOT_AVAILABLE" : 1,
+          "HISTORICAL_VOLUME_NOT_AVAILABLE" : 1,
+          "RVOL_WARMUP" : 7,
+          "UNVERIFIED_VOLUME_ADJUSTMENT" : 1766
+        }
+      }
+    },
+    "WEEKLY" : {
+      "BASELINE" : {
+        "Final Equity" : 22837.7604191310,
+        "CAGR %" : 5.076801712778023,
+        "Max Drawdown %" : 20.978995291585925,
+        "Profit Factor Net" : 1.468765556718967,
+        "Win Rate %" : 53.4435261707989,
+        "Closed Trades" : 363,
+        "Average Net R" : 0.1662381467139376,
+        "Gap Stops" : 19,
+        "Gap Targets" : 8,
+        "Total Costs" : 2053.6639908690,
+        "Average Exposure %" : 22.26939275610946,
+        "Capital Skips" : 5,
+        "Negative Years" : 6,
+        "Periods" : [ {
+          "label" : "2010–2013",
+          "start" : "2010-01-04",
+          "end" : "2013-12-31",
+          "trades" : 95,
+          "returnPercent" : 9.279986996916989,
+          "cagr" : 2.2495983494100313,
+          "maxDrawdownPercent" : 20.97899529158593,
+          "pfNet" : 1.1358299476704572,
+          "expectancyR" : 0.26209090700697896,
+          "winRate" : 0.5157894736842106,
+          "netPnl" : 927.9986996916996
+        }, {
+          "label" : "2014–2017",
+          "start" : "2014-01-01",
+          "end" : "2017-12-31",
+          "trades" : 91,
+          "returnPercent" : 17.86278336315479,
+          "cagr" : 4.197283144834585,
+          "maxDrawdownPercent" : 9.88742124482363,
+          "pfNet" : 1.4453553915850883,
+          "expectancyR" : 0.23275061670401095,
+          "winRate" : 0.5164835164835165,
+          "netPnl" : 1952.0447336543002
+        }, {
+          "label" : "2018–2021",
+          "start" : "2018-01-01",
+          "end" : "2021-12-31",
+          "trades" : 74,
+          "returnPercent" : 12.529157099168064,
+          "cagr" : 2.997111357376947,
+          "maxDrawdownPercent" : 15.292216977086165,
+          "pfNet" : 1.291213187766743,
+          "expectancyR" : 0.13287874996160812,
+          "winRate" : 0.527027027027027,
+          "netPnl" : 1613.7608762050004
+        }, {
+          "label" : "2022–2026",
+          "start" : "2022-01-01",
+          "end" : "2026-09-08",
+          "trades" : 103,
+          "returnPercent" : 57.56912354668382,
+          "cagr" : 10.193121684562678,
+          "maxDrawdownPercent" : 13.665310588368246,
+          "pfNet" : 1.778227437832225,
+          "expectancyR" : 0.22461935833781554,
+          "winRate" : 0.5728155339805825,
+          "netPnl" : 8343.956109579998
+        } ],
+        "Years" : [ {
+          "label" : "2010",
+          "start" : "2010-01-04",
+          "end" : "2010-12-31",
+          "trades" : 21,
+          "returnPercent" : 19.454119354107014,
+          "cagr" : 19.704370876472787,
+          "maxDrawdownPercent" : 3.413075200619711,
+          "pfNet" : 5.678831547671814,
+          "expectancyR" : 0.6626716648114762,
+          "winRate" : 0.8571428571428571,
+          "netPnl" : 1945.4119354107006
+        }, {
+          "label" : "2011",
+          "start" : "2011-01-01",
+          "end" : "2011-12-31",
+          "trades" : 26,
+          "returnPercent" : -14.095799876956761,
+          "cagr" : -14.140609841756168,
+          "maxDrawdownPercent" : 19.434632355466718,
+          "pfNet" : 0.4884616557024679,
+          "expectancyR" : -0.23921404228342308,
+          "winRate" : 0.2692307692307692,
+          "netPnl" : -1683.8013608935998
+        }, {
+          "label" : "2012",
+          "start" : "2012-01-01",
+          "end" : "2012-12-31",
+          "trades" : 23,
+          "returnPercent" : 7.6544704759658355,
+          "cagr" : 7.659909122882236,
+          "maxDrawdownPercent" : 8.194835407682694,
+          "pfNet" : 1.45006670043547,
+          "expectancyR" : 0.5264543113322174,
+          "winRate" : 0.5217391304347826,
+          "netPnl" : 785.471951784999
+        }, {
+          "label" : "2013",
+          "start" : "2013-01-01",
+          "end" : "2013-12-31",
+          "trades" : 25,
+          "returnPercent" : -1.0779662985849203,
+          "cagr" : -1.0816480132144979,
+          "maxDrawdownPercent" : 5.972955088403948,
+          "pfNet" : 0.9245260966165709,
+          "expectancyR" : 0.20374588573400002,
+          "winRate" : 0.48,
+          "netPnl" : -119.08382661040014
+        }, {
+          "label" : "2014",
+          "start" : "2014-01-01",
+          "end" : "2014-12-31",
+          "trades" : 24,
+          "returnPercent" : -4.15745908411772,
+          "cagr" : -4.171434073267677,
+          "maxDrawdownPercent" : 5.318759533088523,
+          "pfNet" : 0.7440083772468832,
+          "expectancyR" : -0.17075340316950002,
+          "winRate" : 0.4166666666666667,
+          "netPnl" : -454.32707465259955
+        }, {
+          "label" : "2015",
+          "start" : "2015-01-01",
+          "end" : "2015-12-31",
+          "trades" : 27,
+          "returnPercent" : 4.026740206839596,
+          "cagr" : 4.040844001376809,
+          "maxDrawdownPercent" : 4.257230090844383,
+          "pfNet" : 1.2021108342679239,
+          "expectancyR" : -0.054770095613,
+          "winRate" : 0.4074074074074074,
+          "netPnl" : 421.7475464578001
+        }, {
+          "label" : "2016",
+          "start" : "2016-01-01",
+          "end" : "2016-12-31",
+          "trades" : 19,
+          "returnPercent" : 12.398050993282839,
+          "cagr" : 12.407049080045773,
+          "maxDrawdownPercent" : 7.445736243556392,
+          "pfNet" : 2.5399584645361624,
+          "expectancyR" : 0.67121619353,
+          "winRate" : 0.5789473684210527,
+          "netPnl" : 1350.8196248140994
+        }, {
+          "label" : "2017",
+          "start" : "2017-01-01",
+          "end" : "2017-12-31",
+          "trades" : 21,
+          "returnPercent" : 5.175504475920589,
+          "cagr" : 5.193731265241985,
+          "maxDrawdownPercent" : 4.4621129315622365,
+          "pfNet" : 2.0398556437989934,
+          "expectancyR" : 0.6668606047911428,
+          "winRate" : 0.7142857142857143,
+          "netPnl" : 633.8046370350003
+        }, {
+          "label" : "2018",
+          "start" : "2018-01-01",
+          "end" : "2018-12-31",
+          "trades" : 21,
+          "returnPercent" : -11.729971491629632,
+          "cagr" : -11.76778417660782,
+          "maxDrawdownPercent" : 15.292216977086165,
+          "pfNet" : 0.4015818728307256,
+          "expectancyR" : -0.29835397973428573,
+          "winRate" : 0.3333333333333333,
+          "netPnl" : -1510.8254228410005
+        }, {
+          "label" : "2019",
+          "start" : "2019-01-01",
+          "end" : "2019-12-31",
+          "trades" : 22,
+          "returnPercent" : 16.79993387567349,
+          "cagr" : 16.86223803004845,
+          "maxDrawdownPercent" : 3.8274452343934207,
+          "pfNet" : 3.325204686050904,
+          "expectancyR" : 0.6002524368213636,
+          "winRate" : 0.6818181818181818,
+          "netPnl" : 1910.0211079460005
+        }, {
+          "label" : "2020",
+          "start" : "2020-01-01",
+          "end" : "2020-12-31",
+          "trades" : 17,
+          "returnPercent" : 10.017106685214694,
+          "cagr" : 10.0243006589271,
+          "maxDrawdownPercent" : 4.530693470192465,
+          "pfNet" : 1.9308934460241909,
+          "expectancyR" : 0.19898460323258824,
+          "winRate" : 0.5882352941176471,
+          "netPnl" : 1330.1955494800004
+        }, {
+          "label" : "2021",
+          "start" : "2021-01-01",
+          "end" : "2021-12-31",
+          "trades" : 14,
+          "returnPercent" : -0.7914772953796723,
+          "cagr" : -0.7941844590524383,
+          "maxDrawdownPercent" : 4.797095522962133,
+          "pfNet" : 0.9692118962721911,
+          "expectancyR" : -0.034987913817499994,
+          "winRate" : 0.5,
+          "netPnl" : -115.63035837999996
+        }, {
+          "label" : "2022",
+          "start" : "2022-01-01",
+          "end" : "2022-12-31",
+          "trades" : 21,
+          "returnPercent" : 12.827137963873847,
+          "cagr" : 12.873908424210146,
+          "maxDrawdownPercent" : 11.660390460389971,
+          "pfNet" : 1.806988169776575,
+          "expectancyR" : 0.17794959658171428,
+          "winRate" : 0.5238095238095238,
+          "netPnl" : 1859.1402749999997
+        }, {
+          "label" : "2023",
+          "start" : "2023-01-01",
+          "end" : "2023-12-31",
+          "trades" : 19,
+          "returnPercent" : 26.738117510657823,
+          "cagr" : 26.84128770741534,
+          "maxDrawdownPercent" : 4.500844856601104,
+          "pfNet" : 5.0105408006475916,
+          "expectancyR" : 0.6560035711627369,
+          "winRate" : 0.6842105263157895,
+          "netPnl" : 4372.469539470001
+        }, {
+          "label" : "2024",
+          "start" : "2024-01-01",
+          "end" : "2024-12-31",
+          "trades" : 18,
+          "returnPercent" : -0.22701522149789488,
+          "cagr" : -0.22717053462819603,
+          "maxDrawdownPercent" : 9.68917511719288,
+          "pfNet" : 0.8163721789670416,
+          "expectancyR" : 0.07899499563744446,
+          "winRate" : 0.5555555555555556,
+          "netPnl" : -47.04984478000188
+        }, {
+          "label" : "2025",
+          "start" : "2025-01-01",
+          "end" : "2025-12-31",
+          "trades" : 23,
+          "returnPercent" : 2.039568753334109,
+          "cagr" : 2.0466439573238793,
+          "maxDrawdownPercent" : 13.665310588368246,
+          "pfNet" : 1.2480455337608285,
+          "expectancyR" : 0.12400203938243479,
+          "winRate" : 0.5652173913043478,
+          "netPnl" : 421.7494565400011
+        }, {
+          "label" : "2026",
+          "start" : "2026-01-01",
+          "end" : "2026-09-08",
+          "trades" : 22,
+          "returnPercent" : 8.23524794751862,
+          "cagr" : 12.256809457712503,
+          "maxDrawdownPercent" : 7.293846358241451,
+          "pfNet" : 1.9768797777433111,
+          "expectancyR" : 0.12094671369168179,
+          "winRate" : 0.5454545454545454,
+          "netPnl" : 1737.646683349998
+        } ],
+        "RunId" : "da0cb4ea-3d87-4759-a02c-97b2b2c6dd66",
+        "StrategyVersion" : "3.0-research",
+        "SignalTimeframe" : "WEEKLY",
+        "ExecutionTimeframe" : "DAILY",
+        "ManagementTimeframe" : "DAILY",
+        "StartDate" : "2010-01-01",
+        "EndDate" : "2026-09-08",
+        "ConfigurationHash" : "eb49717090a194067dd002bbc3a3250c1ddff24e8d22a055ba6a054b1fcc4f04",
+        "DataFingerprint" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+        "Configuration" : {
+          "name" : "V3_RESEARCH_INITIAL_SNAPSHOT",
+          "global" : {
+            "initialCapital" : 10000.0,
+            "riskPercent" : 4.0,
+            "maxOrderValuePercent" : 30.0,
+            "maxOrderValue" : null,
+            "maxOrderValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValue" : 10000.0,
+            "maxQuantity" : 1000000,
+            "useLeverage" : false,
+            "minQuantity" : 1,
+            "minOrderValue" : 0.0,
+            "startDate" : "2010-01-01",
+            "endDate" : "2026-09-08",
+            "timeframe" : "DAILY",
+            "maxHoldingBars" : 13,
+            "stopBufferTicks" : 0,
+            "tickSize" : 0.01,
+            "sameBarPolicy" : "STOP_FIRST",
+            "entryMode" : "NEXT_BAR_OPEN",
+            "stopMode" : "PATTERN_EXTREME",
+            "commissionEnabled" : true,
+            "commission" : {
+              "model" : "IBKR_US_FIXED",
+              "fixedPerOrder" : 0,
+              "perShare" : 0.005,
+              "minimumPerOrder" : 1,
+              "maximumPercentOrderValue" : 1
+            },
+            "slippageEnabled" : true,
+            "slippagePercentPerSide" : 0.03,
+            "maxLongNotional" : 10000.0,
+            "maxShortNotional" : 10000.0,
+            "transactionCostsPerShare" : 0.0,
+            "allowLong" : true,
+            "allowShort" : true,
+            "smallQuantityWarningThreshold" : 4,
+            "maxPositionValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValuePercent" : 100.0,
+            "maxLongNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxLongNotionalPercent" : 100.0,
+            "maxShortNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxShortNotionalPercent" : 100.0
+          },
+          "symbols" : [ {
+            "enabled" : true,
+            "symbol" : "AAPL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "GOOGL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NFLX",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 2
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NVDA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "PIERCING_PATTERN",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "QQQ",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "SPY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "TSLA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1
+            },
+            "shortConfig" : {
+              "enabled" : true,
+              "pattern" : "SHOOTING_STAR",
+              "targetR" : 4
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLK",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 4
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          } ],
+          "splitCosts" : {
+            "rules" : [ {
+              "symbol" : "NVDA",
+              "basis" : "AUTO_PROVIDER",
+              "validFrom" : "2010-01-01",
+              "adjustedThrough" : "2024-06-10",
+              "splits" : [ {
+                "effectiveDate" : "2021-07-20",
+                "ratio" : 4
+              }, {
+                "effectiveDate" : "2024-06-10",
+                "ratio" : 10
+              } ]
+            } ]
+          },
+          "patternRangeFilterEnabled" : false,
+          "minimumPatternRangePct" : 2.50,
+          "closeStrengthFilterEnabled" : false,
+          "maxCloseStrength" : 0.80,
+          "capitalSkipShadowAnalysisEnabled" : false,
+          "bollingerAtrFilterEnabled" : false,
+          "bollingerPeriod" : 20,
+          "bollingerStdDev" : 2,
+          "atrPeriod" : 2,
+          "maxBollingerDistanceAtr" : 1,
+          "marketRegimeAnalysisEnabled" : true,
+          "signalTimeframe" : "WEEKLY"
+        },
+        "ExecutionModelVersion" : "OPEN_FIRST/1",
+        "FilterModelVersion" : "V3_RESEARCH_FILTERS/1",
+        "Raw Signals" : 398,
+        "Accepted Signals" : 398,
+        "Executed Signals" : 366,
+        "RVOL Available" : 0,
+        "Volume Issues" : {
+          "RVOL_WARMUP" : 8,
+          "UNVERIFIED_VOLUME_ADJUSTMENT" : 390
+        }
+      },
+      "A" : {
+        "Final Equity" : 12641.380680159,
+        "CAGR %" : 1.4154590985917537,
+        "Max Drawdown %" : 17.378991363265687,
+        "Profit Factor Net" : 1.381034642940606,
+        "Win Rate %" : 57.391304347826086,
+        "Closed Trades" : 115,
+        "Average Net R" : 0.18284074946026513,
+        "Gap Stops" : 9,
+        "Gap Targets" : 0,
+        "Total Costs" : 518.032409841,
+        "Average Exposure %" : 8.1823445038789,
+        "Capital Skips" : 0,
+        "Negative Years" : 7,
+        "Periods" : [ {
+          "label" : "2010–2013",
+          "start" : "2010-01-04",
+          "end" : "2013-12-31",
+          "trades" : 24,
+          "returnPercent" : -1.3811813135100048,
+          "cagr" : -0.3480495608828016,
+          "maxDrawdownPercent" : 12.762075010690344,
+          "pfNet" : 0.9263959419599767,
+          "expectancyR" : 0.12749023170083332,
+          "winRate" : 0.5833333333333334,
+          "netPnl" : -138.11813135100056
+        }, {
+          "label" : "2014–2017",
+          "start" : "2014-01-01",
+          "end" : "2017-12-31",
+          "trades" : 32,
+          "returnPercent" : -0.6170589760708167,
+          "cagr" : -0.15472882274643052,
+          "maxDrawdownPercent" : 10.3879701825173,
+          "pfNet" : 1.022479031971815,
+          "expectancyR" : 0.3000227022008125,
+          "winRate" : 0.59375,
+          "netPnl" : -60.85362727999927
+        }, {
+          "label" : "2018–2021",
+          "start" : "2018-01-01",
+          "end" : "2021-12-31",
+          "trades" : 23,
+          "returnPercent" : 5.348519505304239,
+          "cagr" : 1.3120221766725448,
+          "maxDrawdownPercent" : 6.71648879272648,
+          "pfNet" : 1.5180274957726796,
+          "expectancyR" : 0.20035393332613044,
+          "winRate" : 0.5652173913043478,
+          "netPnl" : 524.2099072099991
+        }, {
+          "label" : "2022–2026",
+          "start" : "2022-01-01",
+          "end" : "2026-09-08",
+          "trades" : 36,
+          "returnPercent" : 22.431855791130182,
+          "cagr" : 4.415018527192061,
+          "maxDrawdownPercent" : 8.465417632643932,
+          "pfNet" : 1.8911386981762763,
+          "expectancyR" : 0.2382368874885,
+          "winRate" : 0.5555555555555556,
+          "netPnl" : 2316.1425315800007
+        } ],
+        "Years" : [ {
+          "label" : "2010",
+          "start" : "2010-01-04",
+          "end" : "2010-12-31",
+          "trades" : 10,
+          "returnPercent" : 8.62517610682001,
+          "cagr" : 8.731028970729104,
+          "maxDrawdownPercent" : 4.664015113173681,
+          "pfNet" : 3.6718339589198723,
+          "expectancyR" : 0.47048912442370006,
+          "winRate" : 0.8,
+          "netPnl" : 862.5176106819999
+        }, {
+          "label" : "2011",
+          "start" : "2011-01-01",
+          "end" : "2011-12-31",
+          "trades" : 4,
+          "returnPercent" : -6.2115274166873125,
+          "cagr" : -6.232179293869611,
+          "maxDrawdownPercent" : 7.813293811957435,
+          "pfNet" : 0.0355601621627703,
+          "expectancyR" : -0.6551205559055,
+          "winRate" : 0.25,
+          "netPnl" : -674.7282595300003
+        }, {
+          "label" : "2012",
+          "start" : "2012-01-01",
+          "end" : "2012-12-31",
+          "trades" : 4,
+          "returnPercent" : -2.564329849659275,
+          "cagr" : -2.566063509722327,
+          "maxDrawdownPercent" : 5.300143354283149,
+          "pfNet" : 0.5051174635149905,
+          "expectancyR" : 0.36288451003675,
+          "winRate" : 0.5,
+          "netPnl" : -261.2485233520001
+        }, {
+          "label" : "2013",
+          "start" : "2013-01-01",
+          "end" : "2013-12-31",
+          "trades" : 6,
+          "returnPercent" : -0.6513745349227551,
+          "cagr" : -0.6536040719579805,
+          "maxDrawdownPercent" : 3.5990310837404915,
+          "pfNet" : 0.8017670047999443,
+          "expectancyR" : -0.07936358332366666,
+          "winRate" : 0.5,
+          "netPnl" : -64.65895915100009
+        }, {
+          "label" : "2014",
+          "start" : "2014-01-01",
+          "end" : "2014-12-31",
+          "trades" : 7,
+          "returnPercent" : -3.4226955415380567,
+          "cagr" : -3.434245130305291,
+          "maxDrawdownPercent" : 7.3876113467756035,
+          "pfNet" : 0.5163948384709447,
+          "expectancyR" : 0.02084061549371428,
+          "winRate" : 0.5714285714285714,
+          "netPnl" : -337.54219102999923
+        }, {
+          "label" : "2015",
+          "start" : "2015-01-01",
+          "end" : "2015-12-31",
+          "trades" : 7,
+          "returnPercent" : -0.11528098263652309,
+          "cagr" : -0.11567663607187084,
+          "maxDrawdownPercent" : 2.8619191840768634,
+          "pfNet" : 0.8937835092820637,
+          "expectancyR" : 0.07824720098385714,
+          "winRate" : 0.42857142857142855,
+          "netPnl" : -10.979752369999915
+        }, {
+          "label" : "2016",
+          "start" : "2016-01-01",
+          "end" : "2016-12-31",
+          "trades" : 9,
+          "returnPercent" : 1.8376395862623962,
+          "cagr" : 1.8389097460301818,
+          "maxDrawdownPercent" : 4.412685441441523,
+          "pfNet" : 1.4442548518520026,
+          "expectancyR" : 0.14133504269955555,
+          "winRate" : 0.5555555555555556,
+          "netPnl" : 174.8212679699991
+        }, {
+          "label" : "2017",
+          "start" : "2017-01-01",
+          "end" : "2017-12-31",
+          "trades" : 9,
+          "returnPercent" : 1.1647908508253924,
+          "cagr" : 1.1688141051141132,
+          "maxDrawdownPercent" : 3.7864787488790532,
+          "pfNet" : 1.6862172053813733,
+          "expectancyR" : 0.8483440411985556,
+          "winRate" : 0.7777777777777778,
+          "netPnl" : 112.84704815000077
+        }, {
+          "label" : "2018",
+          "start" : "2018-01-01",
+          "end" : "2018-12-31",
+          "trades" : 6,
+          "returnPercent" : -1.1661588021711022,
+          "cagr" : -1.1701399465183004,
+          "maxDrawdownPercent" : 5.951357725509513,
+          "pfNet" : 0.42160312508209496,
+          "expectancyR" : -0.44829063368249994,
+          "winRate" : 0.3333333333333333,
+          "netPnl" : -114.29555353999967
+        }, {
+          "label" : "2019",
+          "start" : "2019-01-01",
+          "end" : "2019-12-31",
+          "trades" : 7,
+          "returnPercent" : 5.187565054224907,
+          "cagr" : 5.2058353600118235,
+          "maxDrawdownPercent" : 2.6624878104525047,
+          "pfNet" : 4.435243105030703,
+          "expectancyR" : 0.7671943410804286,
+          "winRate" : 0.7142857142857143,
+          "netPnl" : 502.5055598099989
+        }, {
+          "label" : "2020",
+          "start" : "2020-01-01",
+          "end" : "2020-12-31",
+          "trades" : 3,
+          "returnPercent" : 0.8568151789976053,
+          "cagr" : 0.8574045474328607,
+          "maxDrawdownPercent" : 2.448489326185972,
+          "pfNet" : 1.7048715757458874,
+          "expectancyR" : 0.4386246369256667,
+          "winRate" : 0.6666666666666666,
+          "netPnl" : 87.30293993000123
+        }, {
+          "label" : "2021",
+          "start" : "2021-01-01",
+          "end" : "2021-12-31",
+          "trades" : 7,
+          "returnPercent" : 0.47386528328134947,
+          "cagr" : 0.47549643064110914,
+          "maxDrawdownPercent" : 2.1110373597183516,
+          "pfNet" : 1.4112414597656164,
+          "expectancyR" : 0.08737856717942856,
+          "winRate" : 0.5714285714285714,
+          "netPnl" : 48.69696100999863
+        }, {
+          "label" : "2022",
+          "start" : "2022-01-01",
+          "end" : "2022-12-31",
+          "trades" : 12,
+          "returnPercent" : 8.752565611519337,
+          "cagr" : 8.783905607952125,
+          "maxDrawdownPercent" : 8.465417632643932,
+          "pfNet" : 2.013192631026406,
+          "expectancyR" : 0.3751877498056666,
+          "winRate" : 0.5833333333333334,
+          "netPnl" : 903.7232435000005
+        }, {
+          "label" : "2023",
+          "start" : "2023-01-01",
+          "end" : "2023-12-31",
+          "trades" : 5,
+          "returnPercent" : 12.027560536210435,
+          "cagr" : 12.071262396213278,
+          "maxDrawdownPercent" : 1.7073299583284713,
+          "pfNet" : 86.33037730853015,
+          "expectancyR" : 1.0153299710127999,
+          "winRate" : 0.8,
+          "netPnl" : 1350.5701290199995
+        }, {
+          "label" : "2024",
+          "start" : "2024-01-01",
+          "end" : "2024-12-31",
+          "trades" : 6,
+          "returnPercent" : 2.1865235222684243,
+          "cagr" : 2.188037407182808,
+          "maxDrawdownPercent" : 4.225796531747485,
+          "pfNet" : 1.1572442459902081,
+          "expectancyR" : 0.35443140139333335,
+          "winRate" : 0.6666666666666666,
+          "netPnl" : 275.0544157000004
+        }, {
+          "label" : "2025",
+          "start" : "2025-01-01",
+          "end" : "2025-12-31",
+          "trades" : 6,
+          "returnPercent" : 0.17936628198964577,
+          "cagr" : 0.17998279160373887,
+          "maxDrawdownPercent" : 4.481189833628574,
+          "pfNet" : 1.5789464991706692,
+          "expectancyR" : -0.12933593210549998,
+          "winRate" : 0.5,
+          "netPnl" : 23.056792860001224
+        }, {
+          "label" : "2026",
+          "start" : "2026-01-01",
+          "end" : "2026-09-08",
+          "trades" : 7,
+          "returnPercent" : -1.834668459592037,
+          "cagr" : -2.6690776019599127,
+          "maxDrawdownPercent" : 3.7100963188279614,
+          "pfNet" : 0.5055709116019597,
+          "expectancyR" : -0.3361353884104286,
+          "winRate" : 0.2857142857142857,
+          "netPnl" : -236.262049500001
+        } ],
+        "RunId" : "dfd0e61e-516b-4523-bbbf-0adddfa74d4d",
+        "StrategyVersion" : "3.0-research",
+        "SignalTimeframe" : "WEEKLY",
+        "ExecutionTimeframe" : "DAILY",
+        "ManagementTimeframe" : "DAILY",
+        "StartDate" : "2010-01-01",
+        "EndDate" : "2026-09-08",
+        "ConfigurationHash" : "4e982d5cf494aa3fcc5db4decf1751d3b461fd60dd0cf6850d61402105ecf04f",
+        "DataFingerprint" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+        "Configuration" : {
+          "name" : "V3_RESEARCH_INITIAL_SNAPSHOT",
+          "global" : {
+            "initialCapital" : 10000.0,
+            "riskPercent" : 4.0,
+            "maxOrderValuePercent" : 30.0,
+            "maxOrderValue" : null,
+            "maxOrderValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValue" : 10000.0,
+            "maxQuantity" : 1000000,
+            "useLeverage" : false,
+            "minQuantity" : 1,
+            "minOrderValue" : 0.0,
+            "startDate" : "2010-01-01",
+            "endDate" : "2026-09-08",
+            "timeframe" : "DAILY",
+            "maxHoldingBars" : 13,
+            "stopBufferTicks" : 0,
+            "tickSize" : 0.01,
+            "sameBarPolicy" : "STOP_FIRST",
+            "entryMode" : "NEXT_BAR_OPEN",
+            "stopMode" : "PATTERN_EXTREME",
+            "commissionEnabled" : true,
+            "commission" : {
+              "model" : "IBKR_US_FIXED",
+              "fixedPerOrder" : 0,
+              "perShare" : 0.005,
+              "minimumPerOrder" : 1,
+              "maximumPercentOrderValue" : 1
+            },
+            "slippageEnabled" : true,
+            "slippagePercentPerSide" : 0.03,
+            "maxLongNotional" : 10000.0,
+            "maxShortNotional" : 10000.0,
+            "transactionCostsPerShare" : 0.0,
+            "allowLong" : true,
+            "allowShort" : true,
+            "smallQuantityWarningThreshold" : 4,
+            "maxPositionValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValuePercent" : 100.0,
+            "maxLongNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxLongNotionalPercent" : 100.0,
+            "maxShortNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxShortNotionalPercent" : 100.0
+          },
+          "symbols" : [ {
+            "enabled" : true,
+            "symbol" : "AAPL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "GOOGL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NFLX",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 2
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NVDA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "PIERCING_PATTERN",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "QQQ",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "SPY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "TSLA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1
+            },
+            "shortConfig" : {
+              "enabled" : true,
+              "pattern" : "SHOOTING_STAR",
+              "targetR" : 4
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLK",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 4
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          } ],
+          "splitCosts" : {
+            "rules" : [ {
+              "symbol" : "NVDA",
+              "basis" : "AUTO_PROVIDER",
+              "validFrom" : "2010-01-01",
+              "adjustedThrough" : "2024-06-10",
+              "splits" : [ {
+                "effectiveDate" : "2021-07-20",
+                "ratio" : 4
+              }, {
+                "effectiveDate" : "2024-06-10",
+                "ratio" : 10
+              } ]
+            } ]
+          },
+          "patternRangeFilterEnabled" : true,
+          "minimumPatternRangePct" : 1.38,
+          "closeStrengthFilterEnabled" : true,
+          "maxCloseStrength" : 0.80,
+          "capitalSkipShadowAnalysisEnabled" : false,
+          "bollingerAtrFilterEnabled" : false,
+          "bollingerPeriod" : 20,
+          "bollingerStdDev" : 2,
+          "atrPeriod" : 2,
+          "maxBollingerDistanceAtr" : 1,
+          "marketRegimeAnalysisEnabled" : true,
+          "signalTimeframe" : "WEEKLY",
+          "closeStrengthMin" : 0.906,
+          "patternRangeMinPct" : 1.38,
+          "relativeVolumePeriod" : 20,
+          "relativeVolumeMin" : 1.20
+        },
+        "ExecutionModelVersion" : "OPEN_FIRST/1",
+        "FilterModelVersion" : "V3_RESEARCH_FILTERS/1",
+        "Raw Signals" : 398,
+        "Accepted Signals" : 118,
+        "Executed Signals" : 115,
+        "RVOL Available" : 0,
+        "Volume Issues" : {
+          "RVOL_WARMUP" : 8,
+          "UNVERIFIED_VOLUME_ADJUSTMENT" : 390
+        }
+      },
+      "B" : {
+        "Final Equity" : 11958.526057875,
+        "CAGR %" : 1.0783121228794101,
+        "Max Drawdown %" : 19.256612532585997,
+        "Profit Factor Net" : 1.345116351284927,
+        "Win Rate %" : 56.470588235294116,
+        "Closed Trades" : 85,
+        "Average Net R" : 0.16153753797972978,
+        "Gap Stops" : 4,
+        "Gap Targets" : 0,
+        "Total Costs" : 392.922232125,
+        "Average Exposure %" : 6.2790079998767645,
+        "Capital Skips" : 0,
+        "Negative Years" : 8,
+        "Periods" : [ {
+          "label" : "2010–2013",
+          "start" : "2010-01-04",
+          "end" : "2013-12-31",
+          "trades" : 19,
+          "returnPercent" : -3.304122005049992,
+          "cagr" : -0.8387540122340886,
+          "maxDrawdownPercent" : 13.599181092096687,
+          "pfNet" : 0.8040068937677465,
+          "expectancyR" : 0.05209929691105263,
+          "winRate" : 0.5789473684210527,
+          "netPnl" : -330.4122005049994
+        }, {
+          "label" : "2014–2017",
+          "start" : "2014-01-01",
+          "end" : "2017-12-31",
+          "trades" : 21,
+          "returnPercent" : -4.315050948519151,
+          "cagr" : -1.097418538124395,
+          "maxDrawdownPercent" : 10.370186819388477,
+          "pfNet" : 0.7705576753473167,
+          "expectancyR" : 0.08667190175509525,
+          "winRate" : 0.5238095238095238,
+          "netPnl" : -417.2476400600008
+        }, {
+          "label" : "2018–2021",
+          "start" : "2018-01-01",
+          "end" : "2021-12-31",
+          "trades" : 15,
+          "returnPercent" : 2.0307643970309153,
+          "cagr" : 0.5042160008054131,
+          "maxDrawdownPercent" : 6.4898676147743455,
+          "pfNet" : 1.1873020557497036,
+          "expectancyR" : 0.061133023611,
+          "winRate" : 0.5333333333333333,
+          "netPnl" : 187.89322985000035
+        }, {
+          "label" : "2022–2026",
+          "start" : "2022-01-01",
+          "end" : "2026-09-08",
+          "trades" : 30,
+          "returnPercent" : 26.676169589708998,
+          "cagr" : 5.177405869069984,
+          "maxDrawdownPercent" : 8.532578807770435,
+          "pfNet" : 2.330426636067547,
+          "expectancyR" : 0.4032592073426333,
+          "winRate" : 0.6,
+          "netPnl" : 2518.29266859
+        } ],
+        "Years" : [ {
+          "label" : "2010",
+          "start" : "2010-01-04",
+          "end" : "2010-12-31",
+          "trades" : 9,
+          "returnPercent" : 7.5043320078199915,
+          "cagr" : 7.5959534247590055,
+          "maxDrawdownPercent" : 4.664015113173681,
+          "pfNet" : 3.324628372706368,
+          "expectancyR" : 0.37809474478533334,
+          "winRate" : 0.7777777777777778,
+          "netPnl" : 750.4332007819994
+        }, {
+          "label" : "2011",
+          "start" : "2011-01-01",
+          "end" : "2011-12-31",
+          "trades" : 4,
+          "returnPercent" : -6.210485613383787,
+          "cagr" : -6.231134143113959,
+          "maxDrawdownPercent" : 7.812167895269442,
+          "pfNet" : 0.03556369503571861,
+          "expectancyR" : -0.6551205559055,
+          "winRate" : 0.25,
+          "netPnl" : -667.6541073110002
+        }, {
+          "label" : "2012",
+          "start" : "2012-01-01",
+          "end" : "2012-12-31",
+          "trades" : 2,
+          "returnPercent" : -5.056320459149277,
+          "cagr" : -5.05969456211548,
+          "maxDrawdownPercent" : 5.236527878664143,
+          "pfNet" : 0.0,
+          "expectancyR" : -1.0,
+          "winRate" : 0.0,
+          "netPnl" : -509.81762215399976
+        }, {
+          "label" : "2013",
+          "start" : "2013-01-01",
+          "end" : "2013-12-31",
+          "trades" : 4,
+          "returnPercent" : 1.0093671479564303,
+          "cagr" : 1.012850876315885,
+          "maxDrawdownPercent" : 2.7574822022402263,
+          "pfNet" : 1.6004405807982613,
+          "expectancyR" : 0.551879040466,
+          "winRate" : 0.75,
+          "netPnl" : 96.62632817800113
+        }, {
+          "label" : "2014",
+          "start" : "2014-01-01",
+          "end" : "2014-12-31",
+          "trades" : 5,
+          "returnPercent" : -3.927773931685452,
+          "cagr" : -3.9409928252592596,
+          "maxDrawdownPercent" : 6.892778386983542,
+          "pfNet" : 0.39041962662803453,
+          "expectancyR" : -0.008001808374599984,
+          "winRate" : 0.6,
+          "netPnl" : -379.79954889000146
+        }, {
+          "label" : "2015",
+          "start" : "2015-01-01",
+          "end" : "2015-12-31",
+          "trades" : 6,
+          "returnPercent" : -0.6311894807309648,
+          "cagr" : -0.6333501484334425,
+          "maxDrawdownPercent" : 2.880499811645224,
+          "pfNet" : 0.6830036468380639,
+          "expectancyR" : -0.01914125928183333,
+          "winRate" : 0.3333333333333333,
+          "netPnl" : -58.63616621999972
+        }, {
+          "label" : "2016",
+          "start" : "2016-01-01",
+          "end" : "2016-12-31",
+          "trades" : 8,
+          "returnPercent" : 2.307999406817207,
+          "cagr" : 2.309598344749353,
+          "maxDrawdownPercent" : 4.397918604627975,
+          "pfNet" : 1.625879217761648,
+          "expectancyR" : 0.20885517916450003,
+          "winRate" : 0.625,
+          "netPnl" : 213.05493535000096
+        }, {
+          "label" : "2017",
+          "start" : "2017-01-01",
+          "end" : "2017-12-31",
+          "trades" : 2,
+          "returnPercent" : -2.031582534129839,
+          "cagr" : -2.038487526731214,
+          "maxDrawdownPercent" : 3.7439366590819465,
+          "pfNet" : 0.5979254091113474,
+          "expectancyR" : 0.15206255055249995,
+          "winRate" : 0.5,
+          "netPnl" : -191.86686030000055
+        }, {
+          "label" : "2018",
+          "start" : "2018-01-01",
+          "end" : "2018-12-31",
+          "trades" : 5,
+          "returnPercent" : -0.6388989323930061,
+          "cagr" : -0.6410859056208751,
+          "maxDrawdownPercent" : 5.984845342706691,
+          "pfNet" : 0.49113364322192365,
+          "expectancyR" : -0.3073531979434,
+          "winRate" : 0.4,
+          "netPnl" : -59.11310249999951
+        }, {
+          "label" : "2019",
+          "start" : "2019-01-01",
+          "end" : "2019-12-31",
+          "trades" : 4,
+          "returnPercent" : 2.067972485641878,
+          "cagr" : 2.0751472197600096,
+          "maxDrawdownPercent" : 2.663993762073587,
+          "pfNet" : 2.638685550243991,
+          "expectancyR" : 0.4565222770585,
+          "winRate" : 0.75,
+          "netPnl" : 190.11340607999955
+        }, {
+          "label" : "2020",
+          "start" : "2020-01-01",
+          "end" : "2020-12-31",
+          "trades" : 2,
+          "returnPercent" : 0.7993201487852764,
+          "cagr" : 0.7998698120884162,
+          "maxDrawdownPercent" : 2.4200935737070393,
+          "pfNet" : 1.4311889509171156,
+          "expectancyR" : 0.36807175319200003,
+          "winRate" : 0.5,
+          "netPnl" : 75.00293095000052
+        }, {
+          "label" : "2021",
+          "start" : "2021-01-01",
+          "end" : "2021-12-31",
+          "trades" : 4,
+          "returnPercent" : -0.19147121145501877,
+          "cagr" : -0.19212810417047477,
+          "maxDrawdownPercent" : 1.9319049646644628,
+          "pfNet" : 1.1474950400774904,
+          "expectancyR" : -0.027117817684000012,
+          "winRate" : 0.5,
+          "netPnl" : -18.110004680000202
+        }, {
+          "label" : "2022",
+          "start" : "2022-01-01",
+          "end" : "2022-12-31",
+          "trades" : 12,
+          "returnPercent" : 8.674802614832643,
+          "cagr" : 8.705853177391031,
+          "maxDrawdownPercent" : 8.532578807770435,
+          "pfNet" : 2.009631897554998,
+          "expectancyR" : 0.3751877498056666,
+          "winRate" : 0.5833333333333334,
+          "netPnl" : 818.9216128999997
+        }, {
+          "label" : "2023",
+          "start" : "2023-01-01",
+          "end" : "2023-12-31",
+          "trades" : 5,
+          "returnPercent" : 12.06650115459167,
+          "cagr" : 12.11035200544237,
+          "maxDrawdownPercent" : 1.707653019237991,
+          "pfNet" : 84.41864563333854,
+          "expectancyR" : 1.0153299710127999,
+          "winRate" : 0.8,
+          "netPnl" : 1237.9210567900009
+        }, {
+          "label" : "2024",
+          "start" : "2024-01-01",
+          "end" : "2024-12-31",
+          "trades" : 5,
+          "returnPercent" : 1.436115590199183,
+          "cagr" : 1.437106265390864,
+          "maxDrawdownPercent" : 4.762117676094082,
+          "pfNet" : 0.9360756241281837,
+          "expectancyR" : 0.2697033149424,
+          "winRate" : 0.6,
+          "netPnl" : 165.11130169999888
+        }, {
+          "label" : "2025",
+          "start" : "2025-01-01",
+          "end" : "2025-12-31",
+          "trades" : 4,
+          "returnPercent" : 3.0633512963842646,
+          "cagr" : 3.07403110790887,
+          "maxDrawdownPercent" : 2.861180132276484,
+          "pfNet" : 2.9684770639100297,
+          "expectancyR" : 0.30599610184175,
+          "winRate" : 0.75,
+          "netPnl" : 357.2537677
+        }, {
+          "label" : "2026",
+          "start" : "2026-01-01",
+          "end" : "2026-09-08",
+          "trades" : 4,
+          "returnPercent" : -0.506804516527759,
+          "cagr" : -0.7395756374005136,
+          "maxDrawdownPercent" : 3.5717746117962093,
+          "pfNet" : 0.7276203260710502,
+          "expectancyR" : -0.013406903633000011,
+          "winRate" : 0.25,
+          "netPnl" : -60.915070499999274
+        } ],
+        "RunId" : "9e7a98f2-4648-4953-af40-7788bfaeeeda",
+        "StrategyVersion" : "3.0-research",
+        "SignalTimeframe" : "WEEKLY",
+        "ExecutionTimeframe" : "DAILY",
+        "ManagementTimeframe" : "DAILY",
+        "StartDate" : "2010-01-01",
+        "EndDate" : "2026-09-08",
+        "ConfigurationHash" : "8a2f4ee230251186a4a8864c43b73bd997223950eeac7afa3d12227bb3f6e240",
+        "DataFingerprint" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+        "Configuration" : {
+          "name" : "V3_RESEARCH_INITIAL_SNAPSHOT",
+          "global" : {
+            "initialCapital" : 10000.0,
+            "riskPercent" : 4.0,
+            "maxOrderValuePercent" : 30.0,
+            "maxOrderValue" : null,
+            "maxOrderValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValue" : 10000.0,
+            "maxQuantity" : 1000000,
+            "useLeverage" : false,
+            "minQuantity" : 1,
+            "minOrderValue" : 0.0,
+            "startDate" : "2010-01-01",
+            "endDate" : "2026-09-08",
+            "timeframe" : "DAILY",
+            "maxHoldingBars" : 13,
+            "stopBufferTicks" : 0,
+            "tickSize" : 0.01,
+            "sameBarPolicy" : "STOP_FIRST",
+            "entryMode" : "NEXT_BAR_OPEN",
+            "stopMode" : "PATTERN_EXTREME",
+            "commissionEnabled" : true,
+            "commission" : {
+              "model" : "IBKR_US_FIXED",
+              "fixedPerOrder" : 0,
+              "perShare" : 0.005,
+              "minimumPerOrder" : 1,
+              "maximumPercentOrderValue" : 1
+            },
+            "slippageEnabled" : true,
+            "slippagePercentPerSide" : 0.03,
+            "maxLongNotional" : 10000.0,
+            "maxShortNotional" : 10000.0,
+            "transactionCostsPerShare" : 0.0,
+            "allowLong" : true,
+            "allowShort" : true,
+            "smallQuantityWarningThreshold" : 4,
+            "maxPositionValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValuePercent" : 100.0,
+            "maxLongNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxLongNotionalPercent" : 100.0,
+            "maxShortNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxShortNotionalPercent" : 100.0
+          },
+          "symbols" : [ {
+            "enabled" : true,
+            "symbol" : "AAPL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "GOOGL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NFLX",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 2
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NVDA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "PIERCING_PATTERN",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "QQQ",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "SPY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "TSLA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1
+            },
+            "shortConfig" : {
+              "enabled" : true,
+              "pattern" : "SHOOTING_STAR",
+              "targetR" : 4
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLK",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 4
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          } ],
+          "splitCosts" : {
+            "rules" : [ {
+              "symbol" : "NVDA",
+              "basis" : "AUTO_PROVIDER",
+              "validFrom" : "2010-01-01",
+              "adjustedThrough" : "2024-06-10",
+              "splits" : [ {
+                "effectiveDate" : "2021-07-20",
+                "ratio" : 4
+              }, {
+                "effectiveDate" : "2024-06-10",
+                "ratio" : 10
+              } ]
+            } ]
+          },
+          "patternRangeFilterEnabled" : true,
+          "minimumPatternRangePct" : 3.63,
+          "closeStrengthFilterEnabled" : true,
+          "maxCloseStrength" : 0.80,
+          "capitalSkipShadowAnalysisEnabled" : false,
+          "bollingerAtrFilterEnabled" : false,
+          "bollingerPeriod" : 20,
+          "bollingerStdDev" : 2,
+          "atrPeriod" : 2,
+          "maxBollingerDistanceAtr" : 1,
+          "marketRegimeAnalysisEnabled" : true,
+          "signalTimeframe" : "WEEKLY",
+          "closeStrengthMin" : 0.906,
+          "patternRangeMinPct" : 3.63,
+          "relativeVolumePeriod" : 20,
+          "relativeVolumeMin" : 1.20
+        },
+        "ExecutionModelVersion" : "OPEN_FIRST/1",
+        "FilterModelVersion" : "V3_RESEARCH_FILTERS/1",
+        "Raw Signals" : 398,
+        "Accepted Signals" : 88,
+        "Executed Signals" : 85,
+        "RVOL Available" : 0,
+        "Volume Issues" : {
+          "RVOL_WARMUP" : 8,
+          "UNVERIFIED_VOLUME_ADJUSTMENT" : 390
+        }
+      },
+      "RVOL" : {
+        "Final Equity" : 10000.0,
+        "CAGR %" : 0.0,
+        "Max Drawdown %" : 0.0,
+        "Profit Factor Net" : null,
+        "Win Rate %" : null,
+        "Closed Trades" : 0,
+        "Average Net R" : null,
+        "Gap Stops" : 0,
+        "Gap Targets" : 0,
+        "Total Costs" : 0,
+        "Average Exposure %" : 0.0,
+        "Capital Skips" : 0,
+        "Negative Years" : 0,
+        "Periods" : [ {
+          "label" : "2010–2013",
+          "start" : "2010-01-04",
+          "end" : "2013-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2014–2017",
+          "start" : "2014-01-01",
+          "end" : "2017-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2018–2021",
+          "start" : "2018-01-01",
+          "end" : "2021-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2022–2026",
+          "start" : "2022-01-01",
+          "end" : "2026-09-08",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        } ],
+        "Years" : [ {
+          "label" : "2010",
+          "start" : "2010-01-04",
+          "end" : "2010-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2011",
+          "start" : "2011-01-01",
+          "end" : "2011-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2012",
+          "start" : "2012-01-01",
+          "end" : "2012-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2013",
+          "start" : "2013-01-01",
+          "end" : "2013-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2014",
+          "start" : "2014-01-01",
+          "end" : "2014-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2015",
+          "start" : "2015-01-01",
+          "end" : "2015-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2016",
+          "start" : "2016-01-01",
+          "end" : "2016-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2017",
+          "start" : "2017-01-01",
+          "end" : "2017-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2018",
+          "start" : "2018-01-01",
+          "end" : "2018-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2019",
+          "start" : "2019-01-01",
+          "end" : "2019-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2020",
+          "start" : "2020-01-01",
+          "end" : "2020-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2021",
+          "start" : "2021-01-01",
+          "end" : "2021-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2022",
+          "start" : "2022-01-01",
+          "end" : "2022-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2023",
+          "start" : "2023-01-01",
+          "end" : "2023-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2024",
+          "start" : "2024-01-01",
+          "end" : "2024-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2025",
+          "start" : "2025-01-01",
+          "end" : "2025-12-31",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        }, {
+          "label" : "2026",
+          "start" : "2026-01-01",
+          "end" : "2026-09-08",
+          "trades" : 0,
+          "returnPercent" : 0.0,
+          "cagr" : 0.0,
+          "maxDrawdownPercent" : 0.0,
+          "pfNet" : null,
+          "expectancyR" : null,
+          "winRate" : null,
+          "netPnl" : 0.0
+        } ],
+        "RunId" : "0149e1a0-7ebe-433c-996a-a398194d4ffa",
+        "StrategyVersion" : "3.0-research",
+        "SignalTimeframe" : "WEEKLY",
+        "ExecutionTimeframe" : "DAILY",
+        "ManagementTimeframe" : "DAILY",
+        "StartDate" : "2010-01-01",
+        "EndDate" : "2026-09-08",
+        "ConfigurationHash" : "c68112ecf58cdf5d32ba7c417c910b9f4a99369398f0f06764e5aea4752465f2",
+        "DataFingerprint" : "190bb01c973849fb6cb45b61da6156e8197845a92d8a3b2d5747133a8b0cf3fd",
+        "Configuration" : {
+          "name" : "V3_RESEARCH_INITIAL_SNAPSHOT",
+          "global" : {
+            "initialCapital" : 10000.0,
+            "riskPercent" : 4.0,
+            "maxOrderValuePercent" : 30.0,
+            "maxOrderValue" : null,
+            "maxOrderValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValue" : 10000.0,
+            "maxQuantity" : 1000000,
+            "useLeverage" : false,
+            "minQuantity" : 1,
+            "minOrderValue" : 0.0,
+            "startDate" : "2010-01-01",
+            "endDate" : "2026-09-08",
+            "timeframe" : "DAILY",
+            "maxHoldingBars" : 13,
+            "stopBufferTicks" : 0,
+            "tickSize" : 0.01,
+            "sameBarPolicy" : "STOP_FIRST",
+            "entryMode" : "NEXT_BAR_OPEN",
+            "stopMode" : "PATTERN_EXTREME",
+            "commissionEnabled" : true,
+            "commission" : {
+              "model" : "IBKR_US_FIXED",
+              "fixedPerOrder" : 0,
+              "perShare" : 0.005,
+              "minimumPerOrder" : 1,
+              "maximumPercentOrderValue" : 1
+            },
+            "slippageEnabled" : true,
+            "slippagePercentPerSide" : 0.03,
+            "maxLongNotional" : 10000.0,
+            "maxShortNotional" : 10000.0,
+            "transactionCostsPerShare" : 0.0,
+            "allowLong" : true,
+            "allowShort" : true,
+            "smallQuantityWarningThreshold" : 4,
+            "maxPositionValueMode" : "CURRENT_EQUITY_PERCENT",
+            "maxPositionValuePercent" : 100.0,
+            "maxLongNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxLongNotionalPercent" : 100.0,
+            "maxShortNotionalMode" : "CURRENT_EQUITY_PERCENT",
+            "maxShortNotionalPercent" : 100.0
+          },
+          "symbols" : [ {
+            "enabled" : true,
+            "symbol" : "AAPL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "GOOGL",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NFLX",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 2
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "NVDA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "PIERCING_PATTERN",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "QQQ",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "SPY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_HARAMI",
+              "targetR" : 3
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "TSLA",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1
+            },
+            "shortConfig" : {
+              "enabled" : true,
+              "pattern" : "SHOOTING_STAR",
+              "targetR" : 4
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLK",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "HAMMER",
+              "targetR" : 4
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          }, {
+            "enabled" : true,
+            "symbol" : "XLY",
+            "longConfig" : {
+              "enabled" : true,
+              "pattern" : "BULLISH_ENGULFING",
+              "targetR" : 1.5
+            },
+            "shortConfig" : {
+              "enabled" : false,
+              "pattern" : null,
+              "targetR" : null
+            },
+            "riskPercent" : null,
+            "maxOrderValuePercent" : null,
+            "maxQuantity" : null,
+            "maxHoldingBars" : null
+          } ],
+          "splitCosts" : {
+            "rules" : [ {
+              "symbol" : "NVDA",
+              "basis" : "AUTO_PROVIDER",
+              "validFrom" : "2010-01-01",
+              "adjustedThrough" : "2024-06-10",
+              "splits" : [ {
+                "effectiveDate" : "2021-07-20",
+                "ratio" : 4
+              }, {
+                "effectiveDate" : "2024-06-10",
+                "ratio" : 10
+              } ]
+            } ]
+          },
+          "patternRangeFilterEnabled" : false,
+          "minimumPatternRangePct" : 2.50,
+          "closeStrengthFilterEnabled" : false,
+          "maxCloseStrength" : 0.80,
+          "capitalSkipShadowAnalysisEnabled" : false,
+          "bollingerAtrFilterEnabled" : false,
+          "bollingerPeriod" : 20,
+          "bollingerStdDev" : 2,
+          "atrPeriod" : 2,
+          "maxBollingerDistanceAtr" : 1,
+          "marketRegimeAnalysisEnabled" : true,
+          "signalTimeframe" : "WEEKLY",
+          "patternRangeMinPct" : 2.50,
+          "relativeVolumeFilterEnabled" : true,
+          "relativeVolumePeriod" : 20,
+          "relativeVolumeMin" : 1.20
+        },
+        "ExecutionModelVersion" : "OPEN_FIRST/1",
+        "FilterModelVersion" : "V3_RESEARCH_FILTERS/1",
+        "Raw Signals" : 398,
+        "Accepted Signals" : 0,
+        "Executed Signals" : 0,
+        "RVOL Available" : 0,
+        "Volume Issues" : {
+          "RVOL_WARMUP" : 8,
+          "UNVERIFIED_VOLUME_ADJUSTMENT" : 390
+        }
+      }
+    }
+  },
+  "ExploratoryOnly" : true,
+  "VolumeLimitation" : "Source dataset does not certify adjusted volume basis. RVOL is unavailable until an explicit verified consistent-unit declaration. RVOL-only run diagnoses unavailable data, not a validated economic effect.",
+  "WEEKLY_OFF_ExactParity" : true,
+  "DAILY_OFF_ExactParity" : true,
+  "ProtectedFilesUnchanged" : true
+}

@@ -8,6 +8,7 @@ import it.andreademartini.trading.strategy.patternv1.PatternV1Properties;
 import java.math.*;
 import java.time.*;
 import java.util.*;
+import it.andreademartini.trading.backtest.patternv2.ExitFillPolicy;
 
 /** Research only. No cash ledger, aggregate portfolio, broker or order execution dependency. */
 public final class CapitalSkipShadowAnalysis {
@@ -44,7 +45,7 @@ public final class CapitalSkipShadowAnalysis {
         input.forEach((symbol,list)->bars.put(symbol,list.stream().filter(b->!b.dateTime().toLocalDate().isBefore(g.startDate())&&!b.dateTime().toLocalDate().isAfter(g.endDate())).sorted(Comparator.comparing(HistoricalBar::dateTime)).toList()));
         long count=run.portfolio().events().stream().filter(e->e.eventType().equals("SIGNAL_SKIPPED_CAPITAL")).count();
         if(count!=run.capitalSkipAudits().size())throw new IllegalStateException("Capital skip event/audit mismatch");
-        List<ShadowTrade> trades=new ArrayList<>();for(var audit:run.capitalSkipAudits()){if(!"INSUFFICIENT_CAPITAL".equals(audit.rejectReason()))throw new IllegalArgumentException("Only capital skips are supported");trades.add(simulate(c,audit,bars.getOrDefault(audit.signal().symbol(),List.of())));}
+        List<ShadowTrade> trades=new ArrayList<>();for(var audit:run.capitalSkipAudits()){if(!"INSUFFICIENT_CAPITAL".equals(audit.rejectReason()))throw new IllegalArgumentException("Only capital skips are supported");trades.add(simulate(c,audit,bars.getOrDefault(audit.signal().symbol(),List.of()),run.executionPolicy()));}
         var executed=run.portfolio().trades().stream().filter(PatternV1Result.Trade::closed).map(t->new Observation(t.symbol(),t.direction().name(),t.pattern().name(),t.targetR(),t.signalDate(),t.grossPnl(),t.netPnl(),t.actualRiskAmount(),t.actualRiskPercent(),t.holdingBars(),t.exitReason())).toList();
         var completed=trades.stream().filter(t->t.shadowStatus()==Status.COMPLETED).map(CapitalSkipShadowAnalysis::observation).toList();var em=metrics(executed);var sm=metrics(completed);
         Set<String> keys=new TreeSet<>();executed.forEach(o->keys.add(key(o.symbol,o.direction,o.pattern,o.targetR)));trades.forEach(t->keys.add(key(t.symbol,t.direction,t.pattern,t.targetR)));
@@ -54,6 +55,9 @@ public final class CapitalSkipShadowAnalysis {
         return new Analysis(run.runId(),run.datasetId(),Instant.now(),c,count,completed.size(),count(trades,Status.INCOMPLETE_DATA),count(trades,Status.NOT_EXECUTABLE),em,sm,comparison(em,sm),classification,reason,List.copyOf(symbols),List.copyOf(periods),List.copyOf(trades),run.capitalSkipAudits(),"Independent theoretical observations, potentially correlated with executed trades. Closed/completed outcomes only; periods by signal date. Net R denominator = initial price risk × quantity. Winner/loser R are NET R. No shadow portfolio CAGR or equity curve. Competition lists are pending entry candidates, including candidates subsequently rejected for other reasons. Aggregate open risk = sum of initial price risks, excluding costs. Invested capital = gross market value at decision open.");
     }
     public ShadowTrade simulate(PatternV3Configuration c,CapitalSkipAudit a,List<HistoricalBar> bars){
+        return simulate(c,a,bars,ExitFillPolicy.LEVEL_ONLY);
+    }
+    public ShadowTrade simulate(PatternV3Configuration c,CapitalSkipAudit a,List<HistoricalBar> bars,ExitFillPolicy policy){
         var signal=a.signal();var d=signal.detection();boolean isLong=d.direction()==PatternDirection.LONG;var g=c.global();
         var symbol=c.symbols().stream().filter(s->s.symbol().equals(signal.symbol())).findFirst().orElseThrow();var split=c.splitCosts()==null?new PatternV3SplitCosts(List.of()):c.splitCosts();
         if(a.entryIndex()<0||a.entryIndex()>=bars.size()||!bars.get(a.entryIndex()).timestamp().toString().equals(a.decisionTimestamp()))return unavailable(a,Status.INCOMPLETE_DATA,"ENTRY_BAR_UNAVAILABLE");
@@ -71,7 +75,7 @@ public final class CapitalSkipShadowAnalysis {
         var entryAfter=isLong?plan.entryPrice().add(entrySlip):plan.entryPrice().subtract(entrySlip);
         if(decision.quantity()==0)return trade(a,plan,null,null,null,0,decision,entryAfter,null,entryCommission,null,null,null,null,null,null,null,false,Status.NOT_EXECUTABLE,"THEORETICAL_SIZE_REJECTED: "+decision.reason());
         var excursions=new PatternV3BarRules.Excursions();PatternV3BarRules.Exit exit=null;HistoricalBar exitBar=null;int holding=0;
-        for(int index=a.entryIndex();index<bars.size();index++){var bar=bars.get(index);holding++;var candidate=PatternV3BarRules.exit(plan,bar,holding,symbol.holding(g),g.sameBarPolicy());excursions.measure(plan,bar,candidate.exitOnStop(),candidate.target()&&!candidate.exitOnStop());if(candidate.completed()){exit=candidate;exitBar=bar;break;}}
+        for(int index=a.entryIndex();index<bars.size();index++){var bar=bars.get(index);holding++;var candidate=PatternV3BarRules.exit(plan,bar,holding,symbol.holding(g),g.sameBarPolicy(),policy);excursions.measure(plan,bar,candidate);if(candidate.completed()){exit=candidate;exitBar=bar;break;}}
         if(exit==null)return trade(a,plan,null,null,null,holding,decision,entryAfter,null,entryCommission,null,null,null,null,null,null,null,false,Status.INCOMPLETE_DATA,"DATA_END_BEFORE_EXIT");
         var exitFee=PatternV3SplitCosts.commission(commission,split.factor(signal.symbol(),exitBar)).charge(decision.quantity(),exit.price());var exitSlip=exit.price().multiply(slip).divide(BigDecimal.valueOf(100),MATH);var exitAfter=isLong?exit.price().subtract(exitSlip):exit.price().add(exitSlip);
         var slipCost=entrySlip.add(exitSlip).multiply(q);var extra=BigDecimal.valueOf(risk.getTransactionCostsPerShare()).add(BigDecimal.valueOf(PatternV3SplitCosts.perShare(BigDecimal.valueOf(g.transactionCostsPerShare()),split.factor(signal.symbol(),exitBar)).doubleValue())).multiply(q);

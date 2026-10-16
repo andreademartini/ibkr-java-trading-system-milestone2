@@ -19,28 +19,30 @@
     async function loadHistory() {
         const entries=await api('/api/backtest/pattern-v1/runs');
         versions=new Map(entries.map(r=>[r.runId,r.strategyVersion]));
-        $('v1-history').innerHTML='<option value="">Seleziona una run</option>'+entries.map(r=>`<option value="${escape(r.runId)}">${escape(r.strategyVersion)} - ${escape(r.runId)}</option>`).join('');
+        $('v1-history').innerHTML='<option value="">Seleziona una run</option>'+entries.map(r=>`<option value="${escape(r.runId)}">${escape(r.strategyVersion)} - rischio ${escape(r.riskPercent??'N/D')}% - ${escape(r.runId)}</option>`).join('');
     }
     async function initialize() {
         try {
             const version=await api('/api/backtest/pattern-v1/configuration');
             activeVersion=version.strategyVersion;
             const config=version.configuration,g=config.global;
+            $('v1-risk-percent').value=g.riskPercent;
             $('v1-frozen-config').textContent=JSON.stringify(version,null,2);
             $('v1-mapping').querySelector('tbody').innerHTML=config.symbols.map(c=>`<tr>${[c.symbol,c.longConfig.enabled?c.longConfig.pattern:'DISABLED',c.longConfig.targetR??'-',c.shortConfig.enabled?c.shortConfig.pattern:'DISABLED',c.shortConfig.targetR??'-',c.enabled?'Si':'No'].map(v=>`<td>${escape(v)}</td>`).join('')}</tr>`).join('');
             const fields={'v1-start':g.startDate,'v1-end':g.endDate,'v1-capital':g.initialCapital,'v1-max-order-value':'','v1-max-quantity':g.maxQuantity,'v1-commission-model':g.commission.model,'v1-commission-per-share':g.commission.perShare,'v1-commission-minimum':g.commission.minimumPerOrder,'v1-commission-maximum':g.commission.maximumPercentOrderValue,'v1-commission':g.commission.fixedPerOrder,'v1-slippage':g.slippagePercentPerSide};
             for(const [id,value] of Object.entries(fields)){$(id).value=value;$(id).disabled=true;}
             $('v1-strategy').disabled=true;
-            $('v1-rules').textContent='DAILY - NEXT_BAR_OPEN - PATTERN_EXTREME - buffer '+g.stopBufferTicks+' - '+g.sameBarPolicy+' - '+g.maxHoldingBars+' barre. Rischio 2%; ordine 30% equity; posizione/LONG/SHORT 100% equity per trade; nessuna leva; filtri OFF. Costi e split della run originale.';
+            $('v1-rules').textContent='DAILY - NEXT_BAR_OPEN - PATTERN_EXTREME - buffer '+g.stopBufferTicks+' - '+g.sameBarPolicy+' - '+g.maxHoldingBars+' barre. Rischio '+g.riskPercent+'%; ordine 30% equity; posizione/LONG/SHORT 100% equity per trade; nessuna leva; filtri OFF. Costi e split della run originale. Uscite: '+(config.exitFillPolicy||'LEVEL_ONLY')+'; gap oltre stop/target eseguiti all’apertura con OPEN_FIRST.';
             $('v1-run').disabled=false;status('Versione '+activeVersion+' congelata - ordini disabilitati');
             loadHistory().catch(error=>status('Configurazione pronta. Run History non disponibile: '+error.message));
             const id=new URLSearchParams(location.search).get('run');if(id)show(await api('/api/backtest/pattern-v1/'+encodeURIComponent(id)));
         }catch(error){status(error.message);$('v1-run').disabled=true;}
     }
+    function readRiskPercent(){const value=Number($('v1-risk-percent').value);if(!Number.isFinite(value)||value<=0||value>100)throw new Error('Risk Percent % deve essere maggiore di 0 e non superiore a 100');return value;}
     $('v1-history').addEventListener('change',async()=>{try{if($('v1-history').value)show(await api('/api/backtest/pattern-v1/'+encodeURIComponent($('v1-history').value)));}catch(e){status(e.message);}});
     $('v1-form').addEventListener('submit',async event=>{
         event.preventDefault();$('v1-run').disabled=true;status('Backtest stabile su snapshot storico...');
-        try{show(await api('/api/backtest/pattern-v1/run',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}));await loadHistory();}
+        try{show(await api('/api/backtest/pattern-v1/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({riskPercent:readRiskPercent()})}));await loadHistory();}
         catch(error){status(error.message);}finally{$('v1-run').disabled=false;}
     });
     function show(result) {
@@ -49,7 +51,7 @@
         const feeDescription = commission?.model === "IBKR_US_FIXED"
             ? `IBKR_US_FIXED: ${num(commission.perShare)} USD/azione, minimo ${num(commission.minimumPerOrder)} USD, massimo ${num(commission.maximumPercentOrderValue)}% del valore ordine`
             : `Importo fisso: ${num(commission?.fixedPerOrder ?? run.settings?.commissionPerOrder)} USD/ordine`;
-        $("v1-applied-limits").textContent = `Parametri applicati a questo risultato: maxOrderValue = ${versions.get(run.backtestId)==="1.0-legacy" ? num(run.settings?.maxOrderValue) : "30% equity (limite dinamico)"}; maxQuantity = ${num(run.settings?.maxQuantity)}; commissioni ${feeDescription}; slippage ${num(run.settings?.slippagePercent)}% per esecuzione. Configurazione congelata: nuova versione richiesta per modifiche.`;
+        $("v1-applied-limits").textContent = `Parametri applicati a questo risultato: maxOrderValue = ${versions.get(run.backtestId)==="1.0-legacy" ? num(run.settings?.maxOrderValue) : "30% equity (limite dinamico)"}; Risk Percent = ${num(run.settings?.riskPercent)}%; maxQuantity = ${num(run.settings?.maxQuantity)}; commissioni ${feeDescription}; slippage ${num(run.settings?.slippagePercent)}% per esecuzione. Rischio salvato nella run; gli altri parametri restano congelati.`;
         if (run.schemaVersion < 2 || !run.schemaVersion) {
             $("v1-results").hidden = true; $("v1-chart-section").hidden = true; $("v1-excel").hidden = true;
             status("Run storica con motore non corretto: riesegui PATTERN V1. I risultati originali restano salvati per il confronto.");

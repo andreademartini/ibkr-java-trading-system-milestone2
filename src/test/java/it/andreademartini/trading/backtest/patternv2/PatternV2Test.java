@@ -113,7 +113,7 @@ class PatternV2Test {
         assertEquals(altered,s.configuration(saved.id()).configuration());assertEquals(c,s.reset());assertEquals(1,s.configurations().size());
         var run=service().simulate(altered,Map.of("AAPL",engulfing("AAPL")));s.save(run);assertEquals(10,s.runs().getFirst().portfolio().settings().maxQuantity());assertEquals(altered,s.run(run.runId()).configuration());
         try(var book=new XSSFWorkbook(new java.io.ByteArrayInputStream(new PatternV2ExcelExporter().export(run)))) {
-            assertEquals(23,book.getNumberOfSheets());assertNotNull(book.getSheet("BOLLINGER_ATR_ANALYSIS"));assertNotNull(book.getSheet("CAPITAL_LIMITS_AUDIT"));for(var name:List.of("SUMMARY","SYMBOL_RESULTS","TRADES","EQUITY_CURVE","CONFIGURATION","RESULTS_BY_TARGET_R","RESULTS_BY_PATTERN","RESULTS_BY_SYMBOL","PERIOD_ANALYSIS","RUN_INFO"))assertNotNull(book.getSheet(name));
+            assertEquals(24,book.getNumberOfSheets());assertNotNull(book.getSheet("GAP_EXIT_ANALYSIS"));assertNotNull(book.getSheet("BOLLINGER_ATR_ANALYSIS"));assertNotNull(book.getSheet("CAPITAL_LIMITS_AUDIT"));for(var name:List.of("SUMMARY","SYMBOL_RESULTS","TRADES","EQUITY_CURVE","CONFIGURATION","RESULTS_BY_TARGET_R","RESULTS_BY_PATTERN","RESULTS_BY_SYMBOL","PERIOD_ANALYSIS","RUN_INFO"))assertNotNull(book.getSheet(name));
             Map<String,String> values=new HashMap<>();for(var row:book.getSheet("CONFIGURATION"))values.put(row.getCell(0).toString(),row.getCell(1)==null?null:row.getCell(1).toString());
             assertEquals("10.0",values.get("global.maxQuantity"));assertEquals("IBKR_US_FIXED",values.get("global.commission.model"));assertEquals("0.03",values.get("global.slippagePercentPerSide"));
         }

@@ -16,8 +16,8 @@ class PatternStableTest {
     PatternStableService service(){return new PatternStableService(new PatternStableStore(temp),new PatternV2Store(temp.resolve("v2")),configuration(),new TradingSystemProperties());}
     @Test void officialConfigurationIsFrozenIndependentAndSafe(){
         var version=service().version();var c=version.configuration();var g=c.global();
-        assertEquals("2.1",version.strategyVersion());assertEquals("PATTERN_V1_STABLE",version.strategyId());
-        assertFalse(g.useLeverage());assertEquals(2,g.riskPercent());assertEquals(30,g.maxOrderValuePercent());assertEquals(100,g.maxPositionValuePercent());
+        assertEquals("2.3",version.strategyVersion());assertEquals("PATTERN_V1_STABLE",version.strategyId());
+        assertFalse(g.useLeverage());assertEquals(4,g.riskPercent());assertEquals(30,g.maxOrderValuePercent());assertEquals(100,g.maxPositionValuePercent());
         assertFalse(c.patternRangeFilterEnabled());assertFalse(c.closeStrengthFilterEnabled());assertFalse(c.bollingerAtrFilterEnabled());
         assertFalse(version.safety().orderSubmissionEnabled());assertFalse(version.safety().liveTradingEnabled());assertFalse(version.safety().autoExecuteSignals());assertFalse(version.safety().paperTradingEnabled());
         var modified=c.withName("research").withRangeFilter(true,new java.math.BigDecimal("4"));
@@ -26,7 +26,7 @@ class PatternStableTest {
     }
     @Test void archivesCannotBeOverwritten(){var store=new PatternStableStore(temp);store.immutable("versions/x.json",Map.of("x",1));store.immutable("versions/x.json",Map.of("x",1));assertThrows(IllegalStateException.class,()->store.immutable("versions/x.json",Map.of("x",2)));assertThrows(IllegalArgumentException.class,()->store.immutable("../../escape",Map.of()));}
     @Test void timeoutRevisionPreservesOriginalAndExitsOnThirteenthEntryInclusiveBar(){
-        var original=service().version("2.0");var revised=service().version();
+        var original=service().version("2.0");var revised=service().version("2.1");
         var expected=PatternStableStore.JSON.valueToTree(original.configuration());
         ((com.fasterxml.jackson.databind.node.ObjectNode)expected.path("global")).put("maxHoldingBars",13);
         assertEquals(PatternStableStore.hash(expected),revised.configurationHash());
@@ -44,7 +44,7 @@ class PatternStableTest {
         assertEquals("TIMEOUT",originalTrade.exitReason());assertEquals(20,originalTrade.holdingBars());
         assertEquals(originalTrade.entryDate().plusDays(19),originalTrade.exitDate());
     }
-    @Test void missingReferencePreventsPromotion(){assertThrows(NoSuchElementException.class,()->service().promote());assertFalse(Files.exists(temp.resolve("versions/2.1.json")));}
+    @Test void missingReferencePreventsPromotion(){assertThrows(NoSuchElementException.class,()->service().promote());assertFalse(Files.exists(temp.resolve("versions/2.3.json")));}
     @Test void financialPathMatchesV2OnSyntheticBarsWithoutUsingItsServiceOrStore(){
         var config=service().version().configuration();var bars=Map.of("AAPL",engulfing("AAPL"));String id=UUID.randomUUID().toString();
         var stable=new StableSimulation().simulate(config,bars,id);
@@ -53,5 +53,5 @@ class PatternStableTest {
         assertEquals("PATTERN_V1",stable.portfolio().strategy());assertEquals("PATTERN_V1",stable.portfolio().trades().getFirst().strategy());
         assertFalse(Files.exists(temp.resolve("current.json")));assertEquals(1,stable.portfolio().trades().size());
     }
-    @Test void officialApiRejectsOverrides(){var controller=new PatternStableController(service(),null,null,null);assertThrows(org.springframework.web.server.ResponseStatusException.class,()->controller.run(Map.of("riskPercent",3)));}
+    @Test void officialApiRejectsOverrides(){var controller=new PatternStableController(service(),null,null,null);assertThrows(org.springframework.web.server.ResponseStatusException.class,()->controller.run(Map.of("initialCapital",20000)));}
 }

@@ -29,9 +29,9 @@ final class PatternPaperTestSupport {
     static SignalRecord signal(String symbol){
         var day=LocalDate.now(ZoneId.of("America/New_York"));
         var bars=List.of(bar(symbol,day.minusDays(2),0,100,101,98,99),bar(symbol,day.minusDays(1),1,98.5,101,98.2,100.5));
-        var record=new SignalRecord();record.signal=new PatternPaperPlanner(stable().version()).signals(symbol,bars,1).getFirst();record.symbol=symbol;record.id=PatternPaperService.signalId("2.1",record.signal);record.mode="PAPER";record.status="PENDING";record.generatedAt=Instant.now();record.entrySession=day;return record;
+        var record=new SignalRecord();record.signal=new PatternPaperPlanner(stable().version("2.1")).signals(symbol,bars,1).getFirst();record.symbol=symbol;record.id=PatternPaperService.signalId("2.1",record.signal);record.mode="PAPER";record.status="PENDING";record.generatedAt=Instant.now();record.entrySession=day;return record;
     }
-    static Session ledgerSession(){var session=new Session();session.frozen=stable().version();session.strategyVersion="2.1";session.configurationHash=session.frozen.configurationHash();session.account=ACCOUNT;session.limits=limits();var signal=signal("AAPL");signal.expectedEntry=bd(100);signal.expectedStop=bd(98);signal.expectedTarget=bd(106);signal.expectedQuantity=10;session.signals.add(signal);
+    static Session ledgerSession(){var session=new Session();session.frozen=stable().version("2.1");session.strategyVersion="2.1";session.configurationHash=session.frozen.configurationHash();session.account=ACCOUNT;session.limits=limits();var signal=signal("AAPL");signal.expectedEntry=bd(100);signal.expectedStop=bd(98);signal.expectedTarget=bd(106);signal.expectedQuantity=10;session.signals.add(signal);
         for(var role:List.of(Role.ENTRY,Role.STOP_LOSS,Role.TAKE_PROFIT)){var order=new OrderRecord();order.orderId=100+role.ordinal();order.signalId=signal.id;order.role=role;order.account=ACCOUNT;order.symbol="AAPL";order.action=role==Role.ENTRY?"BUY":"SELL";order.quantity=10;order.clientOrderId="PV1:"+signal.id+":"+role;order.status="Submitted";order.createdAt=Instant.now();order.ocaGroup="PV1:"+signal.id;session.orders.add(order);}return session;
     }
     static ExecutionRecord fill(Session s,String id,int orderId,double quantity,double price){var order=s.orders.stream().filter(o->o.orderId==orderId).findFirst().orElseThrow();return new ExecutionRecord(id,null,orderId,orderId+1000,ACCOUNT,"AAPL",order.action,bd(quantity),bd(price),Instant.now(),null);}
@@ -54,7 +54,7 @@ final class PatternPaperTestSupport {
             when(store.events()).thenReturn(events);when(broker.connection()).thenAnswer(i->connection(true,true));when(broker.limitations()).thenReturn(List.of());
             when(broker.drainExecutions()).thenReturn(List.of());when(broker.drainCommissions()).thenReturn(List.of());when(broker.drainOrders()).thenReturn(List.of());when(broker.drainErrors()).thenReturn(List.of());
             snapshot=new BrokerSnapshot(1,Instant.now(),List.of(),List.of(),List.of(),List.of(),bd(1000000),true,"OK");when(broker.reconcile()).thenAnswer(i->snapshot);
-            for(var symbol:stable().version().configuration().symbols())calendars.put(symbol.symbol(),calendar(symbol.symbol(),now));
+            for(var symbol:stable().version("2.1").configuration().symbols())calendars.put(symbol.symbol(),calendar(symbol.symbol(),now));
             when(broker.calendar(anyString())).thenAnswer(i->calendars.get(i.getArgument(0)));
             when(broker.quote(anyString())).thenAnswer(i->new Quote(bd(100),bd(100),bd(99.99),bd(100.01),Instant.now(),LocalDate.now(ZoneId.of("America/New_York")),true,bd(10000),bd(1)));
             when(broker.dailyBars(anyString())).thenReturn(List.of());

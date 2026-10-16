@@ -33,11 +33,11 @@ public final class PatternRangeAnalysis {
     public static int bucket(PatternRange range) {for(int i=0;i<LIMITS.size();i++)if(!range.reaches(LIMITS.get(i)))return i;return LIMITS.size();}
     public static Statistics statistics(PatternV3Configuration c,List<SignalAudit> signals) {
         long accepted=signals.stream().filter(SignalAudit::accepted).count();
-        return new Statistics(c.patternRangeFilterEnabled(),c.minimumPatternRangePct(),signals.size(),accepted,signals.size()-accepted,
+        return new Statistics(c.patternRangeFilterEnabled(),c.rangeMinimum(),signals.size(),accepted,signals.size()-accepted,
                 signals.isEmpty()?null:accepted*100.0/signals.size());
     }
     public static Analysis calculate(PatternV3Run actual,PatternV3Run baseline) {
-        var signals=actual.rangeSignals();var threshold=actual.configuration().minimumPatternRangePct();
+        var signals=actual.rangeSignals();var threshold=actual.configuration().rangeMinimum();
         Predicate<SignalAudit> reaches=s->s.range().reaches(threshold);
         var base=baseline==null?actual:baseline;
         var baseSignals=base.rangeSignals();var baseTrades=tradeMap(base);var actualTrades=tradeMap(actual);

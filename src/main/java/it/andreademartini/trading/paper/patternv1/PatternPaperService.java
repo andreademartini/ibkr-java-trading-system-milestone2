@@ -28,7 +28,7 @@ public class PatternPaperService {
     public PatternPaperService(PatternPaperStore store,PatternStableService stable,PatternPaperBroker broker,TradingSystemProperties properties,KillSwitchService globalKill){this.store=store;this.stable=stable;this.broker=broker;this.properties=properties;this.globalKill=globalKill;}
     @PostConstruct public synchronized void recover(){
         store.update(s->{
-            var version=stable.version();
+            var version=stable.version("2.1");
             if(version==null){s.mode=Mode.DISABLED;s.reason="Configurazione V1 non disponibile: PAPER disabilitato";return null;}
             if(s.frozen==null){s.frozen=version;s.strategyVersion=version.strategyVersion();s.configurationHash=version.configurationHash();s.initialCapital=BigDecimal.valueOf(version.configuration().global().initialCapital());s.peakEquity=s.initialCapital;}
             if(!version.configurationHash().equals(s.configurationHash))error(s,"Versione ufficiale diversa dalla sessione PAPER persistita; migrazione esplicita necessaria");
@@ -282,7 +282,7 @@ public class PatternPaperService {
         checks.add(new Check("PAPER_IDENTITY",c.paperIdentityVerified(),c.identityReason()));
         checks.add(new Check("WRITE_CAPABILITY",c.writesVerified(),"API in sola lettura o permessi non verificati"));
         checks.add(new Check("REALTIME_DATA",c.realtimeData(),"Market data realtime richiesti per esecuzione automatica"));
-        checks.add(new Check("FROZEN_CONFIGURATION",s.frozen!=null&&stable.version().configurationHash().equals(s.configurationHash)&&PatternStableStore.hash(s.frozen.configuration()).equals(s.configurationHash)&&!s.frozen.configuration().global().useLeverage(),"Snapshot V1/hash/versione non coerenti"));
+        checks.add(new Check("FROZEN_CONFIGURATION",s.frozen!=null&&stable.version("2.1").configurationHash().equals(s.configurationHash)&&PatternStableStore.hash(s.frozen.configuration()).equals(s.configurationHash)&&!s.frozen.configuration().global().useLeverage(),"Snapshot V1/hash/versione non coerenti"));
         checks.add(new Check("KILL_SWITCH",!s.killSwitch&&!globalKill.isActive(),"Kill switch attivo"));
         checks.add(new Check("RECONCILIATION",lastSnapshot!=null&&lastSnapshot.complete()&&s.lastReconciliation!=null&&lastSnapshot.epoch()==c.epoch()&&Duration.between(lastSnapshot.time(),now).compareTo(Duration.ofSeconds(45))<0,"Ordini/posizioni/protezioni non riconciliati"));
         boolean limits=true;try{s.limits.validate();}catch(RuntimeException e){limits=false;}checks.add(new Check("OPERATIONAL_LIMITS",limits,"Limiti supplementari da configurare esplicitamente"));

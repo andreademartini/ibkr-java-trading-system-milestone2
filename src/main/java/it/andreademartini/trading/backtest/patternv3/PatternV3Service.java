@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.*;
 import java.util.*;
+import it.andreademartini.trading.backtest.patternv2.ExitFillPolicy;
+import it.andreademartini.trading.backtest.patternv2.GapExecutionAudit;
+import it.andreademartini.trading.backtest.execution.ExecutionModel;
+import it.andreademartini.trading.backtest.execution.ExecutionRunView;
 
 @Service
 public class PatternV3Service {
@@ -51,8 +55,14 @@ public class PatternV3Service {
         return simulate(config,bars,UUID.randomUUID().toString());
     }
     PatternV3Run simulate(PatternV3Configuration config,Map<String,List<HistoricalBar>> bars,String identity) {
+        return simulate(config,bars,identity,ExitFillPolicy.OPEN_FIRST);
+    }
+    public PatternV3Run simulate(PatternV3Configuration config,Map<String,List<HistoricalBar>> bars,ExitFillPolicy policy){
+        return simulate(config,bars,UUID.randomUUID().toString(),policy);
+    }
+    private PatternV3Run simulate(PatternV3Configuration config,Map<String,List<HistoricalBar>> bars,String identity,ExitFillPolicy policy){
         config=config.forNewRun();
-        var simulation=new PatternPortfolioSimulator(sizing,detectors).run(config,bars,identity);
+        var simulation=new PatternPortfolioSimulator(sizing,detectors).run(config,bars,identity,policy);
         var p=simulation.portfolio();var g=config.global();
         var fee=g.commissionEnabled()?g.commission():PatternV1Commission.fixed(BigDecimal.ZERO);
         var slipPercent=BigDecimal.valueOf(g.slippageEnabled()?g.slippagePercentPerSide():0);
@@ -66,8 +76,8 @@ public class PatternV3Service {
             var exitFactor=t.closed()?config.splitCosts().factor(t.symbol(),exitBar):null;
             var commission=PatternV3SplitCosts.commission(fee,entryFactor).charge(t.quantity(),t.entryPrice())
                     .add(t.closed()?PatternV3SplitCosts.commission(fee,exitFactor).charge(t.quantity(),t.exitPrice()):BigDecimal.ZERO);
-            var entrySlip=t.entryPrice().multiply(slipPercent).divide(BigDecimal.valueOf(100),java.math.MathContext.DECIMAL64);
-            var exitSlip=t.closed()?t.exitPrice().multiply(slipPercent).divide(BigDecimal.valueOf(100),java.math.MathContext.DECIMAL64):BigDecimal.ZERO;
+            var entrySlip=it.andreademartini.trading.backtest.execution.Slippage.perShare(t.entryPrice(),slipPercent);
+            var exitSlip=t.closed()?it.andreademartini.trading.backtest.execution.Slippage.perShare(t.exitPrice(),slipPercent):BigDecimal.ZERO;
             var slipCost=entrySlip.add(exitSlip).multiply(q);
             var extra=BigDecimal.valueOf(PatternV3SplitCosts.perShare(BigDecimal.valueOf(g.transactionCostsPerShare()),entryFactor).doubleValue()).multiply(q);
             if(t.closed())extra=extra.add(BigDecimal.valueOf(PatternV3SplitCosts.perShare(BigDecimal.valueOf(g.transactionCostsPerShare()),exitFactor).doubleValue()).multiply(q));
@@ -81,27 +91,31 @@ public class PatternV3Service {
             if(t.costs().compareTo(commission.add(slipCost).add(extra))!=0)throw new IllegalStateException("Cost reconciliation failed: "+t.tradeId());
         }
         var result = new PatternV3Run(p.backtestId(),"PATTERN_V3",Instant.now(),config,p,simulation.equityTimestamps(),List.copyOf(executions),PatternV3Analysis.calculate(p,null,null),new PatternV3Run.Costs(fees,slippage,other),null,simulation.signals(),null,null,null,simulation.closeStrengthSignals(),null);
+        result=result.withExecutionMetadata(ExecutionModel.version(policy),null);
         result=result.withBollingerAtr(simulation.bollingerAtrSignals(),null);result=result.withBollingerAtr(simulation.bollingerAtrSignals(),BollingerAtrAnalysis.calculate(result));
         result=result.withCapitalSkipAudits(simulation.capitalSkipAudits()).withResearch(PatternRangeAnalysis.calculate(result,null),null,null).withCloseStrengthResearch(CloseStrengthAnalysis.calculate(result,null));
         if(config.capitalSkipShadowAnalysisEnabled()){var source=result.withResearch(result.patternRangeAnalysis(),PatternV3Dataset.capture(bars).id(),null);result=result.withCapitalSkipShadowAnalysis(new CapitalSkipShadowAnalysis(sizing).analyze(source,bars));}
         result=result.withMarketRegimeFilterAnalysis(MarketRegimeFilter.calculate(result,simulation.marketRegimeSignals(),null));
         if(config.marketRegimeAnalysisEnabled())result=result.withMarketRegimeAnalysis(MarketRegimeAnalysis.calculate(result));
-        return result;
+        return result.withExecutionMetadata(ExecutionModel.version(policy),GapExecutionAudit.capture(ExecutionRunView.of(result),bars)).withFilterAudit(simulation.filterAudit());
     }
     /** No current configuration write here: paired baseline is research-only. */
     public PatternV3Run runOnSnapshot(PatternV3Configuration config,Map<String,List<HistoricalBar>> input) {return runOnSnapshot(config,input,null);}
     private PatternV3Run runOnSnapshot(PatternV3Configuration config,Map<String,List<HistoricalBar>> input,PatternV3Run reference) {
+        return runOnSnapshot(config,input,reference,ExitFillPolicy.OPEN_FIRST);
+    }
+    private PatternV3Run runOnSnapshot(PatternV3Configuration config,Map<String,List<HistoricalBar>> input,PatternV3Run reference,ExitFillPolicy policy) {
         config=config.forNewRun();config.validate(detectors);
         var dataset=PatternV3Dataset.capture(input);var bars=dataset.bars();
         PatternV3Run baseline=reference;
-        if(baseline==null&&(config.patternRangeFilterEnabled()||config.closeStrengthFilterEnabled()||config.bollingerAtrFilterEnabled())) {
-            var baseConfig=config.withName("V2_BASELINE").withRangeFilter(false,config.minimumPatternRangePct()).withCloseStrengthFilter(false,config.maxCloseStrength()).withBollingerAtr(false,config.bollingerPeriod(),config.bollingerStdDev(),config.atrPeriod(),config.maxBollingerDistanceAtr()).withMarketRegimeFilter(false,config.marketRegimeFilterAdxPeriod(),config.marketRegimeFilterAdxThreshold());
+        if(baseline==null&&(config.patternRangeFilterEnabled()||config.closeStrengthFilterEnabled()||config.rvolEnabled()||config.bollingerAtrFilterEnabled())) {
+            var baseConfig=config.withName("V2_BASELINE").withRangeFilter(false,config.rangeMinimum()).withCloseStrengthFilter(false,config.maxCloseStrength()).withBollingerAtr(false,config.bollingerPeriod(),config.bollingerStdDev(),config.atrPeriod(),config.maxBollingerDistanceAtr()).withMarketRegimeFilter(false,config.marketRegimeFilterAdxPeriod(),config.marketRegimeFilterAdxThreshold()).withResearchFilters(false,config.closeStrengthMin(),false,config.rangeMinimum(),config.patternRangeMaxPct(),false,config.rvolPeriod(),config.rvolMinimum(),config.relativeVolumeMax());
             PatternV3RunComparison.requireSameTradingConfiguration(baseConfig,config);
-            baseline=simulate(baseConfig,bars);
+            baseline=simulate(baseConfig,bars,policy);
         }
         PatternV3Run regimeBaseline=null;
-        if(config.marketRegimeFilterEnabled())regimeBaseline=simulate(config.withMarketRegimeFilter(false,config.marketRegimeFilterAdxPeriod(),config.marketRegimeFilterAdxThreshold()),bars);
-        var actual=simulate(config,bars);
+        if(config.marketRegimeFilterEnabled())regimeBaseline=simulate(config.withMarketRegimeFilter(false,config.marketRegimeFilterAdxPeriod(),config.marketRegimeFilterAdxThreshold()),bars,policy);
+        var actual=simulate(config,bars,policy);
         if(regimeBaseline!=null)actual=actual.withMarketRegimeFilterAnalysis(MarketRegimeFilter.withIndependentPeriods(MarketRegimeFilter.calculate(actual,actual.marketRegimeFilterAnalysis().signals(),regimeBaseline),marketRegimePeriods(config,bars,actual)));
         if(baseline!=null&&reference==null)baseline=baseline.withResearch(PatternRangeAnalysis.calculate(baseline,null),dataset.id(),actual.runId()).withCloseStrengthResearch(CloseStrengthAnalysis.calculate(baseline,null));
         actual=actual.withResearch(PatternRangeAnalysis.calculate(actual,baseline),dataset.id(),baseline==null?null:baseline.runId());
@@ -118,8 +132,8 @@ public class PatternV3Service {
             if(to.isBefore(from)||to.isBefore(p.actualStartDate()))continue;
             var periodConfig=config.withGlobal(config.global().withDates(from,to));
             // Disposable real simulations, original sizing/costs/other filters, no providers or orders.
-            var off=simulate(periodConfig.withMarketRegimeFilter(false,config.marketRegimeFilterAdxPeriod(),config.marketRegimeFilterAdxThreshold()),bars);
-            var on=simulate(periodConfig,bars);
+            var off=simulate(periodConfig.withMarketRegimeFilter(false,config.marketRegimeFilterAdxPeriod(),config.marketRegimeFilterAdxThreshold()),bars,actual.executionPolicy());
+            var on=simulate(periodConfig,bars,actual.executionPolicy());
             if(on.portfolio().actualStartDate()!=null)result.add(MarketRegimeFilter.independentPeriod(year+"-"+(year==2022?to.getYear():year+3),off,on));
         }
         return List.copyOf(result);
@@ -129,13 +143,15 @@ public class PatternV3Service {
         if(configuration==null)return replayOriginal(id);
         var source=store.run(id);if(source.datasetId()==null)throw new IllegalArgumentException("Exact input snapshot unavailable");
         configuration=configuration.forNewRun();configuration.validate(detectors);
-        PatternV3RunComparison.requireSameTradingConfiguration(source.configuration(),configuration);
-        var reference=findUnfilteredBaseline(source);
-        return runOnSnapshot(configuration,store.dataset(source.datasetId()).bars(),reference);
+        boolean sameTimeframe=source.signalTimeframe()==configuration.signalTimeframe();
+        if(sameTimeframe)PatternV3RunComparison.requireSameTradingConfiguration(source.configuration(),configuration);
+        else PatternV3RunComparison.requireSameSignalExperimentConfiguration(source.configuration(),configuration);
+        var reference=sameTimeframe?findUnfilteredBaseline(source):null;
+        return runOnSnapshot(configuration,store.dataset(source.datasetId()).bars(),reference,source.executionPolicy());
     }
     private PatternV3Run findUnfilteredBaseline(PatternV3Run source) {
-        if(!source.configuration().patternRangeFilterEnabled()&&!source.configuration().closeStrengthFilterEnabled()&&!source.configuration().bollingerAtrFilterEnabled()&&!source.configuration().marketRegimeFilterEnabled())return source;
-        for(var candidate:store.runs())if(Objects.equals(source.datasetId(),candidate.datasetId())&&!candidate.configuration().patternRangeFilterEnabled()&&!candidate.configuration().closeStrengthFilterEnabled()&&!candidate.configuration().bollingerAtrFilterEnabled()&&!candidate.configuration().marketRegimeFilterEnabled()) {
+        if(!source.configuration().patternRangeFilterEnabled()&&!source.configuration().closeStrengthFilterEnabled()&&!source.configuration().rvolEnabled()&&!source.configuration().bollingerAtrFilterEnabled()&&!source.configuration().marketRegimeFilterEnabled())return source;
+        for(var candidate:store.runs())if(source.executionPolicy()==candidate.executionPolicy()&&Objects.equals(source.datasetId(),candidate.datasetId())&&!candidate.configuration().patternRangeFilterEnabled()&&!candidate.configuration().closeStrengthFilterEnabled()&&!candidate.configuration().rvolEnabled()&&!candidate.configuration().bollingerAtrFilterEnabled()&&!candidate.configuration().marketRegimeFilterEnabled()) {
             try {PatternV3RunComparison.requireSameTradingConfiguration(source.configuration(),candidate.configuration());return candidate;}catch(IllegalArgumentException incompatible) { /* Try another baseline. */ }
         }
         return null;
@@ -148,7 +164,7 @@ public class PatternV3Service {
         var source=store.run(id);if(source.datasetId()==null)throw new IllegalArgumentException("Exact input snapshot unavailable");
         configuration=configuration.forNewRun();configuration.validate(detectors);
         PatternV3CapitalComparison.requireSameConfiguration(source.configuration(),configuration);
-        return runOnSnapshot(configuration,store.dataset(source.datasetId()).bars());
+        return runOnSnapshot(configuration,store.dataset(source.datasetId()).bars(),null,source.executionPolicy());
     }
     public PatternV3CapitalComparison.Comparison compareCapitalLimits(List<String> ids) {
         if(ids==null||ids.size()<2||new HashSet<>(ids).size()!=ids.size())throw new IllegalArgumentException("Select distinct runs");
@@ -157,7 +173,7 @@ public class PatternV3Service {
     public PatternV3Store.Saved savePreset(PatternV3Configuration config) {config.validate(detectors);return store.saveConfiguration(config,false);}
     private PatternV3Run replayOriginal(String id) {
         var run=store.run(id);if(run.datasetId()==null)throw new IllegalArgumentException("Legacy run has no exact input snapshot");
-        return runOnSnapshot(run.configuration(),store.dataset(run.datasetId()).bars());
+        return runOnSnapshot(run.configuration(),store.dataset(run.datasetId()).bars(),null,run.executionPolicy());
     }
     /** Computes a disposable benchmark. Never calls V1 service/store.save or edits frozen beans. */
     public PatternV3Run benchmark(String id) {

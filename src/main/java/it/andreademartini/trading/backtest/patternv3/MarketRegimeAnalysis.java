@@ -53,8 +53,10 @@ public final class MarketRegimeAnalysis {
         Map<String,List<Value>> indicators=new TreeMap<>();
         run.portfolio().priceSeries().forEach((symbol,bars)->{
             var stream=new MarketRegimeIndicators(run.configuration());var values=new ArrayList<Value>();
-            for(var b:bars)values.add(stream.onBar(new HistoricalBar(b.index(),Instant.parse(b.timestamp()),b.label(),b.open(),b.high(),b.low(),b.close(),b.volume())));
-            indicators.put(symbol,List.copyOf(values));
+            var daily=bars.stream().map(b->new HistoricalBar(b.index(),Instant.parse(b.timestamp()),b.label(),b.open(),b.high(),b.low(),b.close(),b.volume())).toList();
+            var view=SignalBars.of(daily,run.configuration().signalTimeframe(),new ArrayList<>());
+            for(int i=0;i<daily.size();i++){int j=view.atDailyIndex(i);values.add(j<0?null:stream.onBar(view.bars().get(j)));}
+            indicators.put(symbol,Collections.unmodifiableList(values));
         });
         var rows=new ArrayList<TradeRow>();Map<String,TradeRow> traded=new HashMap<>();
         for(var t:run.portfolio().trades()){

@@ -34,9 +34,16 @@ class PatternStableHttpIntegrationTest {
         var simulation=new StableSimulation().simulate(version.configuration(),Map.of("AAPL",engulfing("AAPL")),UUID.randomUUID().toString());
         var run=new PatternStableService.Run(simulation.runId(),version.strategyId(),version.strategyVersion(),Instant.now(),version.referenceRunId(),version.configurationHash(),"test-dataset",simulation);
         when(stable.version()).thenReturn(version);when(stable.run()).thenReturn(run);when(stable.result(run.runId())).thenReturn(run);when(stable.history()).thenReturn(List.of(run));
-        var c=request("/api/backtest/pattern-v1/configuration",null);assertEquals(200,c.statusCode());assertEquals("2.1",PatternStableStore.JSON.readTree(c.body()).path("strategyVersion").asText());
+        var c=request("/api/backtest/pattern-v1/configuration",null);assertEquals(200,c.statusCode());assertEquals("2.3",PatternStableStore.JSON.readTree(c.body()).path("strategyVersion").asText());
+        assertEquals("OPEN_FIRST",PatternStableStore.JSON.readTree(c.body()).path("configuration").path("exitFillPolicy").asText());
         assertEquals(400,request("/api/backtest/pattern-v1/run","{\"initialCapital\":20000}").statusCode());
         assertEquals(200,request("/api/backtest/pattern-v1/run","{}").statusCode());verify(stable,times(1)).run();
+        var riskConfig=BacktestRiskParameter.apply(version.configuration(),8.0);
+        var riskSimulation=new StableSimulation().simulate(riskConfig,Map.of("AAPL",engulfing("AAPL")),UUID.randomUUID().toString());
+        var riskRun=new PatternStableService.Run(riskSimulation.runId(),version.strategyId(),version.strategyVersion()+"-risk-test",Instant.now(),version.referenceRunId(),PatternStableStore.hash(riskConfig),"test-dataset",riskSimulation);
+        when(stable.runWithRisk(8.0)).thenReturn(riskRun);
+        var riskResponse=request("/api/backtest/pattern-v1/run","{\"riskPercent\":8}");assertEquals(200,riskResponse.statusCode());assertEquals(8,PatternStableStore.JSON.readTree(riskResponse.body()).path("settings").path("riskPercent").asDouble());verify(stable).runWithRisk(8.0);
+        assertEquals(400,request("/api/backtest/pattern-v1/run","{\"riskPercent\":8,\"maxHoldingBars\":20}").statusCode());
         assertEquals(200,request("/api/backtest/pattern-v1/"+run.runId(),null).statusCode());
         assertEquals(200,request("/api/backtest/pattern-v1/"+run.runId()+"/metadata",null).statusCode());
         assertEquals(200,request("/api/backtest/pattern-v1/runs",null).statusCode());

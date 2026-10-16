@@ -1,0 +1,43 @@
+/* Keep wide analytical tables inside their panel rather than shrinking their columns. */
+:is(#market-regime-analysis, #market-regime-filter-analysis) {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.regime-table-scroll {
+    min-width: 0;
+    max-width: 100%;
+    overflow: auto;
+    overscroll-behavior-x: contain;
+}
+
+.regime-table-scroll:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.regime-table-scroll .regime-table {
+    width: max-content;
+    min-width: 100%;
+    table-layout: auto;
+}
+
+.regime-table-scroll .regime-table :is(th, td) {
+    padding: 10px 12px;
+    line-height: 1.45;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: normal;
+}
+
+.regime-table-scroll .regime-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #e7efee;
+}
+
+.regime-table-scroll .regime-table .regime-numeric {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}

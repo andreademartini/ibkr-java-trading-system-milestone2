@@ -13,8 +13,8 @@ public class FrozenPatternV2Controller {
     private final FrozenPatternV2Service service;private final PatternV2ExcelExporter excel;
     public FrozenPatternV2Controller(FrozenPatternV2Service service,PatternV2ExcelExporter excel){this.service=service;this.excel=excel;}
     @GetMapping("/configuration") public Object configuration(){return service.version();}
-    @PostMapping("/run") public Object run(@RequestBody(required=false) Map<String,Object> request){if(request!=null&&!request.isEmpty())throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"PATTERN_V2 is frozen; use PATTERN_V3 for research");return present(service.run());}
-    @GetMapping("/runs") public Object history(){return service.history().stream().map(r->Map.of("runId",r.runId(),"strategyId",r.strategyId(),"strategyVersion",r.strategyVersion(),"configurationHash",r.configurationHash(),"timestamp",r.timestamp())).toList();}
+    @PostMapping("/run") public Object run(@RequestBody(required=false) Map<String,Object> request){try{var risk=it.andreademartini.trading.backtest.patternstable.BacktestRiskParameter.parse(request);return present(risk==null?service.run():service.runWithRisk(risk));}catch(IllegalArgumentException invalid){throw new ResponseStatusException(HttpStatus.BAD_REQUEST,invalid.getMessage());}}
+    @GetMapping("/runs") public Object history(){return service.history().stream().map(r->Map.of("runId",r.runId(),"strategyId",r.strategyId(),"strategyVersion",r.strategyVersion(),"configurationHash",r.configurationHash(),"timestamp",r.timestamp(),"riskPercent",r.simulation().configuration().global().riskPercent())).toList();}
     @GetMapping("/runs/{id}") public Object result(@PathVariable String id){return present(service.result(id));}
     private Object present(it.andreademartini.trading.backtest.patternstable.PatternStableService.Run run){
         var json=(com.fasterxml.jackson.databind.node.ObjectNode)it.andreademartini.trading.backtest.patternstable.PatternStableStore.JSON.valueToTree(run.simulation());

@@ -12,7 +12,7 @@ import java.util.*;
 @Service
 public class PatternStableService {
     public static final String REFERENCE="10aae805-4987-4a29-a634-b3819cddc427";
-    public static final String VERSION="2.1", ID="PATTERN_V1_STABLE";
+    public static final String VERSION="2.3", ID="PATTERN_V1_STABLE";
     private final PatternStableStore store;
     private final PatternV2Store references;
     private final PatternV1Properties legacy;
@@ -23,11 +23,13 @@ public class PatternStableService {
     public PatternStableService(PatternStableStore store,PatternV2Store references,PatternV1Properties legacy,TradingSystemProperties trading){this.store=store;this.references=references;this.legacy=legacy;this.trading=trading;}
     public Version version(){return version(VERSION);}
     public Version version(String requestedVersion){
-        if(!Set.of("2.0","2.1").contains(requestedVersion))throw new IllegalArgumentException("Unknown stable version: "+requestedVersion);
+        if(!Set.of("2.0","2.1","2.2","2.3").contains(requestedVersion))throw new IllegalArgumentException("Unknown stable version: "+requestedVersion);
         try(var input=getClass().getResourceAsStream("/pattern-stable/"+requestedVersion+".json")){
             var config=PatternStableStore.JSON.readValue(input,PatternV2Configuration.class);
             String description="Promoted from PATTERN_V2 — Dynamic equity sizing 30%, no leverage, realistic trading costs.";
             if(requestedVersion.equals("2.1"))description+=" Timeout changed to 13 bars from version 2.0.";
+            if(requestedVersion.equals("2.2"))description+=" 13 holding bars; opening gaps beyond stop/target fill at OPEN before intrabar checks.";
+            if(requestedVersion.equals("2.3"))description+=" 13 holding bars; OPEN_FIRST gap fills; theoretical risk 4% of equity.";
             return new Version(ID,requestedVersion,description,REFERENCE,PatternStableStore.hash(config),config,new Safety(false,false,false,false));
         }catch(java.io.IOException e){throw new IllegalStateException("Stable configuration missing",e);}
     }
@@ -41,6 +43,15 @@ public class PatternStableService {
             ((com.fasterxml.jackson.databind.node.ObjectNode)expected.path("global")).put("maxHoldingBars",13);
             if(!PatternStableStore.hash(expected).equals(version.configurationHash()))throw new IllegalStateException("Version 2.1 must only change timeout to 13 bars");
         }
+        if(requestedVersion.equals("2.2")){
+            var expected=version("2.1").configuration().withExitFillPolicy(ExitFillPolicy.OPEN_FIRST);
+            if(!PatternStableStore.hash(expected).equals(version.configurationHash()))throw new IllegalStateException("Version 2.2 must only change exit fill policy to OPEN_FIRST");
+        }
+        if(requestedVersion.equals("2.3")){
+            var expected=PatternStableStore.JSON.valueToTree(version("2.2").configuration());
+            ((com.fasterxml.jackson.databind.node.ObjectNode)expected.path("global")).put("riskPercent",4);
+            if(!PatternStableStore.hash(expected).equals(version.configurationHash()))throw new IllegalStateException("Version 2.3 must only change riskPercent to 4");
+        }
         if(reference.datasetId()==null)throw new IllegalStateException("Reference exact dataset missing");
         var dataset=references.dataset(reference.datasetId());
         // Capture complete bean and global risk, not only the symbol mapping.
@@ -52,7 +63,9 @@ public class PatternStableService {
         return version;
     }
     public Run run(){return run(VERSION);}
-    public Run run(String requestedVersion){
+    public Run runWithRisk(double riskPercent){BacktestRiskParameter.validate(riskPercent);return run(VERSION,riskPercent);}
+    public Run run(String requestedVersion){return run(requestedVersion,null);}
+    private Run run(String requestedVersion,Double riskPercent){
         var version=version(requestedVersion);Version archived;
         String archive="versions/"+requestedVersion+".json";
         try{archived=store.read(archive,Version.class);}catch(NoSuchElementException e){promote(requestedVersion);archived=store.read(archive,Version.class);}
@@ -60,9 +73,11 @@ public class PatternStableService {
         var reference=store.read("references/"+REFERENCE+".json",PatternV2Run.class);
         var dataset=store.read("datasets/"+reference.datasetId()+".json",PatternV2Dataset.class);
         if(!dataset.id().equals(PatternV2Dataset.capture(dataset.bars()).id()))throw new IllegalStateException("Dataset checksum mismatch");
-        String id=UUID.randomUUID().toString();var simulation=new StableSimulation().simulate(version.configuration(),dataset.bars(),id);
+        var configuration=BacktestRiskParameter.apply(version.configuration(),riskPercent);
+        String id=UUID.randomUUID().toString();var simulation=new StableSimulation().simulate(configuration,dataset.bars(),id);
         simulation=simulation.withResearch(simulation.patternRangeAnalysis(),dataset.id(),REFERENCE);
-        var run=new Run(id,ID,requestedVersion,Instant.now(),REFERENCE,version.configurationHash(),dataset.id(),simulation);store.save(run);return run;
+        simulation=simulation.withExecutionAudit(GapExecutionAudit.capture(simulation,dataset.bars()));
+        var run=new Run(id,ID,BacktestRiskParameter.runVersion(requestedVersion,version.configuration(),configuration),Instant.now(),REFERENCE,PatternStableStore.hash(configuration),dataset.id(),simulation);store.save(run);return run;
     }
     public List<Run> history(){return store.runs();}
     public Run result(String id){return store.run(id);}

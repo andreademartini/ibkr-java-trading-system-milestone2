@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 
-test('Stable V1 displays reference values read-only and sends no trading overrides',async()=>{
+test('Stable V1 keeps reference values read-only and sends only the chosen risk',async()=>{
     const elements=new Map();const document={getElementById(id){if(!elements.has(id))elements.set(id,{value:'',disabled:false,handlers:{},addEventListener(event,handler){this.handlers[event]=handler;},querySelector(){return {};}});return elements.get(id);}};
     const configuration=JSON.parse(fs.readFileSync('src/main/resources/pattern-stable/2.1.json','utf8'));let sent;
     vm.runInNewContext(fs.readFileSync('src/main/resources/static/pattern-v1-stable.js','utf8'),{
@@ -14,8 +14,8 @@ test('Stable V1 displays reference values read-only and sends no trading overrid
     await new Promise(resolve=>setImmediate(resolve));
     for(const id of ['v1-start','v1-end','v1-capital','v1-max-order-value','v1-max-quantity','v1-commission-model','v1-slippage'])assert.equal(document.getElementById(id).disabled,true,id);
     assert.equal(document.getElementById('v1-slippage').value,0.03);assert.equal(document.getElementById('v1-capital').value,10000);
-    document.getElementById('v1-capital').value=999999;await document.getElementById('v1-form').handlers.submit({preventDefault(){}});
-    assert.equal(sent.url,'/api/backtest/pattern-v1/run');assert.deepEqual(sent.body,{});
+    document.getElementById('v1-risk-percent').value='8';assert.equal(document.getElementById('v1-risk-percent').disabled,false);document.getElementById('v1-capital').value=999999;await document.getElementById('v1-form').handlers.submit({preventDefault(){}});
+    assert.equal(sent.url,'/api/backtest/pattern-v1/run');assert.deepEqual(sent.body,{riskPercent:8});
 });
 
 test('Stable and legacy pages have explicit independent routes; V2 is stable and V3 is experimental',()=>{

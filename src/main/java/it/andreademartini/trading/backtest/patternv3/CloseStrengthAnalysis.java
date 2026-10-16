@@ -38,7 +38,7 @@ public final class CloseStrengthAnalysis {
     public static SignalAudit audit(PatternRangeAnalysis.SignalAudit range,BigDecimal targetR,PatternV3Configuration config) {
         var direction=PatternDirection.valueOf(range.direction());var value=CloseStrength.value(range.range(),direction);
         Status status=!range.accepted()?Status.SKIPPED_PATTERN_RANGE:!config.closeStrengthFilterEnabled()?Status.DISABLED:
-                value==null?Status.INVALID_DATA:CloseStrength.accepts(range.range(),direction,config.maxCloseStrength())?Status.ACCEPTED:Status.REJECTED;
+                value==null?Status.INVALID_DATA:(config.closeStrengthMin()==null?CloseStrength.accepts(range.range(),direction,config.maxCloseStrength()):CloseStrength.acceptsMinimum(range.range(),direction,config.closeStrengthMin()))?Status.ACCEPTED:Status.REJECTED;
         String reason=status==Status.SKIPPED_PATTERN_RANGE?"PATTERN_RANGE_FILTER":status==Status.REJECTED?"CLOSE_STRENGTH_FILTER":status==Status.INVALID_DATA?"INVALID_CLOSE_STRENGTH_DATA":null;
         return new SignalAudit(range.symbol(),range.direction(),range.pattern(),targetR,range.signalDate(),range.signalTimestamp(),range.signalIndex(),range.range(),value,config.closeStrengthFilterEnabled(),config.maxCloseStrength(),status,reason);
     }

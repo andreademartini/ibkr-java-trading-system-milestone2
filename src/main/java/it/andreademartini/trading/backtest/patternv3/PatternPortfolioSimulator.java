@@ -10,6 +10,7 @@ import it.andreademartini.trading.risk.PositionSizingService;
 import it.andreademartini.trading.strategy.patternv1.*;
 import static it.andreademartini.trading.backtest.patternv1.PatternV1Result.*;
 import java.math.*;
+import it.andreademartini.trading.backtest.patternv2.ExitFillPolicy;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -25,11 +26,14 @@ public final class PatternPortfolioSimulator {
         this.sizing = new PatternV1PositionSizing(sizing);
         this.detectors = List.copyOf(detectors);
     }
-    public record Simulation(PatternV1Result portfolio, List<String> equityTimestamps, List<PatternRangeAnalysis.SignalAudit> signals,List<CloseStrengthAnalysis.SignalAudit> closeStrengthSignals,List<CapitalSkipAudit> capitalSkipAudits, Map<String,PatternV3CapitalLimits.Audit> capitalLimitsAudits,List<BollingerAtrAnalysis.SignalAudit> bollingerAtrSignals,List<MarketRegimeFilter.SignalAudit> marketRegimeSignals) {}
+    public record Simulation(PatternV1Result portfolio, List<String> equityTimestamps, List<PatternRangeAnalysis.SignalAudit> signals,List<CloseStrengthAnalysis.SignalAudit> closeStrengthSignals,List<CapitalSkipAudit> capitalSkipAudits, Map<String,PatternV3CapitalLimits.Audit> capitalLimitsAudits,List<BollingerAtrAnalysis.SignalAudit> bollingerAtrSignals,List<MarketRegimeFilter.SignalAudit> marketRegimeSignals,List<SignalFilterAudit.Row> filterAudit) {}
     public Simulation run(PatternV3Configuration configuration, Map<String,List<HistoricalBar>> input) {
         return run(configuration,input,UUID.randomUUID().toString());
     }
     Simulation run(PatternV3Configuration configuration,Map<String,List<HistoricalBar>> input,String simulationId) {
+        return run(configuration,input,simulationId,ExitFillPolicy.OPEN_FIRST);
+    }
+    Simulation run(PatternV3Configuration configuration,Map<String,List<HistoricalBar>> input,String simulationId,ExitFillPolicy fillPolicy) {
         configuration.validate(detectors);
         var splitCosts = configuration.splitCosts()==null?new PatternV3SplitCosts(List.of()):configuration.splitCosts();
         var global=configuration.global();
@@ -69,6 +73,8 @@ public final class PatternPortfolioSimulator {
             }
             series.put(symbol, filtered);
         });
+        Map<String,SignalBars> signalSeries=new TreeMap<>();
+        series.forEach((symbol,bars)->signalSeries.put(symbol,SignalBars.of(bars,configuration.signalTimeframe(),warnings)));
         String id = simulationId;
         String datasetId=PatternV3Dataset.capture(input).id();
         List<CapitalSkipAudit> capitalAudits=new ArrayList<>();
@@ -84,6 +90,8 @@ public final class PatternPortfolioSimulator {
         Map<String,BollingerAtr> indicators=new HashMap<>();
         List<MarketRegimeFilter.SignalAudit> regimeAudits=new ArrayList<>();
         Map<String,MarketRegimeIndicators> regimeIndicators=new HashMap<>();
+        List<SignalFilterAudit.Row> filterAudits=new ArrayList<>();
+        Map<String,RelativeVolume> relativeVolumes=new HashMap<>();
         List<Trade> trades = new ArrayList<>();
         Map<String,PatternV3CapitalLimits.Audit> capitalLimitsAudits=new LinkedHashMap<>();
         List<EquityPoint> equityCurve = new ArrayList<>();
@@ -180,18 +188,23 @@ public final class PatternPortfolioSimulator {
                 var bar = series.get(symbol).get(index); lastPrices.put(symbol, bar.getClose());
                 Position p = positions.get(symbol); if (p == null) continue;
                 p.holdingBars++;
-                var exitDecision=PatternV3BarRules.exit(p.plan,bar,p.holdingBars,p.maxHoldingBars,global.sameBarPolicy());
-                boolean stop=exitDecision.stop(),target=exitDecision.target(),exitOnStop=exitDecision.exitOnStop();p.measure(bar,exitOnStop,target&&!exitOnStop);
+                var exitDecision=PatternV3BarRules.exit(p.plan,bar,p.holdingBars,p.maxHoldingBars,global.sameBarPolicy(),fillPolicy);
+                boolean stop=exitDecision.stop(),target=exitDecision.target(),exitOnStop=exitDecision.exitOnStop();p.measure(bar,exitDecision);
                 if(exitDecision.completed()){
                     p.ambiguous=stop&&target;String reason=exitDecision.reason();var exit=exitDecision.price();
                     var gross = pnl(p, exit);
                     var exitFactor=splitCosts.factor(symbol,bar);
                     var exitCommission = PatternV3SplitCosts.commission(commission,exitFactor).charge(p.quantity, exit);
-                    var exitCosts = exitCommission.add(exit.multiply(slippage).divide(bd(100), MATH)
+                    var exitCosts = exitCommission.add(it.andreademartini.trading.backtest.execution.Slippage.perShare(exit,slippage)
                             .add(bd(PatternV3SplitCosts.perShare(bd(global.transactionCostsPerShare()),exitFactor).doubleValue())).multiply(bd(p.quantity)));
                     var costs = p.entryCosts.add(exitCosts); var net = gross.subtract(costs);
                     var resultR = divide(p.isLong() ? exit.subtract(p.plan.entryPrice()) : p.plan.entryPrice().subtract(exit), p.plan.riskPerShare());
-                    var researchR = exitOnStop ? BigDecimal.ONE.negate() : target ? p.plan.signal().targetR() : null;
+                    var researchR = exitDecision.atOpen() ? resultR : exitOnStop ? BigDecimal.ONE.negate() : target ? p.plan.signal().targetR() : null;
+                    if(fillPolicy==ExitFillPolicy.OPEN_FIRST){
+                        event(events,"EXIT_EXECUTION",p.id,p.plan.signal(),day.getKey().toLocalDate(),index,Map.of(
+                            "exitFillPolicy","OPEN_FIRST","atOpen",exitDecision.atOpen(),"exitPrice",exit,
+                            "levelPrice",exitOnStop?p.plan.stopPrice():target?p.plan.takeProfitPrice():bar.getClose()));
+                    }
                     if (p.ambiguous) event(events, "SAME_BAR_AMBIGUITY", p.id, p.plan.signal(), day.getKey().toLocalDate(), index,
                             Map.of("sameBarAmbiguous", true, "resolution", global.sameBarPolicy().name()));
                     event(events, exitOnStop ? "STOP_FILLED" : target ? "TAKE_PROFIT_FILLED" : "TIMEOUT", p.id, p.plan.signal(), day.getKey().toLocalDate(), index,
@@ -209,55 +222,43 @@ public final class PatternPortfolioSimulator {
             }
             for (var p : positions.values()) if (p.quantity <= 0 || p.holdingBars >= p.maxHoldingBars)
                 throw new IllegalStateException("OPEN holding/quantity invariant: " + p.id);
-            if (!risk.isUseLeverage() && cash.signum() < 0) throw new IllegalStateException("Negative cash without leverage");
+            if (fillPolicy!=ExitFillPolicy.OPEN_FIRST && !risk.isUseLeverage() && cash.signum() < 0) throw new IllegalStateException("Negative cash without leverage");
             for (var symbolIndex : day.getValue().entrySet()) {
                 String symbol = symbolIndex.getKey(); int index = symbolIndex.getValue();
-                var indicator=global.timeframe()==BarInterval.DAILY?indicators.computeIfAbsent(symbol,ignored->new BollingerAtr(configuration)).onBar(series.get(symbol).get(index)):new BollingerAtr.Value(null,null,null,null);
-                var regimeValue=global.timeframe()==BarInterval.DAILY?regimeIndicators.computeIfAbsent(symbol,ignored->new MarketRegimeIndicators(configuration,configuration.marketRegimeFilterAdxPeriod())).onBar(series.get(symbol).get(index)):null;
-                for (var signal : strategy.onClosedBar(symbol, series.get(symbol), index)) {
+                var view=signalSeries.get(symbol);int signalIndex=view.atDailyIndex(index);
+                if(signalIndex<0)continue;
+                var signalHistory=view.bars();
+                var indicator=indicators.computeIfAbsent(symbol,ignored->new BollingerAtr(configuration)).onBar(signalHistory.get(signalIndex));
+                var regimeValue=regimeIndicators.computeIfAbsent(symbol,ignored->new MarketRegimeIndicators(configuration,configuration.marketRegimeFilterAdxPeriod())).onBar(signalHistory.get(signalIndex));
+                var volume=relativeVolumes.computeIfAbsent(symbol,ignored->new RelativeVolume(configuration.rvolPeriod(),configuration.rvolBasis())).onBar(signalHistory.get(signalIndex));
+                for (var sourceSignal : strategy.onClosedBar(symbol, signalHistory, signalIndex)) {
+                    var signal=configuration.signalTimeframe()==SignalTimeframe.DAILY?sourceSignal:view.toDaily(sourceSignal);
                     signalEquities.put(signalId(datasetId,signal,series),markedEquity(cash,positions,lastPrices));
                     event(events, "PATTERN_DETECTED", null, signal, day.getKey().toLocalDate(), index,
                             Map.of("patternDate", day.getKey().toLocalDate(), "patternLow", signal.patternLow(), "patternHigh", signal.patternHigh(),
                                     "patternClose", signal.patternClose(), "configuredTargetR", signal.targetR(), "patternStartIndex", signal.detection().patternStartBarIndex()));
-                    var regimeAudit=MarketRegimeFilter.audit(signal,regimeValue,configuration);
-                    regimeAudits.add(regimeAudit);
-                    if(!regimeAudit.accepted()) {
-                        event(events,regimeAudit.rejectionReason(),null,signal,day.getKey().toLocalDate(),index,Map.of("rejectReason",regimeAudit.rejectionReason(),"filterThreshold",configuration.marketRegimeFilterAdxThreshold()));
+                    var regimeAudit=MarketRegimeFilter.audit(signal,regimeValue,configuration);regimeAudits.add(regimeAudit);
+                    var range=new PatternRange(signal.patternHigh(),signal.patternLow(),signal.patternClose());
+                    boolean accepted=!configuration.patternRangeFilterEnabled()||SignalFilterAudit.rangeWithin(range,configuration);
+                    var rangeAudit=new PatternRangeAnalysis.SignalAudit(symbol,signal.detection().direction().name(),signal.detection().patternType().name(),signal.detection().signalDate(),series.get(symbol).get(index).timestamp().toString(),index,range,configuration.patternRangeFilterEnabled(),configuration.rangeMinimum(),accepted,accepted?null:"PATTERN_RANGE_FILTER");
+                    var closeAudit=CloseStrengthAnalysis.audit(rangeAudit,signal.targetR(),configuration);
+                    var independentBB=BollingerAtrAnalysis.audit(sourceSignal,signalHistory,indicator,configuration,true);
+                    var row=SignalFilterAudit.evaluate(signalId(datasetId,signal,series),signal,configuration,volume,regimeAudit,independentBB);filterAudits.add(row);
+                    var bollingerAudit=BollingerAtrAnalysis.audit(sourceSignal,signalHistory,indicator,configuration,accepted&&closeAudit.status()!=CloseStrengthAnalysis.Status.REJECTED&&closeAudit.status()!=CloseStrengthAnalysis.Status.INVALID_DATA);
+                    if(configuration.signalTimeframe()==SignalTimeframe.WEEKLY)bollingerAudit=new BollingerAtrAnalysis.SignalAudit(bollingerAudit.symbol(),bollingerAudit.direction(),bollingerAudit.pattern(),bollingerAudit.targetR(),bollingerAudit.signalDate(),index,bollingerAudit.indicators(),bollingerAudit.patternHigh(),bollingerAudit.patternLow(),bollingerAudit.extremeTimestamp(),bollingerAudit.extremePrice(),bollingerAudit.distanceAtr(),bollingerAudit.status(),bollingerAudit.rejectReason(),bollingerAudit.diagnostic());
+                    // Legacy reports retain their prior ADX population; the new raw audit contains every pattern.
+                    if(regimeAudit.accepted()){signalAudits.add(rangeAudit);closeAudits.add(closeAudit);bollingerAudits.add(bollingerAudit);}
+                    if(!row.finalSignalAccepted()){
+                        String reason=row.rejectionReasons().getFirst();
+                        if(reason.equals(regimeAudit.rejectionReason()))event(events,reason,null,signal,day.getKey().toLocalDate(),index,Map.of("rejectReason",reason,"filterThreshold",configuration.marketRegimeFilterAdxThreshold()));
+                        else {
+                            var detail=new LinkedHashMap<String,Object>();detail.put("rejectReason",reason);detail.put("rejectionReasons",row.rejectionReasons());detail.put("signalDate",signal.detection().signalDate());detail.put("signalTimestamp",series.get(symbol).get(index).timestamp().toString());
+                            detail.put("patternHigh",range.high());detail.put("patternLow",range.low());detail.put("patternClose",range.close());detail.put("patternRange",range.range());detail.put("patternRangePct",range.percent());detail.put("minimumPatternRangePct",configuration.rangeMinimum());
+                            if(row.closeStrength()!=null)detail.put("closeStrength",row.closeStrength());detail.put("maxCloseStrength",configuration.maxCloseStrength());detail.put("closeStrengthStatus",closeAudit.status().name());if(row.relativeVolumeIssue()!=null)detail.put("relativeVolumeIssue",row.relativeVolumeIssue());
+                            String type=reason.equals("PATTERN_RANGE_FILTER")?"REJECTED_PATTERN_RANGE":reason.equals("CLOSE_STRENGTH_FILTER")?"REJECTED_CLOSE_STRENGTH":reason.equals("INVALID_CLOSE_STRENGTH_DATA")?"INVALID_CLOSE_STRENGTH_DATA":reason.startsWith("RELATIVE_VOLUME")?"REJECTED_RELATIVE_VOLUME":reason;
+                            event(events,type,null,signal,day.getKey().toLocalDate(),index,detail);
+                        }
                         continue;
-                    }
-                    var range = new PatternRange(signal.patternHigh(),signal.patternLow(),signal.patternClose());
-                    boolean accepted = !configuration.patternRangeFilterEnabled() || range.reaches(configuration.minimumPatternRangePct());
-                    signalAudits.add(new PatternRangeAnalysis.SignalAudit(symbol,signal.detection().direction().name(),signal.detection().patternType().name(),
-                            signal.detection().signalDate(),series.get(symbol).get(index).timestamp().toString(),index,range,
-                            configuration.patternRangeFilterEnabled(),configuration.minimumPatternRangePct(),accepted,accepted?null:"PATTERN_RANGE_FILTER"));
-                    var closeAudit=CloseStrengthAnalysis.audit(signalAudits.getLast(),signal.targetR(),configuration);
-                    closeAudits.add(closeAudit);
-                    var bollingerAudit=BollingerAtrAnalysis.audit(signal,series.get(symbol),indicator,configuration,accepted&&closeAudit.status()!=CloseStrengthAnalysis.Status.REJECTED&&closeAudit.status()!=CloseStrengthAnalysis.Status.INVALID_DATA);
-                    bollingerAudits.add(bollingerAudit);
-                    if (!accepted) {
-                        Map<String,Object> detail = new LinkedHashMap<>();
-                        detail.put("rejectReason","PATTERN_RANGE_FILTER");detail.put("signalDate",signal.detection().signalDate());
-                        detail.put("signalTimestamp",series.get(symbol).get(index).timestamp().toString());
-                        detail.put("patternHigh",range.high());detail.put("patternLow",range.low());detail.put("patternClose",range.close());
-                        detail.put("patternRangePct",range.percent());detail.put("minimumPatternRangePct",configuration.minimumPatternRangePct());
-                        event(events,"REJECTED_PATTERN_RANGE",null,signal,day.getKey().toLocalDate(),index,detail);
-                        continue;
-                    }
-                    if(closeAudit.status()==CloseStrengthAnalysis.Status.REJECTED||closeAudit.status()==CloseStrengthAnalysis.Status.INVALID_DATA) {
-                        Map<String,Object> detail=new LinkedHashMap<>();
-                        detail.put("rejectReason",closeAudit.rejectReason());detail.put("signalTimestamp",closeAudit.signalTimestamp());
-                        detail.put("patternHigh",range.high());detail.put("patternLow",range.low());detail.put("patternClose",range.close());detail.put("patternRange",range.range());
-                        if(closeAudit.closeStrength()!=null)detail.put("closeStrength",closeAudit.closeStrength());
-                        detail.put("maxCloseStrength",configuration.maxCloseStrength());detail.put("closeStrengthStatus",closeAudit.status().name());
-                        event(events,closeAudit.status()==CloseStrengthAnalysis.Status.REJECTED?"REJECTED_CLOSE_STRENGTH":"INVALID_CLOSE_STRENGTH_DATA",null,signal,day.getKey().toLocalDate(),index,detail);
-                        continue;
-                    }
-                    if(bollingerAudit.rejectReason()!=null) {
-                        Map<String,Object> detail=new LinkedHashMap<>();detail.put("rejectReason",bollingerAudit.rejectReason());detail.put("maxDistanceAtr",configuration.maxBollingerDistanceAtr());
-                        detail.put("patternHigh",signal.patternHigh());detail.put("patternLow",signal.patternLow());detail.put("extremeTimestamp",bollingerAudit.extremeTimestamp());detail.put("extremePrice",bollingerAudit.extremePrice());
-                        if(bollingerAudit.distanceAtr()!=null)detail.put("distanceAtr",bollingerAudit.distanceAtr());if(bollingerAudit.diagnostic()!=null)detail.put("diagnostic",bollingerAudit.diagnostic());
-                        if(indicator.middle()!=null){detail.put("bollingerMiddle",indicator.middle());detail.put("bollingerUpper",indicator.upper());detail.put("bollingerLower",indicator.lower());}if(indicator.atr()!=null)detail.put("atr",indicator.atr());
-                        event(events,bollingerAudit.rejectReason(),null,signal,day.getKey().toLocalDate(),index,detail);continue;
                     }
                     if (positions.containsKey(symbol)) event(events, "SIGNAL_SKIPPED_POSITION_ALREADY_OPEN", null, signal, day.getKey().toLocalDate(), index, Map.of());
                     else {
@@ -283,7 +284,7 @@ public final class PatternPortfolioSimulator {
         }
         trades.sort(Comparator.comparingInt(Trade::number));
         BigDecimal reconciled = initial;
-        for (var t : trades) { PatternV1PortfolioEngine.validateTrade(t, configuration.symbols().stream().filter(s->s.symbol().equals(t.symbol())).findFirst().orElseThrow().holding(global)); reconciled = reconciled.add(t.closed() ? t.netPnl() : t.netUnrealizedPnl()); }
+        for (var t : trades) { PatternV1PortfolioEngine.validateTrade(t, configuration.symbols().stream().filter(s->s.symbol().equals(t.symbol())).findFirst().orElseThrow().holding(global),fillPolicy==ExitFillPolicy.OPEN_FIRST); reconciled = reconciled.add(t.closed() ? t.netPnl() : t.netUnrealizedPnl()); }
         if (equity.compareTo(reconciled) != 0) throw new IllegalStateException("Equity / realized + unrealized reconciliation failed");
         var dates=new TreeSet<LocalDate>();timeline.keySet().forEach(t->dates.add(t.toLocalDate()));
         var symbolResults = new ArrayList<SymbolResult>();
@@ -331,7 +332,7 @@ public final class PatternPortfolioSimulator {
                 maximumDrawdown, maximumDrawdownPercent, averageExposure / 100, positions.size(), summary, directions,
                 List.copyOf(symbolResults), List.copyOf(trades), List.copyOf(equityCurve), List.copyOf(events), Map.copyOf(configurations), Map.copyOf(chartSeries),
                 settings, List.copyOf(warnings), 2, cash, availableCash(cash, positions), finalLong, finalShort, finalLong.subtract(finalShort),
-                averageExposure, timeline.isEmpty() ? 0 : daysInMarket * 100.0 / timeline.size()), timeline.keySet().stream().map(t->t.toInstant(java.time.ZoneOffset.UTC).toString()).toList(), List.copyOf(signalAudits),List.copyOf(closeAudits),List.copyOf(capitalAudits),Map.copyOf(capitalLimitsAudits),List.copyOf(bollingerAudits),List.copyOf(regimeAudits));
+                averageExposure, timeline.isEmpty() ? 0 : daysInMarket * 100.0 / timeline.size()), timeline.keySet().stream().map(t->t.toInstant(java.time.ZoneOffset.UTC).toString()).toList(), List.copyOf(signalAudits),List.copyOf(closeAudits),List.copyOf(capitalAudits),Map.copyOf(capitalLimitsAudits),List.copyOf(bollingerAudits),List.copyOf(regimeAudits),SignalFilterAudit.complete(filterAudits,trades,events));
     }
     private static double attributionDrawdown(List<Trade> trades, Map<String, List<HistoricalBar>> series, Set<LocalDate> dates) {
         Map<String, NavigableMap<LocalDate, BigDecimal>> closes = new HashMap<>();
@@ -421,9 +422,9 @@ public final class PatternPortfolioSimulator {
         boolean isLong() { return plan.signal().detection().direction() == PatternDirection.LONG; }
         BigDecimal favorable(BigDecimal price) { return (isLong() ? price.subtract(plan.entryPrice()) : plan.entryPrice().subtract(price)).max(BigDecimal.ZERO); }
         BigDecimal adverse(BigDecimal price) { return (isLong() ? plan.entryPrice().subtract(price) : price.subtract(plan.entryPrice())).max(BigDecimal.ZERO); }
-        void measure(HistoricalBar bar, boolean stop, boolean target) {
+        void measure(HistoricalBar bar, PatternV3BarRules.Exit exit) {
             var values=new PatternV3BarRules.Excursions();values.mfe=mfe;values.mae=mae;values.rawMfe=rawMfe;values.rawMae=rawMae;
-            values.measure(plan,bar,stop,target);mfe=values.mfe;mae=values.mae;rawMfe=values.rawMfe;rawMae=values.rawMae;
+            values.measure(plan,bar,exit);mfe=values.mfe;mae=values.mae;rawMfe=values.rawMfe;rawMae=values.rawMae;
         }
     }
 }

@@ -1,0 +1,85 @@
+{
+  "AAPL" : [ {
+    "dateTime" : "2020-08-28T00:00:00",
+    "open" : 122.340000,
+    "high" : 122.760000,
+    "low" : 120.946000,
+    "close" : 121.171000,
+    "volume" : 193260092,
+    "interval" : "DAILY",
+    "provider" : "STOOQ",
+    "priceAdjustment" : "RAW"
+  }, {
+    "dateTime" : "2020-08-31T00:00:00",
+    "open" : 123.860000,
+    "high" : 127.167000,
+    "low" : 122.330000,
+    "close" : 125.283000,
+    "volume" : 232475310,
+    "interval" : "DAILY",
+    "provider" : "STOOQ",
+    "priceAdjustment" : "RAW"
+  } ],
+  "NVDA" : [ {
+    "dateTime" : "2021-07-19T00:00:00",
+    "open" : 17.880300,
+    "high" : 19.005500,
+    "low" : 17.831400,
+    "close" : 18.744100,
+    "volume" : 750528743,
+    "interval" : "DAILY",
+    "provider" : "STOOQ",
+    "priceAdjustment" : "RAW"
+  }, {
+    "dateTime" : "2021-07-20T00:00:00",
+    "open" : 18.694100,
+    "high" : 18.802000,
+    "low" : 18.128900,
+    "close" : 18.576300,
+    "volume" : 435539593,
+    "interval" : "DAILY",
+    "provider" : "STOOQ",
+    "priceAdjustment" : "RAW"
+  }, {
+    "dateTime" : "2024-06-07T00:00:00",
+    "open" : 119.742000,
+    "high" : 121.664000,
+    "low" : 117.994000,
+    "close" : 120.860000,
+    "volume" : 412483362,
+    "interval" : "DAILY",
+    "provider" : "STOOQ",
+    "priceAdjustment" : "RAW"
+  }, {
+    "dateTime" : "2024-06-10T00:00:00",
+    "open" : 120.342000,
+    "high" : 123.071000,
+    "low" : 116.982000,
+    "close" : 121.762000,
+    "volume" : 314236974,
+    "interval" : "DAILY",
+    "provider" : "STOOQ",
+    "priceAdjustment" : "RAW"
+  } ],
+  "TSLA" : [ {
+    "dateTime" : "2022-08-24T00:00:00",
+    "open" : 297.563000,
+    "high" : 303.647000,
+    "low" : 296.500000,
+    "close" : 297.097000,
+    "volume" : 57259716,
+    "interval" : "DAILY",
+    "provider" : "STOOQ",
+    "priceAdjustment" : "RAW"
+  }, {
+    "dateTime" : "2022-08-25T00:00:00",
+    "open" : 302.360000,
+    "high" : 302.960000,
+    "low" : 291.600000,
+    "close" : 296.070000,
+    "volume" : 53230013,
+    "interval" : "DAILY",
+    "provider" : "STOOQ",
+    "priceAdjustment" : "RAW"
+  } ]
+}

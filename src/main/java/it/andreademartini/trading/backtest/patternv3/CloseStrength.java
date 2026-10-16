@@ -17,6 +17,9 @@ public final class CloseStrength {
     public static BigDecimal value(PatternRange pattern,PatternDirection direction) {
         return valid(pattern)?numerator(pattern,direction).divide(pattern.range(),MathContext.DECIMAL128):null;
     }
+    public static boolean acceptsMinimum(PatternRange pattern,PatternDirection direction,BigDecimal minimum){
+        return valid(pattern)&&numerator(pattern,direction).compareTo(minimum.multiply(pattern.range()))>=0;
+    }
     public static boolean accepts(PatternRange pattern,PatternDirection direction,BigDecimal maximum) {
         return valid(pattern) && numerator(pattern,direction).compareTo(maximum.multiply(pattern.range()))<=0;
     }

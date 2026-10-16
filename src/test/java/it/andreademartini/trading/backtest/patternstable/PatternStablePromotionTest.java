@@ -22,7 +22,7 @@ class PatternStablePromotionTest {
         var store=new PatternStableStore();var references=new PatternV2Store();var service=new PatternStableService(store,references,configuration(),trading);
         byte[] originalVersion=Files.readAllBytes(Path.of("data/pattern-v1-stable/versions/2.0.json"));
         byte[] currentV2=Files.readAllBytes(Path.of("data/pattern-v2/current.json"));
-        var version=service.promote();
+        var version=service.promote("2.1");
         assertEquals("2.1",version.strategyVersion());assertEquals(13,version.configuration().global().maxHoldingBars());
         assertEquals(version,store.read("versions/2.1.json",PatternStableService.Version.class));
         assertArrayEquals(originalVersion,Files.readAllBytes(Path.of("data/pattern-v1-stable/versions/2.0.json")));

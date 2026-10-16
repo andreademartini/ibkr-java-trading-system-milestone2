@@ -14,7 +14,14 @@ import java.util.*;
 public record PatternV2Configuration(String name, Global global, List<Symbol> symbols, PatternV2SplitCosts splitCosts,
         boolean patternRangeFilterEnabled, BigDecimal minimumPatternRangePct,
         boolean closeStrengthFilterEnabled, BigDecimal maxCloseStrength, boolean capitalSkipShadowAnalysisEnabled,
-        boolean bollingerAtrFilterEnabled,Integer bollingerPeriod,BigDecimal bollingerStdDev,Integer atrPeriod,BigDecimal maxBollingerDistanceAtr) {
+        boolean bollingerAtrFilterEnabled,Integer bollingerPeriod,BigDecimal bollingerStdDev,Integer atrPeriod,BigDecimal maxBollingerDistanceAtr,
+        @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL) ExitFillPolicy exitFillPolicy) {
+    public PatternV2Configuration(String name, Global global, List<Symbol> symbols, PatternV2SplitCosts splitCosts, boolean patternRangeFilterEnabled, BigDecimal minimumPatternRangePct, boolean closeStrengthFilterEnabled, BigDecimal maxCloseStrength, boolean capitalSkipShadowAnalysisEnabled, boolean bollingerAtrFilterEnabled, Integer bollingerPeriod, BigDecimal bollingerStdDev, Integer atrPeriod, BigDecimal maxBollingerDistanceAtr) {
+        this(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,null);
+    }
+    public PatternV2Configuration withExitFillPolicy(ExitFillPolicy value) {
+        return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,value);
+    }
     public PatternV2Configuration(String name,Global global,List<Symbol> symbols,PatternV2SplitCosts splitCosts,boolean rangeEnabled,BigDecimal minimum,boolean closeEnabled,BigDecimal maximum,boolean shadowEnabled) {
         this(name,global,symbols,splitCosts,rangeEnabled,minimum,closeEnabled,maximum,shadowEnabled,false,null,null,null,null);
     }
@@ -82,22 +89,22 @@ public record PatternV2Configuration(String name, Global global, List<Symbol> sy
         bollingerStdDev=bollingerStdDev==null?new BigDecimal("2.0"):bollingerStdDev;maxBollingerDistanceAtr=maxBollingerDistanceAtr==null?new BigDecimal("0.50"):maxBollingerDistanceAtr;
         maxCloseStrength = maxCloseStrength == null ? new BigDecimal("0.80") : maxCloseStrength;
     }
-    public PatternV2Configuration withGlobal(Global value) { return new PatternV2Configuration(name,value,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr); }
-    public PatternV2Configuration withSymbols(List<Symbol> value) { return new PatternV2Configuration(name,global,value,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr); }
-    public PatternV2Configuration withSplitCosts(PatternV2SplitCosts value) { return new PatternV2Configuration(name,global,symbols,value,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr); }
+    public PatternV2Configuration withGlobal(Global value) { return new PatternV2Configuration(name,value,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,exitFillPolicy); }
+    public PatternV2Configuration withSymbols(List<Symbol> value) { return new PatternV2Configuration(name,global,value,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,exitFillPolicy); }
+    public PatternV2Configuration withSplitCosts(PatternV2SplitCosts value) { return new PatternV2Configuration(name,global,symbols,value,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,exitFillPolicy); }
     public PatternV2Configuration forNewRun() { return splitCosts==null?withSplitCosts(PatternV2SplitCosts.defaults()):this; }
     public PatternV2Configuration withRangeFilter(boolean enabled, BigDecimal minimum) {
-        return new PatternV2Configuration(name,global,symbols,splitCosts,enabled,minimum,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr);
+        return new PatternV2Configuration(name,global,symbols,splitCosts,enabled,minimum,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,exitFillPolicy);
     }
     public PatternV2Configuration withName(String value) {
-        return new PatternV2Configuration(value,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr);
+        return new PatternV2Configuration(value,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,exitFillPolicy);
     }
     public PatternV2Configuration withCloseStrengthFilter(boolean enabled,BigDecimal maximum) {
-        return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,enabled,maximum,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr);
+        return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,enabled,maximum,capitalSkipShadowAnalysisEnabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,exitFillPolicy);
     }
-    public PatternV2Configuration withCapitalSkipShadowAnalysis(boolean enabled){return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,enabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr);}
+    public PatternV2Configuration withCapitalSkipShadowAnalysis(boolean enabled){return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,enabled,bollingerAtrFilterEnabled,bollingerPeriod,bollingerStdDev,atrPeriod,maxBollingerDistanceAtr,exitFillPolicy);}
     public PatternV2Configuration withBollingerAtr(boolean enabled,int period,BigDecimal stdDev,int atr,BigDecimal distance) {
-        return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,enabled,period,stdDev,atr,distance);
+        return new PatternV2Configuration(name,global,symbols,splitCosts,patternRangeFilterEnabled,minimumPatternRangePct,closeStrengthFilterEnabled,maxCloseStrength,capitalSkipShadowAnalysisEnabled,enabled,period,stdDev,atr,distance,exitFillPolicy);
     }
     public void validate(List<PatternDetector> detectors) {
         if(bollingerPeriod<2||atrPeriod<1||bollingerStdDev.signum()<=0||maxBollingerDistanceAtr.signum()<0)throw new IllegalArgumentException("Invalid Bollinger/ATR periods, multiplier or distance");

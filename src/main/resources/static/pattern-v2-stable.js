@@ -1,7 +1,7 @@
 (function(){'use strict';
 const $=id=>document.getElementById(id),base='/api/backtest/pattern-v2-stable';let chart,tradeChart,activeRun,selectedTrade,shownTrades=[],tradeRows=[],ready=false,requestSequence=0;
 const n=v=>v==null?'N/D':typeof v==='number'?v.toLocaleString('it-IT',{maximumFractionDigits:3}):String(v);
-async function api(path,method='GET'){const signal=method==='GET'&&typeof AbortSignal!=='undefined'?AbortSignal.timeout(15000):undefined;let response;try{response=await fetch(path,signal?{method,signal}:{method});}catch(error){throw Error(signal?.aborted?'Timeout nel caricamento: '+path+'. Verifica il backend e ricarica la pagina.':'Backend non raggiungibile: '+path+'. '+error.message);}if(!response.ok){let data={};try{data=await response.json();}catch{}throw Error(data.message||data.detail||'HTTP '+response.status);}return response.json();}
+async function api(path,method='GET',body){const signal=method==='GET'&&typeof AbortSignal!=='undefined'?AbortSignal.timeout(15000):undefined;let response;try{response=await fetch(path,{method,...(signal?{signal}:{}),...(body===undefined?{}:{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})});}catch(error){throw Error(signal?.aborted?'Timeout nel caricamento: '+path+'. Verifica il backend e ricarica la pagina.':'Backend non raggiungibile: '+path+'. '+error.message);}if(!response.ok){let data={};try{data=await response.json();}catch{}throw Error(data.message||data.detail||'HTTP '+response.status);}return response.json();}
 function table(id,cols,rows,onSelect){
 const host=$(id);host.replaceChildren();const t=document.createElement('table'),header=document.createElement('tr'),nodes=[];
 for(const [title] of cols){const c=document.createElement('th');c.textContent=title;header.append(c);}t.append(header);
@@ -11,12 +11,12 @@ if(onSelect){row.tabIndex=0;row.onclick=()=>onSelect(r);row.onkeydown=e=>{if(e.k
 const valueAt=(row,path)=>path.split('.').reduce((value,key)=>value?.[key],row);
 const columns=definitions=>definitions.map(([label,path,format])=>[label,row=>format?format(valueAt(row,path)):valueAt(row,path)]);
 async function action(f){try{$('stable-v2-run').disabled=true;await f();}catch(e){$('stable-v2-status').textContent=e.message;}finally{$('stable-v2-run').disabled=!ready;}}
-function show(run,legacy=false){activeRun=run;const p=run.portfolio,m=p.summary;$('stable-v2-status').textContent='Run '+run.runId+' caricata';$('stable-v2-used').textContent=(legacy?'STORICO RESEARCH V2':'PATTERN_V2 STABLE 1.0')+' | '+p.actualStartDate+' → '+p.actualEndDate+' | Market Regime Filter '+(run.configuration.marketRegimeFilterEnabled?'ON':'OFF');$('stable-v2-snapshot').textContent=JSON.stringify(run.configuration,null,2);
+function show(run,legacy=false){activeRun=run;const p=run.portfolio,m=p.summary;$('stable-v2-status').textContent='Run '+run.runId+' caricata';$('stable-v2-used').textContent=(legacy?'STORICO RESEARCH V2':'PATTERN_V2 STABLE '+(run.strategyVersion||'N/D'))+' | '+p.actualStartDate+' → '+p.actualEndDate+' | Market Regime Filter '+(run.configuration.marketRegimeFilterEnabled?'ON':'OFF');$('stable-v2-snapshot').textContent=JSON.stringify(run.configuration,null,2);
 const g=run.configuration.global,fees=g.commission||{};
 $('stable-v2-coverage').textContent='Richiesto '+p.startDate+' → '+p.endDate+'. Copertura effettiva '+p.actualStartDate+' ? '+p.actualEndDate+'. CAGR sulla copertura effettiva.';
 const orderLimit=g.maxOrderValueMode==='CURRENT_EQUITY_PERCENT'?n(g.maxOrderValuePercent)+'% equity (limite dinamico)':n(g.maxOrderValue);
 const feeDescription=fees.model==='IBKR_US_FIXED'?'IBKR_US_FIXED: '+n(fees.perShare)+' USD/azione, minimo '+n(fees.minimumPerOrder)+' USD, massimo '+n(fees.maximumPercentOrderValue)+'% del valore ordine':'Importo fisso: '+n(fees.fixedPerOrder)+' USD/ordine';
-$('stable-v2-applied-limits').textContent='Parametri applicati a questo risultato: maxOrderValue = '+orderLimit+'; maxQuantity = '+n(g.maxQuantity)+'; commissioni '+feeDescription+'; slippage '+n(g.slippagePercentPerSide)+'% per esecuzione. Configurazione congelata: nuova versione richiesta per modifiche.';
+$('stable-v2-applied-limits').textContent='Parametri applicati a questo risultato: maxOrderValue = '+orderLimit+'; Risk Percent = '+n(g.riskPercent)+'%; maxQuantity = '+n(g.maxQuantity)+'; commissioni '+feeDescription+'; slippage '+n(g.slippagePercentPerSide)+'% per esecuzione. Rischio salvato nella run; gli altri parametri restano congelati.';
 const metrics=PatternV1Metrics.summary(p).map(metric=>({...metric,tooltip:metric.key==='openTrades'?'Posizioni ancora aperte alla fine dei dati disponibili.':metric.key==='timeouts'?'Trade chiusi al close della holding bar '+g.maxHoldingBars+'; la barra di ingresso conta come 1.':metric.key==='skippedPositionOpen'?'Segnali saltati per una posizione gia aperta sullo stesso simbolo e strategia.':metric.tooltip}));
 metrics.push(...[['Commissioni',run.costs?.commissions],['Slippage',run.costs?.slippage],['Transaction Costs',run.costs?.transactionCosts]].map(([label,value])=>({label,value,tooltip:'Costo contabilizzato nella run selezionata.'})));
 const host=$('stable-v2-metrics');host.replaceChildren();
@@ -65,10 +65,10 @@ $('market-regime-filter-analysis').hidden=true;$('market-regime-analysis').hidde
 $('stable-v2-export').hidden=true;$('stable-v2-export').href='';
 activeRun=null;shownTrades=[];tradeRows=[];clearTradeSelection();chart?.remove();chart=null;
 }
-async function loadRun(path,method='GET',legacy=false){
+async function loadRun(path,method='GET',legacy=false,body){
 const sequence=++requestSequence;resetResults();$('stable-v2-run').disabled=true;
 $('stable-v2-status').textContent=method==='POST'?'Backtest PATTERN V2 in esecuzione...':'Caricamento run selezionata...';
-try{const run=await api(path,method);if(sequence!==requestSequence)return;show(run,legacy);if(method==='POST')histories();}
+try{const run=await api(path,method,body);if(sequence!==requestSequence)return;show(run,legacy);if(method==='POST')histories();}
 catch(error){if(sequence===requestSequence){resetResults();$('stable-v2-status').textContent=error.message;}}
 finally{if(sequence===requestSequence)$('stable-v2-run').disabled=!ready;}
 }
@@ -109,6 +109,7 @@ for(const [id,delta] of [['previous',-1],['next',1]])$('stable-v2-'+id).onclick=
 function renderConfiguration(version){
 const c=version.configuration,g=c.global,fees=g.commission||{};
 $('stable-v2-config').textContent=JSON.stringify(version,null,2);
+$('stable-v2-risk-percent').value=g.riskPercent;
 const values={'strategy':'PATTERN_V2','start':g.startDate,'end':g.endDate,'capital':g.initialCapital,'max-order-value':g.maxOrderValueMode==='CURRENT_EQUITY_PERCENT'?null:g.maxOrderValue,'max-quantity':g.maxQuantity,'commission-model':fees.model,'commission-per-share':fees.perShare,'commission-minimum':fees.minimumPerOrder,'commission-maximum':fees.maximumPercentOrderValue,'commission':fees.fixedPerOrder,'slippage':g.slippagePercentPerSide,'adx-period':c.marketRegimeFilterAdxPeriod??14,'adx-threshold':c.marketRegimeFilterAdxThreshold??25,'adx-mode':c.marketRegimeFilterMode??'EXCLUDE_WITH_TREND'};
 for(const [id,value] of Object.entries(values)){const field=$('stable-v2-'+id);field.value=value??'';field.disabled=true;}
 $('stable-v2-max-order-value').placeholder=g.maxOrderValuePercent+'% equity';
@@ -116,18 +117,18 @@ $('stable-v2-adx-enabled').checked=c.marketRegimeFilterEnabled===true;
 $('stable-v2-adx-enabled').disabled=true;
 const rows=c.symbols.map(s=>({...s}));
 table('stable-v2-mapping',[['Symbol',s=>s.symbol],['LONG Pattern',s=>s.longConfig.enabled?s.longConfig.pattern:'DISABLED'],['LONG Target R',s=>s.longConfig.targetR],['SHORT Pattern',s=>s.shortConfig.enabled?s.shortConfig.pattern:'DISABLED'],['SHORT Target R',s=>s.shortConfig.targetR],['Enabled',s=>s.enabled?'Si':'No']],rows);
-$('stable-v2-rules').textContent=g.timeframe+' - '+g.entryMode+' - '+g.stopMode+' - buffer '+g.stopBufferTicks+' - '+g.sameBarPolicy+' - '+g.maxHoldingBars+' barre. Rischio '+g.riskPercent+'%; ordine '+g.maxOrderValuePercent+'% equity; leva '+(g.useLeverage?'ON':'OFF')+'. Market Regime Filter '+(c.marketRegimeFilterEnabled?'ON':'OFF')+'. Costi e split della run originale.';
+$('stable-v2-rules').textContent=g.timeframe+' - '+g.entryMode+' - '+g.stopMode+' - buffer '+g.stopBufferTicks+' - '+g.sameBarPolicy+' - '+g.maxHoldingBars+' barre. Rischio '+g.riskPercent+'%; ordine '+g.maxOrderValuePercent+'% equity; leva '+(g.useLeverage?'ON':'OFF')+'. Market Regime Filter '+(c.marketRegimeFilterEnabled?'ON':'OFF')+'. Costi e split della run originale. Uscite: '+(c.exitFillPolicy||'LEVEL_ONLY')+'; gap oltre stop/target eseguiti all’apertura con OPEN_FIRST.';
 }
 async function histories(){
 const results=await Promise.allSettled([['stable-v2-history',base+'/runs',false],['stable-v2-legacy','/api/backtest/pattern-v2/runs',true]].map(async([id,path,old])=>{
 const rows=await api(path),select=$(id);select.replaceChildren(new Option('Seleziona',''));
-for(const r of rows)select.add(new Option((r.timestamp||'')+' | '+(r.strategyVersion||r.configurationName||'Research')+' | '+r.runId,r.runId));
+for(const r of rows)select.add(new Option((r.timestamp||'')+' | '+(r.strategyVersion||r.configurationName||'Research')+' | rischio '+(r.riskPercent??'N/D')+'% | '+r.runId,r.runId));
 select.onchange=()=>{if(select.value)return loadRun((old?'/api/backtest/pattern-v2':base)+'/runs/'+encodeURIComponent(select.value),'GET',old);};
 }));
 const errors=results.filter(r=>r.status==='rejected');$('stable-v2-history-status').textContent=errors.length?'Configurazione pronta. Run History non disponibile: '+errors.map(r=>r.reason.message).join('; '):'';
 }
 $('stable-v2-form').onsubmit=event=>event.preventDefault();
-$('stable-v2-run').onclick=()=>loadRun(base+'/run','POST');
+$('stable-v2-run').onclick=()=>{const riskPercent=Number($('stable-v2-risk-percent').value);if(!Number.isFinite(riskPercent)||riskPercent<=0||riskPercent>100){$('stable-v2-status').textContent='Risk Percent % deve essere maggiore di 0 e non superiore a 100';return;}return loadRun(base+'/run','POST',false,{riskPercent});};
 resetResults();
 action(async()=>{const version=await api(base+'/configuration');renderConfiguration(version);ready=true;$('stable-v2-status').textContent='Configurazione congelata pronta. Il backtest non trasmette ordini.';histories();});
 })();

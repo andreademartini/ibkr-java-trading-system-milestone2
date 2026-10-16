@@ -27,8 +27,8 @@ public final class StableSimulation {
             var exitFactor=t.closed()?config.splitCosts().factor(t.symbol(),exitBar):null;
             var commission=PatternV2SplitCosts.commission(fee,entryFactor).charge(t.quantity(),t.entryPrice())
                     .add(t.closed()?PatternV2SplitCosts.commission(fee,exitFactor).charge(t.quantity(),t.exitPrice()):BigDecimal.ZERO);
-            var entrySlip=t.entryPrice().multiply(slipPercent).divide(BigDecimal.valueOf(100),java.math.MathContext.DECIMAL64);
-            var exitSlip=t.closed()?t.exitPrice().multiply(slipPercent).divide(BigDecimal.valueOf(100),java.math.MathContext.DECIMAL64):BigDecimal.ZERO;
+            var entrySlip=it.andreademartini.trading.backtest.execution.Slippage.perShare(t.entryPrice(),slipPercent);
+            var exitSlip=t.closed()?it.andreademartini.trading.backtest.execution.Slippage.perShare(t.exitPrice(),slipPercent):BigDecimal.ZERO;
             var slipCost=entrySlip.add(exitSlip).multiply(q);
             var extra=BigDecimal.valueOf(PatternV2SplitCosts.perShare(BigDecimal.valueOf(g.transactionCostsPerShare()),entryFactor).doubleValue()).multiply(q);
             if(t.closed())extra=extra.add(BigDecimal.valueOf(PatternV2SplitCosts.perShare(BigDecimal.valueOf(g.transactionCostsPerShare()),exitFactor).doubleValue()).multiply(q));

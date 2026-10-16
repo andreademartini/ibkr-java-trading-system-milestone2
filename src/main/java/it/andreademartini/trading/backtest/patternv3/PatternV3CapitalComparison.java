@@ -21,7 +21,7 @@ public final class PatternV3CapitalComparison {
     public static Comparison compare(List<PatternV3Run> runs) {
         if(runs.size()<2)throw new IllegalArgumentException("Select at least two runs");
         var first=runs.getFirst();if(first.datasetId()==null)throw new IllegalArgumentException("Exact dataset snapshot unavailable");
-        for(var r:runs){if(!first.datasetId().equals(r.datasetId()))throw new IllegalArgumentException("Different or unverifiable datasets");requireSameConfiguration(first.configuration(),r.configuration());}
+        for(var r:runs){if(!first.datasetId().equals(r.datasetId()))throw new IllegalArgumentException("Different or unverifiable datasets");PatternV3RunComparison.requireSameExecutionModel(first,r);requireSameConfiguration(first.configuration(),r.configuration());}
         var metrics=runs.stream().map(PatternV3CapitalComparison::metrics).toList();
         return new Comparison(first.datasetId(),runs.stream().map(r->new Run(r.runId(),r.configuration().name(),r.configuration().global())).toList(),
                 metrics.getFirst().keySet().stream().map(k->{var values=metrics.stream().map(m->m.get(k)).toList();return new Metric(k,values,values.size()==2&&values.get(0)!=null&&values.get(1)!=null?values.get(1)-values.get(0):null);}).toList());

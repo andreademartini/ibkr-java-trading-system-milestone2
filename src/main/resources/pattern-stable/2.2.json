@@ -1,0 +1,241 @@
+{
+  "name": "PATTERN_V1_STABLE",
+  "global": {
+    "initialCapital": 10000,
+    "riskPercent": 2,
+    "maxOrderValuePercent": 30,
+    "maxOrderValue": null,
+    "maxOrderValueMode": "CURRENT_EQUITY_PERCENT",
+    "maxPositionValue": 10000,
+    "maxQuantity": 1000000,
+    "useLeverage": false,
+    "minQuantity": 1,
+    "minOrderValue": 0,
+    "startDate": "2010-01-01",
+    "endDate": "2026-09-08",
+    "timeframe": "DAILY",
+    "maxHoldingBars": 13,
+    "stopBufferTicks": 0,
+    "tickSize": 0.01,
+    "sameBarPolicy": "STOP_FIRST",
+    "entryMode": "NEXT_BAR_OPEN",
+    "stopMode": "PATTERN_EXTREME",
+    "commissionEnabled": true,
+    "commission": {
+      "model": "IBKR_US_FIXED",
+      "fixedPerOrder": 0,
+      "perShare": 0.005,
+      "minimumPerOrder": 1,
+      "maximumPercentOrderValue": 1
+    },
+    "slippageEnabled": true,
+    "slippagePercentPerSide": 0.03,
+    "maxLongNotional": 10000,
+    "maxShortNotional": 10000,
+    "transactionCostsPerShare": 0,
+    "allowLong": true,
+    "allowShort": true,
+    "smallQuantityWarningThreshold": 4,
+    "maxPositionValueMode": "CURRENT_EQUITY_PERCENT",
+    "maxPositionValuePercent": 100,
+    "maxLongNotionalMode": "CURRENT_EQUITY_PERCENT",
+    "maxLongNotionalPercent": 100,
+    "maxShortNotionalMode": "CURRENT_EQUITY_PERCENT",
+    "maxShortNotionalPercent": 100
+  },
+  "symbols": [
+    {
+      "enabled": true,
+      "symbol": "AAPL",
+      "longConfig": {
+        "enabled": true,
+        "pattern": "BULLISH_ENGULFING",
+        "targetR": 3
+      },
+      "shortConfig": {
+        "enabled": false,
+        "pattern": null,
+        "targetR": null
+      },
+      "riskPercent": null,
+      "maxOrderValuePercent": null,
+      "maxQuantity": null,
+      "maxHoldingBars": null
+    },
+    {
+      "enabled": true,
+      "symbol": "GOOGL",
+      "longConfig": {
+        "enabled": true,
+        "pattern": "BULLISH_HARAMI",
+        "targetR": 1.5
+      },
+      "shortConfig": {
+        "enabled": false,
+        "pattern": null,
+        "targetR": null
+      },
+      "riskPercent": null,
+      "maxOrderValuePercent": null,
+      "maxQuantity": null,
+      "maxHoldingBars": null
+    },
+    {
+      "enabled": true,
+      "symbol": "NFLX",
+      "longConfig": {
+        "enabled": true,
+        "pattern": "HAMMER",
+        "targetR": 2
+      },
+      "shortConfig": {
+        "enabled": false,
+        "pattern": null,
+        "targetR": null
+      },
+      "riskPercent": null,
+      "maxOrderValuePercent": null,
+      "maxQuantity": null,
+      "maxHoldingBars": null
+    },
+    {
+      "enabled": true,
+      "symbol": "NVDA",
+      "longConfig": {
+        "enabled": true,
+        "pattern": "PIERCING_PATTERN",
+        "targetR": 3
+      },
+      "shortConfig": {
+        "enabled": false,
+        "pattern": null,
+        "targetR": null
+      },
+      "riskPercent": null,
+      "maxOrderValuePercent": null,
+      "maxQuantity": null,
+      "maxHoldingBars": null
+    },
+    {
+      "enabled": true,
+      "symbol": "QQQ",
+      "longConfig": {
+        "enabled": true,
+        "pattern": "HAMMER",
+        "targetR": 3
+      },
+      "shortConfig": {
+        "enabled": false,
+        "pattern": null,
+        "targetR": null
+      },
+      "riskPercent": null,
+      "maxOrderValuePercent": null,
+      "maxQuantity": null,
+      "maxHoldingBars": null
+    },
+    {
+      "enabled": true,
+      "symbol": "SPY",
+      "longConfig": {
+        "enabled": true,
+        "pattern": "BULLISH_HARAMI",
+        "targetR": 3
+      },
+      "shortConfig": {
+        "enabled": false,
+        "pattern": null,
+        "targetR": null
+      },
+      "riskPercent": null,
+      "maxOrderValuePercent": null,
+      "maxQuantity": null,
+      "maxHoldingBars": null
+    },
+    {
+      "enabled": true,
+      "symbol": "TSLA",
+      "longConfig": {
+        "enabled": true,
+        "pattern": "BULLISH_ENGULFING",
+        "targetR": 1
+      },
+      "shortConfig": {
+        "enabled": true,
+        "pattern": "SHOOTING_STAR",
+        "targetR": 4
+      },
+      "riskPercent": null,
+      "maxOrderValuePercent": null,
+      "maxQuantity": null,
+      "maxHoldingBars": null
+    },
+    {
+      "enabled": true,
+      "symbol": "XLK",
+      "longConfig": {
+        "enabled": true,
+        "pattern": "HAMMER",
+        "targetR": 4
+      },
+      "shortConfig": {
+        "enabled": false,
+        "pattern": null,
+        "targetR": null
+      },
+      "riskPercent": null,
+      "maxOrderValuePercent": null,
+      "maxQuantity": null,
+      "maxHoldingBars": null
+    },
+    {
+      "enabled": true,
+      "symbol": "XLY",
+      "longConfig": {
+        "enabled": true,
+        "pattern": "BULLISH_ENGULFING",
+        "targetR": 1.5
+      },
+      "shortConfig": {
+        "enabled": false,
+        "pattern": null,
+        "targetR": null
+      },
+      "riskPercent": null,
+      "maxOrderValuePercent": null,
+      "maxQuantity": null,
+      "maxHoldingBars": null
+    }
+  ],
+  "splitCosts": {
+    "rules": [
+      {
+        "symbol": "NVDA",
+        "basis": "AUTO_PROVIDER",
+        "validFrom": "2010-01-01",
+        "adjustedThrough": "2024-06-10",
+        "splits": [
+          {
+            "effectiveDate": "2021-07-20",
+            "ratio": 4
+          },
+          {
+            "effectiveDate": "2024-06-10",
+            "ratio": 10
+          }
+        ]
+      }
+    ]
+  },
+  "patternRangeFilterEnabled": false,
+  "minimumPatternRangePct": 2.5,
+  "closeStrengthFilterEnabled": false,
+  "maxCloseStrength": 0.8,
+  "capitalSkipShadowAnalysisEnabled": true,
+  "bollingerAtrFilterEnabled": false,
+  "bollingerPeriod": 20,
+  "bollingerStdDev": 2,
+  "atrPeriod": 14,
+  "maxBollingerDistanceAtr": 0.5,
+  "exitFillPolicy": "OPEN_FIRST"
+}

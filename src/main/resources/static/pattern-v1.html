@@ -7,17 +7,18 @@
   <link rel="stylesheet" href="/trading-chart.css"><link rel="stylesheet" href="/pattern-v1.css?v=2">
 </head>
 <body>
-<header class="topbar"><div><h1>PATTERN V1</h1><p>STABLE / FROZEN / BACKTEST - versione 2.1</p></div>
+<header class="topbar"><div><h1>PATTERN V1</h1><p>STABLE / FROZEN / BACKTEST - versione 2.3</p></div>
   <nav class="top-actions"><a class="link-button" href="/paper-trading.html">PAPER TRADING</a><a class="link-button active-link" href="/pattern-v1.html">PATTERN V1 — BACKTEST</a><a class="link-button" href="/pattern-v2.html">PATTERN V2 — BACKTEST</a><a class="link-button" href="/pattern-v3.html">PATTERN V3 — RESEARCH</a><a class="link-button" href="/">Azioni</a><a class="link-button" href="/research.html">Pattern Research</a></nav>
 </header>
 <main class="research-shell">
   <div id="v1-backtest-panel">
   <section class="panel research-config">
-    <div class="panel-heading"><h2>PATTERN_V1_STABLE 2.1</h2><span class="research-only">BACKTEST</span></div>
-    <p>Trading disabilitato. Nuovi parametri richiedono una nuova versione esplicita. <a href="/pattern-v1-legacy.html">Apri PATTERN_V1_LEGACY</a></p><details><summary>Configurazione completa congelata</summary><pre id="v1-frozen-config"></pre></details><label>Run History <select id="v1-history"><option value="">Seleziona una run</option></select></label><form id="v1-form" class="research-form">
+    <div class="panel-heading"><h2>PATTERN_V1_STABLE 2.3</h2><span class="research-only">BACKTEST</span></div>
+    <p>Trading disabilitato. Solo Risk Percent % è modificabile per i test; gli altri parametri restano congelati. <a href="/pattern-v1-legacy.html">Apri PATTERN_V1_LEGACY</a></p><details><summary>Configurazione completa congelata</summary><pre id="v1-frozen-config"></pre></details><label>Run History <select id="v1-history"><option value="">Seleziona una run</option></select></label><form id="v1-form" class="research-form">
       <label>Strategia<select disabled id="v1-strategy"><option value="PATTERN_V1">PATTERN V1</option></select></label>
       <label>Data iniziale<input disabled id="v1-start" type="date" value="2010-01-01" required></label>
       <label>Data finale<input disabled id="v1-end" type="date"><small>Periodo congelato dalla run di riferimento</small></label>
+      <label>Risk Percent %<input id="v1-risk-percent" type="number" min="0.01" max="100" step="any" value="4" required><small>Rischio teorico per trade; i limiti di capitale possono ridurre la quantità.</small></label>
       <label>Capitale iniziale<input disabled id="v1-capital" type="number" min="1" step="1" value="10000" required></label>
       <label>Max valore ordine (maxOrderValue)<input disabled id="v1-max-order-value" type="number" min="0.01" step="0.01" placeholder="30% equity"><small>CURRENT_EQUITY_PERCENT: 30% equity all'ingresso</small></label>
       <label>Max quantità (maxQuantity)<input disabled id="v1-max-quantity" type="number" min="1" step="1" value="1000000"><small>Valore congelato dalla run di riferimento</small></label>
@@ -52,5 +53,5 @@
   </div>
 <noscript>JavaScript deve essere abilitato per caricare la configurazione ed eseguire il backtest.</noscript></main>
 <script src="/vendor/lightweight-charts.standalone.production.js"></script>
-<script src="/trading-chart.js"></script><script src="/pattern-v1-metrics.js"></script><script src="/pattern-v1-stable.js?v=3" onerror="document.getElementById('v1-status').textContent='Impossibile caricare lo script della pagina. Verifica l?URL del backend e aggiorna con Ctrl+F5.'"></script>
+<script src="/trading-chart.js"></script><script src="/pattern-v1-metrics.js"></script><script src="/pattern-v1-stable.js?v=editable-risk-1" onerror="document.getElementById('v1-status').textContent='Impossibile caricare lo script della pagina. Verifica l?URL del backend e aggiorna con Ctrl+F5.'"></script>
 </body></html>
