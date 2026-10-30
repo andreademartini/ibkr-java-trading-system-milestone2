@@ -17,9 +17,10 @@ public final class V3TickSupport {
     }
     public static MinimumTickResolver resolver(TrendReboundV3Configuration c){return new MinimumTickResolver(c.minimumTickMetadata(),c.minimumTickSizes(),c.minimumTickOverrideDomain());}
     public static boolean isResearch(TrendReboundV3Configuration c){return "RESEARCH_DATASET_GRID".equals(c.minimumTickResolutionPolicy());}
-    public static String metadataVersion(TrendReboundV3Configuration c){return isResearch(c)?"CSV_GRID_RESEARCH/1":c.minimumTickMetadata().version();}
+    public static String metadataVersion(TrendReboundV3Configuration c){return c.noTickEntry()?"NOT_REQUIRED":isResearch(c)?"CSV_GRID_RESEARCH/1":c.minimumTickMetadata().version();}
     public static String hash(TrendReboundV3Configuration c){return WeeklyTteStore.hash(Map.of("catalog",c.minimumTickMetadata(),"overrides",c.minimumTickSizes(),"overrideDomain",c.minimumTickOverrideDomain(),"bufferTicks",c.entryBufferTicks(),"policy",c.minimumTickResolutionPolicy(),"researchAcknowledged",c.researchDatasetGridAcknowledged()));}
     public static Report prevalidate(TrendReboundV3Configuration c,Map<String,List<HistoricalBar>> data,String datasetId){
+        if(c.noTickEntry()){c.validate();return new Report(true,"NOT_REQUIRED",hash(c),datasetId,List.of());}
         var rows=new LinkedHashMap<String,Map<String,Object>>();V3TickContext context;
         try{context=new V3TickContext(c,data,datasetId);}catch(IllegalArgumentException e){var row=error("*",null,e.getMessage());return new Report(false,metadataVersion(c),hash(c),datasetId,List.of(row));}
         for(String symbol:c.symbols()){

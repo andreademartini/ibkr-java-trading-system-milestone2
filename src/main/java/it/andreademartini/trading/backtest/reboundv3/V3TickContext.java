@@ -14,6 +14,7 @@ final class V3TickContext {
     private final Map<String,NavigableMap<LocalDate,Integer>> precision=new HashMap<>();
     V3TickContext(TrendReboundV3Configuration c,Map<String,List<HistoricalBar>> data,String dataset){
         c.validate();this.c=c;this.dataset=dataset;
+        if(c.noTickEntry()){verified=null;return;}
         if(!V3TickSupport.isResearch(c)){verified=V3TickSupport.resolver(c);return;}
         verified=null;
         data.forEach((symbol,bars)->{
@@ -27,6 +28,7 @@ final class V3TickContext {
     }
     MinimumTickResolver.Resolution resolve(String symbol,HistoricalBar signal,LocalDate entryDate){
         if(signal.getHigh().signum()<=0)throw new IllegalArgumentException(symbol+": NON_POSITIVE_REFERENCE_PRICE");
+        if(c.noTickEntry())return new MinimumTickResolver.Resolution(symbol,"NOT_USED","NOT_USED","NOT_USED",entryDate,signal.getHigh(),null,"NOT_USED_NO_TICK","NO_TICK_BREAKOUT",signal.priceAdjustment().name(),"NOT_APPLICABLE_NO_TICK_BUFFER",signal.getHigh(),"NOT_REQUIRED",null);
         if(verified!=null)return verified.resolve(symbol,entryDate,signal.getHigh(),signal.priceAdjustment(),dataset,c.entryBufferTicks());
         var states=precision.get(symbol);var state=states==null?null:states.floorEntry(signal.dateTime().toLocalDate());
         if(state==null)throw new IllegalArgumentException(symbol+": CSV_PRECISION_UNAVAILABLE");

@@ -18,7 +18,7 @@ public class TrendReboundV3Service {
     public TrendReboundV3Service(TrendReboundV3Store store,BacktestEngine backtests,TrendReboundV3Engine engine){this.store=store;this.backtests=backtests;this.engine=engine;}
     private record Prepared(TrendReboundV3Configuration configuration,PatternV2Dataset snapshot,List<DataIssue> issues) {}
     public TrendReboundV3Configuration withLocalMetadata(TrendReboundV3Configuration c){
-        if(V3TickSupport.isResearch(c))return c;
+        if(c.noTickEntry()||V3TickSupport.isResearch(c))return c;
         var path=Path.of("data","instrument-master","minimum-tick-rules.json");
         if(!"UNCONFIGURED".equals(c.minimumTickMetadata().version())||!Files.isRegularFile(path))return c;
         try{
@@ -27,7 +27,7 @@ public class TrendReboundV3Service {
             return TrendReboundV3Store.JSON.treeToValue(node,TrendReboundV3Configuration.class);
         }catch(IOException e){throw new IllegalArgumentException("Cannot load offline minimum-tick metadata: "+path,e);}
     }
-    public TrendReboundV3Run run(TrendReboundV3Configuration c){var p=prepare(withLocalMetadata(c));return execute(p.configuration(),p.snapshot(),p.issues());}
+    public TrendReboundV3Run run(TrendReboundV3Configuration c){var p=prepare(withLocalMetadata(c.asNoTickEntry()));return execute(p.configuration(),p.snapshot(),p.issues());}
     public V3TickSupport.Report prevalidate(TrendReboundV3Configuration c){var p=prepare(withLocalMetadata(c));return V3TickSupport.prevalidate(p.configuration(),p.snapshot().bars(),p.snapshot().id());}
     private Prepared prepare(TrendReboundV3Configuration c){
         c.validate();var input=new TreeMap<String,List<HistoricalBar>>();var issues=new ArrayList<DataIssue>();
@@ -47,7 +47,7 @@ public class TrendReboundV3Service {
     private TrendReboundV3Run execute(TrendReboundV3Configuration c,PatternV2Dataset snapshot,List<DataIssue> sourceIssues){
         c.validate();var r=engine.simulate(c,snapshot.bars(),snapshot.id(),it.andreademartini.trading.backtest.weeklytte.WeeklyTteStore.hash(c));store.configuration(c);store.dataset(snapshot);
  var baseline=new it.andreademartini.trading.backtest.rebound.TrendReboundEngine(new it.andreademartini.trading.risk.PositionSizingService(new it.andreademartini.trading.risk.TradePricingService())).simulate(c.benchmark(),snapshot.bars(),snapshot.id(),it.andreademartini.trading.backtest.weeklytte.WeeklyTteStore.hash(c.benchmark()));
- r.analysis().put("entryModeComparison",List.of(V3Comparison.row("V1_NEXT_OPEN",baseline.trades(),baseline.signals().size(),baseline.analysis()),V3Comparison.row(V3TickSupport.isResearch(c)?"V3_RESEARCH_CSV_GRID_UNVERIFIED":"V3_BUY_STOP",r.trades(),r.signals().size(),r.analysis())));
+ r.analysis().put("entryModeComparison",List.of(V3Comparison.row("V1_NEXT_OPEN",baseline.trades(),baseline.signals().size(),baseline.analysis()),V3Comparison.row(c.noTickEntry()?"V3_THIRD_HIGH_BREAKOUT_NO_TICK":V3TickSupport.isResearch(c)?"V3_RESEARCH_CSV_GRID_UNVERIFIED":"V3_BUY_STOP",r.trades(),r.signals().size(),r.analysis())));
         var issues=new ArrayList<>(sourceIssues);issues.addAll(r.dataQuality());var warnings=new ArrayList<>(r.warnings());if(sourceIssues.stream().anyMatch(i->i.severity().equals("ERROR")))warnings.add("Source exclusions present: inspect DATA_QUALITY. No suspicious instrument was silently included.");
         var result=new TrendReboundV3Run(r.runId(),r.strategy(),r.strategyVersion(),r.timestamp(),r.configurationHash(),r.datasetId(),r.calendarVersion(),r.configuration(),r.signals(),r.trades(),r.equity(),List.copyOf(issues),r.analysis(),List.copyOf(warnings));store.save(result);return result;
     }

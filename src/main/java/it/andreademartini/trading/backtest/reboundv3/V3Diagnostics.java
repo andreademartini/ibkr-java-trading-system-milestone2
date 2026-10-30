@@ -31,7 +31,7 @@ final class V3Diagnostics {
             if(fourth!=null){d.put("FourthBarDate",a.plannedEntryDate);d.put("FourthBarOpen",fourth.open());d.put("FourthBarHigh",fourth.high());d.put("FourthBarLow",fourth.low());d.put("FourthBarClose",fourth.close());d.put("EntryOpenConditionPassed",fourth.open()<third.high());}
             if(fourth!=null){
                 var resolved=tickContext.resolve(a.symbol,third,a.plannedEntryDate);
-                V3TickSupport.diagnostics(d,resolved,c.entryBufferTicks());d.put("EntryTriggerReached",fourth.getHigh().compareTo(resolved.buyStopTrigger())>=0);
+                V3TickSupport.diagnostics(d,resolved,c.entryBufferTicks());d.put("EntryTriggerReached",c.noTickEntry()?fourth.getHigh().compareTo(third.getHigh())>0:fourth.getHigh().compareTo(resolved.buyStopTrigger())>=0);d.put("EntryMode",c.entryMode());
             }
         }
         for(var t:trades){

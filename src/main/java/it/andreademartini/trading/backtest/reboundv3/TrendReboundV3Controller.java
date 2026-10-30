@@ -9,8 +9,8 @@ import java.util.*;
 public class TrendReboundV3Controller {
     private final TrendReboundV3Store store;private final TrendReboundV3Service service;private final TrendReboundV3ExcelExporter excel;
     public TrendReboundV3Controller(TrendReboundV3Store store,TrendReboundV3Service service,TrendReboundV3ExcelExporter excel){this.store=store;this.service=service;this.excel=excel;}
-    @GetMapping("/configuration")public TrendReboundV3Configuration configuration(){return service.withLocalMetadata(store.current());}
-    @PutMapping("/configuration")public TrendReboundV3Configuration save(@RequestBody TrendReboundV3Configuration c){store.configuration(c);return c;}
+    @GetMapping("/configuration")public TrendReboundV3Configuration configuration(){return store.current().asNoTickEntry();}
+    @PutMapping("/configuration")public TrendReboundV3Configuration save(@RequestBody TrendReboundV3Configuration c){var normalized=c.asNoTickEntry();store.configuration(normalized);return normalized;}
     @PostMapping("/run")public TrendReboundV3Run run(@RequestBody TrendReboundV3Configuration c){return service.run(c);}
     @PostMapping("/minimum-ticks/prevalidate")public V3TickSupport.Report prevalidate(@RequestBody TrendReboundV3Configuration c){return service.prevalidate(c);}
     @PostMapping("/minimum-ticks/export/excel")public ResponseEntity<byte[]> tickExport(@RequestBody TrendReboundV3Configuration c){return ResponseEntity.ok().cacheControl(CacheControl.noStore()).contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")).header(HttpHeaders.CONTENT_DISPOSITION,ContentDisposition.attachment().filename("V3_MINIMUM_TICK_AUDIT.xlsx").build().toString()).body(excel.exportValidation(service.withLocalMetadata(c),service.prevalidate(c)));}

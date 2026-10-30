@@ -27,7 +27,7 @@ class V3ResearchGridTest {
   bars.set(10,TrendReboundV3EngineTest.bar("TEST",10,106.5,112,106,111));return bars;
  }
  @Test void researchIsOptInAndDefaultStillStrict(){
-  assertEquals("FAIL_FAST",TrendReboundV3Configuration.defaults().minimumTickResolutionPolicy());
+  assertEquals("NOT_REQUIRED",TrendReboundV3Configuration.defaults().minimumTickResolutionPolicy());assertTrue(TrendReboundV3Configuration.defaults().noTickEntry());
   assertFalse(TrendReboundV3Configuration.defaults().researchDatasetGridAcknowledged());
   assertThrows(IllegalArgumentException.class,()->config(false).validate());config(true).validate();
  }

@@ -1,5 +1,8 @@
 # V3: opzione research con griglia numerica del dataset
 
+Versione corrente 3.3: [rottura del massimo senza tick](V3_NO_TICK_BREAKOUT.md). Le descrizioni dei tick e delle precedenti opzioni in questo documento sono mantenute per le run storiche. Le nuove run V3 non richiedono tick o accettazioni aggiuntive.
+
+
 L'opzione RESEARCH_DATASET_GRID rende possibile una simulazione esplorativa quando non sono disponibili tick di mercato verificati. Non corregge né ricostruisce i metadati mancanti e non deve essere interpretata come esecuzione a un tick realmente negoziabile.
 
 FAIL_FAST rimane il default. Per usare l'opzione occorre selezionarla esplicitamente e impostare researchDatasetGridAcknowledged=true tramite la casella dedicata. Il backend rifiuta la modalità senza questa accettazione. Nessuna configurazione esistente viene migrata automaticamente.

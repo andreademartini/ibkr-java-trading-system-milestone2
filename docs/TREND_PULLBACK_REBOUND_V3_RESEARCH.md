@@ -1,5 +1,8 @@
 # TREND_PULLBACK_REBOUND_V3_RESEARCH
 
+Versione corrente 3.3: [rottura del massimo senza tick](V3_NO_TICK_BREAKOUT.md). Le descrizioni dei tick e delle precedenti opzioni in questo documento sono mantenute per le run storiche. Le nuove run V3 non richiedono tick o accettazioni aggiuntive.
+
+
 Aggiornamento tick: la versione 3.1 usa un resolver offline versionato e prevalidazione FAIL_FAST. Per la specifica corrente, la causa della mappa vuota e i limiti degli adjusted vedere [V3_MINIMUM_TICK_RESOLUTION.md](V3_MINIMUM_TICK_RESOLUTION.md). La descrizione della sola mappa riportata sotto appartiene all'implementazione iniziale.
 
 Pagina: /trend-pullback-rebound-v3.html. API e persistenza separate: /api/backtest/trend-pullback-rebound-v3 e data/trend-pullback-rebound-v3-v1.

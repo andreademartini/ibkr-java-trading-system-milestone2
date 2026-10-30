@@ -1,5 +1,8 @@
 # V3: risoluzione tick minima offline
 
+Versione corrente 3.3: [rottura del massimo senza tick](V3_NO_TICK_BREAKOUT.md). Le descrizioni dei tick e delle precedenti opzioni in questo documento sono mantenute per le run storiche. Le nuove run V3 non richiedono tick o accettazioni aggiuntive.
+
+
 Aggiornamento 3.2: disponibile una [opzione research esplicita](V3_RESEARCH_DATASET_GRID.md) basata sulla precisione CSV, distinta dai tick di mercato verificati. FAIL_FAST resta il default.
 
 ## Causa verificata
