@@ -1,0 +1,44 @@
+{
+  "version": "EXAMPLE_ONLY_NOT_VALIDATED",
+  "instruments": [
+    {
+      "symbol": "EXAMPLE_ONLY",
+      "aliases": ["EXAMPLE_ONLY.US"],
+      "exchange": "EXAMPLE_EXCHANGE",
+      "currency": "USD",
+      "instrumentType": "STK"
+    }
+  ],
+  "rules": [
+    {
+      "id": "EXAMPLE_GRID_NOT_A_MARKET_RULE",
+      "symbol": "EXAMPLE_ONLY",
+      "exchange": "EXAMPLE_EXCHANGE",
+      "currency": "USD",
+      "instrumentType": "STK",
+      "validFrom": "2024-01-01",
+      "validTo": "2024-12-31",
+      "source": "SAVED_MARKET_RULE",
+      "provenance": "EXAMPLE ONLY: replace with verified source, acquisition date and historical applicability",
+      "validated": false,
+      "domain": "RAW",
+      "datasetId": null,
+      "bands": [
+        {"lowEdge": 0, "increment": 0.01},
+        {"lowEdge": 100, "increment": 0.05}
+      ]
+    }
+  ],
+  "priceBases": [
+    {
+      "symbol": "EXAMPLE_ONLY",
+      "datasetId": "REPLACE_WITH_EXACT_DATASET_FINGERPRINT",
+      "validFrom": "2024-01-01",
+      "validTo": "2024-12-31",
+      "adjustmentMode": "PROVIDER_ADJUSTED",
+      "rawPerDatasetPrice": null,
+      "provenance": "EXAMPLE ONLY: supply verified price convention and factor for this exact dataset and date interval",
+      "validated": false
+    }
+  ]
+}
