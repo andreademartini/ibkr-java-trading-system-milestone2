@@ -12,7 +12,7 @@ import java.util.*;
 public class TrendReboundV3Store {
     public static final ObjectMapper JSON=new ObjectMapper().findAndRegisterModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
     private final Path root;
-    public TrendReboundV3Store(){this(Path.of("data","trend-pullback-rebound-v3-v1"));}
+    public TrendReboundV3Store(){this(Path.of(System.getProperty("trading.research.v3.store","data/trend-pullback-rebound-v3-v1")));}
     public TrendReboundV3Store(Path root){this.root=root.toAbsolutePath().normalize();}
     public synchronized TrendReboundV3Configuration current(){var file=root.resolve("current.json");if(!Files.isRegularFile(file))configuration(TrendReboundV3Configuration.defaults());return read(file,TrendReboundV3Configuration.class);}
     public void configuration(TrendReboundV3Configuration c){c.validate();write(root.resolve("current.json"),c);write(root.resolve("configurations").resolve(WeeklyTteStore.hash(c)+".json"),c);}

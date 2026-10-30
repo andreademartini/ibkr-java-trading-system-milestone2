@@ -31,7 +31,10 @@ public final class TrendReboundV3Engine {
             return new Trade(id,signal.signalId,signal.symbol,"LONG",signal.signalDate,signal.closes,signal.trendSma,signal.atr,entryDate,exitDate,recoveryDate,entryBase,entry,exitBase,exit,stop,quantity,risk,sizingRisk,fee,exitFee,slippage,pnl,pnl==null?null:pnl/risk,holding,reason,factor,mark,closed||mark==null?null:(mark-entry)*quantity-fee,dataStatus);}
     }
     public TrendReboundV3Run simulate(TrendReboundV3Configuration c,Map<String,List<HistoricalBar>> input,String datasetId,String configHash){
-        c.validate();var issues=new ArrayList<DataIssue>();var warnings=new ArrayList<String>();
+        c.validate();var tickReport=V3TickSupport.prevalidate(c,input,datasetId);if(!tickReport.passed())throw new V3TickSupport.ValidationException(tickReport);
+        var tickContext=new V3TickContext(c,input,datasetId);var tickAudit=new LinkedHashMap<String,Map<String,Object>>();
+        var issues=new ArrayList<DataIssue>();var warnings=new ArrayList<String>();
+        if(V3TickSupport.isResearch(c))warnings.add("EXPLICIT RESEARCH ASSUMPTION: CSV decimal precision is used as a price increment. It is NOT a verified market tick, does not reconstruct tradable raw prices, and is not directly comparable to the verified-tick strategy.");
         warnings.add("EXPERIMENTAL: no claim of profitability or scientific validation. LONG only, no leverage, no partial exits.");
         warnings.add("Current-symbol universe: potential survivorship bias; delisted securities and point-in-time membership are not certified.");
         warnings.add("US equity calendar "+ResearchSessionCalendar.VERSION+"; missing bars can censor positions; stale marks are identified.");
@@ -88,12 +91,13 @@ public final class TrendReboundV3Engine {
                 var third=data.get(symbol).get(a.signalDate);var d=a.diagnostics;
                 d.put("FourthBarDate",day);d.put("FourthBarOpen",b.open());d.put("FourthBarHigh",b.high());d.put("FourthBarLow",b.low());d.put("FourthBarClose",b.close());
                 boolean openPassed=b.open()<third.high();d.put("EntryOpenConditionPassed",openPassed);
-                Double tick=c.minimumTickSizes().get(symbol);
-                if(!openPassed){reject(a,"ENTRY_REJECTED_OPEN_AT_OR_ABOVE_PREVIOUS_HIGH");continue;} if(tick==null){reject(a,"MINIMUM_TICK_UNAVAILABLE");continue;}
-                double trigger=BigDecimal.valueOf(third.high()).add(BigDecimal.valueOf(tick).multiply(BigDecimal.valueOf(c.entryBufferTicks()))).doubleValue();
-                d.put("BuyStopTrigger",trigger);d.put("EntryTriggerReached",b.high()>=trigger);
                 if(!openPassed){reject(a,"ENTRY_REJECTED_OPEN_AT_OR_ABOVE_PREVIOUS_HIGH");continue;}
-                if(b.high()<trigger){reject(a,"ENTRY_NOT_TRIGGERED");continue;}
+                var resolved=tickContext.resolve(symbol,third,day);
+                V3TickSupport.diagnostics(d,resolved,c.entryBufferTicks());
+                tickAudit.putIfAbsent(symbol+":"+resolved.tickRuleId()+":"+resolved.minimumTick()+":"+resolved.priceAdjustmentMode(),V3TickSupport.row(resolved));
+                double trigger=resolved.buyStopTrigger().doubleValue();
+                boolean reached=b.getHigh().compareTo(resolved.buyStopTrigger())>=0;d.put("EntryTriggerReached",reached);
+                if(!reached){reject(a,"ENTRY_NOT_TRIGGERED");continue;}
                 if(positions.containsKey(symbol)){reject(a,"POSITION_ALREADY_OPEN");continue;}
                 a.entryBasePrice=trigger;a.entryExecutionPrice=execution(trigger,c.slippagePercentPerSide(),true);a.initialStop=a.entryExecutionPrice-c.stopLossAtrMultiplier()*a.atr;
                 if(!Double.isFinite(a.initialStop)||a.initialStop<=0||a.initialStop>=a.entryExecutionPrice){reject(a,"INVALID_STOP");continue;}
@@ -128,8 +132,8 @@ public final class TrendReboundV3Engine {
         }
         pending.values().forEach(a->{a.status="CENSORED";a.reason="END_OF_DATA_BEFORE_NEXT_OPEN";});
         positions.forEach((symbol,p)->trades.add(p.trade(marks.get(symbol))));
-        V3Diagnostics.enrich(c,signals,trades,data);
-        var analysis=it.andreademartini.trading.backtest.rebound.TrendReboundAnalysis.calculate(c.benchmark(),trades,curve);analysis.put("priority","OPEN_EXITS_AND_GAPS, ALPHABETICAL_OPEN_ENTRIES, INTRADAY_STOPS, TIMEOUT_CLOSE, RECOVERY_CLOSE_SIGNALS");
+        V3Diagnostics.enrich(c,signals,trades,data,datasetId,tickContext);
+        var analysis=it.andreademartini.trading.backtest.rebound.TrendReboundAnalysis.calculate(c.benchmark(),trades,curve);var auditRows=new ArrayList<Map<String,Object>>();for(var item:tickReport.rows()){var row=new LinkedHashMap<String,Object>(item);row.put("UsedForEntryDecision",tickAudit.values().stream().anyMatch(used->Objects.equals(used.get("Symbol"),item.get("Symbol"))&&Objects.equals(used.get("TickRuleId"),item.get("TickRuleId"))&&Objects.equals(used.get("MinimumTick"),item.get("MinimumTick"))));auditRows.add(row);}analysis.put("minimumTickAudit",List.copyOf(auditRows));analysis.put("minimumTickPrevalidation",tickReport);analysis.put("minimumTickMetadataVersion",V3TickSupport.metadataVersion(c));analysis.put("minimumTickConfigurationHash",V3TickSupport.hash(c));analysis.put("priority","OPEN_EXITS_AND_GAPS, ALPHABETICAL_OPEN_ENTRIES, INTRADAY_STOPS, TIMEOUT_CLOSE, RECOVERY_CLOSE_SIGNALS");
         if(issues.stream().anyMatch(i->i.severity().equals("ERROR")))warnings.add("DATA QUALITY ERRORS: inspect exclusions and censored positions; aggregate results may be incomplete.");
         return new TrendReboundV3Run(UUID.randomUUID().toString(),TrendReboundV3Configuration.ID,TrendReboundV3Configuration.VERSION,Instant.now(),configHash,datasetId,ResearchSessionCalendar.VERSION,c,List.copyOf(signals),List.copyOf(trades),List.copyOf(curve),List.copyOf(issues),analysis,List.copyOf(warnings));
     }

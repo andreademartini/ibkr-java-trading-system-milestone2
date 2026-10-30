@@ -24,13 +24,15 @@ final class V3Diagnostics {
         }
         d.put("PrePullbackHigh",highest.high());d.put("PrePullbackHighDate",highest.dateTime().toLocalDate());d.put("ProfitSpaceStatus","AVAILABLE");
     }
-    static void enrich(TrendReboundV3Configuration c,List<Signal> signals,List<TrendReboundRun.Trade> trades,Map<String,Map<LocalDate,HistoricalBar>> data){
+    static void enrich(TrendReboundV3Configuration c,List<Signal> signals,List<TrendReboundRun.Trade> trades,Map<String,Map<LocalDate,HistoricalBar>> data,String datasetId,V3TickContext tickContext){
         for(var a:signals){
             var fourth=data.get(a.symbol).get(a.plannedEntryDate);var d=a.diagnostics;
             var third=data.get(a.symbol).get(a.signalDate);
             if(fourth!=null){d.put("FourthBarDate",a.plannedEntryDate);d.put("FourthBarOpen",fourth.open());d.put("FourthBarHigh",fourth.high());d.put("FourthBarLow",fourth.low());d.put("FourthBarClose",fourth.close());d.put("EntryOpenConditionPassed",fourth.open()<third.high());}
-            var tick=c.minimumTickSizes().get(a.symbol);
-            if(tick!=null){double trigger=java.math.BigDecimal.valueOf(third.high()).add(java.math.BigDecimal.valueOf(tick).multiply(java.math.BigDecimal.valueOf(c.entryBufferTicks()))).doubleValue();d.put("BuyStopTrigger",trigger);if(fourth!=null)d.put("EntryTriggerReached",fourth.high()>=trigger);}
+            if(fourth!=null){
+                var resolved=tickContext.resolve(a.symbol,third,a.plannedEntryDate);
+                V3TickSupport.diagnostics(d,resolved,c.entryBufferTicks());d.put("EntryTriggerReached",fourth.getHigh().compareTo(resolved.buyStopTrigger())>=0);
+            }
         }
         for(var t:trades){
             var a=signals.stream().filter(s->s.signalId.equals(t.signalId())).findFirst().orElseThrow();var d=a.diagnostics;
@@ -70,7 +72,7 @@ final class V3Diagnostics {
         if(r.analysis().get("entryModeComparison") instanceof List<?> comparison)TrendReboundV3ExcelExporter.table(book,"ENTRY_MODE_COMPARISON",(List<Map<String,Object>>)(List<?>)comparison,List.of("EntryMode","SignalsDetected","TradesExecuted","TradesRejected"));
         var audit=new ArrayList<Map<String,Object>>();
         for(var a:r.signals()){var m=new LinkedHashMap<String,Object>(a.diagnostics);m.put("SignalId",a.signalId);m.put("Symbol",a.symbol);m.put("TradeExecuted","EXECUTED".equals(a.status));m.put("TradeId",a.tradeId);m.put("RejectionReason",a.reason);m.put("OpenConditionPassed",m.get("EntryOpenConditionPassed"));m.put("TriggerReached",m.get("EntryTriggerReached"));audit.add(m);}
-        TrendReboundV3ExcelExporter.table(book,"ENTRY_SIGNAL_AUDIT",audit,List.of("SignalId","Symbol","SignalDate","ThirdBarHigh","FourthBarOpen","FourthBarHigh","BuyStopTrigger","OpenConditionPassed","TriggerReached","TradeExecuted","TradeId","RejectionReason"));
+        TrendReboundV3ExcelExporter.table(book,"ENTRY_SIGNAL_AUDIT",audit,List.of("SignalId","Symbol","SignalDate","ThirdBarHigh","FourthBarOpen","FourthBarHigh","MinimumTick","MinimumTickResolved","MinimumTickSource","EntryBufferTicks","TickResolutionStatus","BuyStopTrigger","OpenConditionPassed","TriggerReached","TradeExecuted","TradeId","RejectionReason"));
         double[] edges={Double.NEGATIVE_INFINITY,0,.5,1,1.5,2,3,Double.POSITIVE_INFINITY};
         var bins=new ArrayList<Map<String,Object>>();
         for(int i=0;i<edges.length-1;i++){double lo=edges[i],hi=edges[i+1];var xs=r.trades().stream().filter(t->diag(r,t).get("ProfitSpaceATR") instanceof Number n&&n.doubleValue()>=lo&&n.doubleValue()<hi).toList();var m=stats(r,xs);m.put("Band","["+lo+", "+hi+")");bins.add(m);}

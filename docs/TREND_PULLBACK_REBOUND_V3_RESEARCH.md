@@ -1,5 +1,7 @@
 # TREND_PULLBACK_REBOUND_V3_RESEARCH
 
+Aggiornamento tick: la versione 3.1 usa un resolver offline versionato e prevalidazione FAIL_FAST. Per la specifica corrente, la causa della mappa vuota e i limiti degli adjusted vedere [V3_MINIMUM_TICK_RESOLUTION.md](V3_MINIMUM_TICK_RESOLUTION.md). La descrizione della sola mappa riportata sotto appartiene all'implementazione iniziale.
+
 Pagina: /trend-pullback-rebound-v3.html. API e persistenza separate: /api/backtest/trend-pullback-rebound-v3 e data/trend-pullback-rebound-v3-v1.
 
 Il segnale riutilizza gli indicatori V1: tre chiusure strettamente decrescenti (quattro osservazioni), chiusura del segnale strettamente sopra SMA200, ATR Wilder al segnale. I corpi delle candele non sono un filtro.

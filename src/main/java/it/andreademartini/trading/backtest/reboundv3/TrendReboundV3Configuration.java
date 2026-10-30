@@ -14,17 +14,28 @@ public record TrendReboundV3Configuration(String name,List<String> symbols,List<
         double slippagePercentPerSide,PatternV1Commission commission,PatternV2SplitCosts splitCosts,
  String entryMode,boolean requireFourthBarOpenBelowPreviousHigh,String entryBufferMode,int entryBufferTicks,int entryValidityBars,
  String exitMode,boolean enableProfitSpaceAnalysis,int prePullbackHighLookbackBars,String prePullbackHighMethod,
- double analysisTakeProfitAtrMultiplier,Map<String,Double> minimumTickSizes) {
-    public static final String ID="TREND_PULLBACK_REBOUND_V3_RESEARCH",VERSION="TREND_PULLBACK_REBOUND/3";
+ double analysisTakeProfitAtrMultiplier,
+ @com.fasterxml.jackson.databind.annotation.JsonSerialize(contentUsing=com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
+ @tools.jackson.databind.annotation.JsonSerialize(contentUsing=tools.jackson.databind.ser.std.ToStringSerializer.class)
+ Map<String,java.math.BigDecimal> minimumTickSizes,String minimumTickResolutionPolicy,
+ it.andreademartini.trading.marketdata.ticks.MinimumTickResolver.Catalog minimumTickMetadata,String minimumTickOverrideDomain,
+ @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS)
+ boolean researchDatasetGridAcknowledged) {
+    public static final String ID="TREND_PULLBACK_REBOUND_V3_RESEARCH",VERSION="TREND_PULLBACK_REBOUND/3.2_EXPLICIT_RESEARCH_GRID";
     public TrendReboundV3Configuration {
-        minimumTickSizes=minimumTickSizes==null?Map.of():Map.copyOf(minimumTickSizes);symbols=normalize(symbols);excludedSymbols=normalize(excludedSymbols);
+        minimumTickResolutionPolicy=minimumTickResolutionPolicy==null?"FAIL_FAST":minimumTickResolutionPolicy;
+        minimumTickMetadata=minimumTickMetadata==null?it.andreademartini.trading.marketdata.ticks.MinimumTickResolver.Catalog.empty():minimumTickMetadata;
+        minimumTickOverrideDomain=minimumTickOverrideDomain==null?"UNSPECIFIED":minimumTickOverrideDomain;
+        if(minimumTickSizes==null)minimumTickSizes=Map.of();else{var normalized=new TreeMap<String,java.math.BigDecimal>();for(var e:minimumTickSizes.entrySet()){String key=e.getKey().trim().toUpperCase(Locale.ROOT);if(normalized.put(key,e.getValue())!=null)throw new IllegalArgumentException("Duplicate normalized tick override "+key);}minimumTickSizes=Collections.unmodifiableMap(normalized);}symbols=normalize(symbols);excludedSymbols=normalize(excludedSymbols);
     }
     private static List<String> normalize(List<String> values){return values==null?List.of():values.stream().map(s->s.trim().toUpperCase(Locale.ROOT)).distinct().sorted().toList();}
-    public static TrendReboundV3Configuration defaults(){return new TrendReboundV3Configuration("Trend Pullback Rebound",WeeklyTteConfiguration.defaults().symbols(),List.of(),LocalDate.of(2017,1,1),LocalDate.now().minusDays(1),10000,200,5,14,1.5,3,5,0.5,30,100,0.03,PatternV1Commission.ibkr(),WeeklyTteConfiguration.defaultSplitCosts(),"FOURTH_BAR_HIGH_BREAKOUT",true,"TICKS",1,1,"RECOVERY_ONLY",true,10,"HIGHEST_HIGH_BEFORE_PULLBACK",1.5,Map.of());}
+    public static TrendReboundV3Configuration defaults(){return new TrendReboundV3Configuration("Trend Pullback Rebound",WeeklyTteConfiguration.defaults().symbols(),List.of(),LocalDate.of(2017,1,1),LocalDate.now().minusDays(1),10000,200,5,14,1.5,3,5,0.5,30,100,0.03,PatternV1Commission.ibkr(),WeeklyTteConfiguration.defaultSplitCosts(),"FOURTH_BAR_HIGH_BREAKOUT",true,"TICKS",1,1,"RECOVERY_ONLY",true,10,"HIGHEST_HIGH_BEFORE_PULLBACK",1.5,Map.of(),"FAIL_FAST",it.andreademartini.trading.marketdata.ticks.MinimumTickResolver.Catalog.empty(),"UNSPECIFIED",false);}
     public it.andreademartini.trading.backtest.rebound.TrendReboundConfiguration benchmark(){return new it.andreademartini.trading.backtest.rebound.TrendReboundConfiguration(name,symbols,excludedSymbols,startDate,endDate,initialCapital,trendSmaPeriod,recoverySmaPeriod,atrPeriod,stopLossAtrMultiplier,decliningCloses,maxHoldingBars,riskPercent,maxOrderValuePercent,maxExposurePercent,slippagePercentPerSide,commission,splitCosts);}
  public void validate(){
+ if(!List.of("FAIL_FAST","RESEARCH_DATASET_GRID").contains(minimumTickResolutionPolicy)||!List.of("UNSPECIFIED","RAW","DATASET").contains(minimumTickOverrideDomain)||entryBufferTicks>10000)throw new IllegalArgumentException("Invalid V3 tick policy or override price domain");
+ if("RESEARCH_DATASET_GRID".equals(minimumTickResolutionPolicy)&&(!researchDatasetGridAcknowledged||!minimumTickSizes.isEmpty()))throw new IllegalArgumentException("Research CSV grid requires explicit acknowledgement and empty manual tick overrides; it does not represent verified market ticks.");
  if(!"FOURTH_BAR_HIGH_BREAKOUT".equals(entryMode)||!requireFourthBarOpenBelowPreviousHigh||!"TICKS".equals(entryBufferMode)||entryBufferTicks<1||entryValidityBars!=1||!"RECOVERY_ONLY".equals(exitMode)||decliningCloses!=3||prePullbackHighLookbackBars<1||!"HIGHEST_HIGH_BEFORE_PULLBACK".equals(prePullbackHighMethod)||!Double.isFinite(analysisTakeProfitAtrMultiplier)||analysisTakeProfitAtrMultiplier<=0)throw new IllegalArgumentException("Invalid V3 research modes");
- if(minimumTickSizes.values().stream().anyMatch(t->t==null||!Double.isFinite(t)||t<=0))throw new IllegalArgumentException("Invalid instrument tick");
+ if(minimumTickSizes.values().stream().anyMatch(t->t==null||t.signum()<=0))throw new IllegalArgumentException("Invalid instrument tick");
         if(name==null||name.isBlank()||symbols.isEmpty()||symbols.size()>500||symbols.stream().anyMatch(s->!s.matches("[A-Z0-9][A-Z0-9._-]{0,31}"))||!symbols.containsAll(excludedSymbols))throw new IllegalArgumentException("Invalid name, universe or explicit exclusions");
         if(startDate==null||endDate==null||startDate.isBefore(LocalDate.of(2010,1,1))||endDate.getYear()>2028||endDate.isBefore(startDate)||!endDate.isBefore(LocalDate.now()))throw new IllegalArgumentException("Use completed DAILY dates in calendar coverage 2010..2028");
         for(int p:new int[]{trendSmaPeriod,recoverySmaPeriod,atrPeriod,decliningCloses,maxHoldingBars})if(p<1||p>2520)throw new IllegalArgumentException("Periods must be 1..2520");
