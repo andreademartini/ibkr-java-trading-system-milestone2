@@ -710,6 +710,7 @@ async function selectProfileById(profileId) {
         return;
     }
     saveSelectedFormInMemory();
+    PortfolioSummary.clear($("workbench-portfolio-summary"));
     state.selectedProfileId = profileId;
     applyProfileToForm(selectedProfile());
     renderProfiles();
@@ -1621,6 +1622,7 @@ function tradePnlClass(value) {
 function renderSimulation() {
     const exportButton = $("export-excel-button");
     if (!state.simulation) {
+        PortfolioSummary.clear($("workbench-portfolio-summary"));
         $("simulation-summary").textContent = "Nessuna simulazione";
         $("simulation-metrics").innerHTML = "";
         $("equity-chart").innerHTML = "";
@@ -1642,6 +1644,7 @@ function renderSimulation() {
     const executionModel = simulation.evaluationParameters?.executionModel || "";
     $("simulation-summary").textContent =
         `${simulation.symbol} ${simulation.strategy} ${simulation.inputCount} barre, segnali ${simulation.signals.length}, trade ${simulation.trades.length}${executionModel ? ` - ${executionModel}` : ""}`;
+    PortfolioSummary.load($("workbench-portfolio-summary"),"/api/backtest/"+encodeURIComponent(simulation.backtestId)+"/portfolio-summary");
     renderSimulationMetrics(simulation);
     renderSimulationCharts();
     $("simulation-body").innerHTML = simulation.signals.length === 0

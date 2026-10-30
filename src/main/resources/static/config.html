@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Configurazione</title>
     <link rel="stylesheet" href="/app.css?v=sticky-nav-1">
-</head>
+<link rel="stylesheet" href="/site-navigation.css?v=20261029-1"><script src="/site-navigation.js?v=20261030-v3" defer></script></head>
 <body>
 <header class="topbar">
     <div>
         <h1>Configurazione</h1>
         <p id="last-refresh">In attesa dati</p>
     </div>
-    <nav class="top-actions"><a class="link-button" href="/paper-trading.html">PAPER TRADING</a><a class="link-button" href="/pattern-v1.html">PATTERN V1 — BACKTEST</a><a class="link-button" href="/pattern-v2.html">PATTERN V2 — BACKTEST</a><a class="link-button" href="/pattern-v3.html">PATTERN V3 — RESEARCH</a>
-        <a class="link-button" href="/">Azioni</a>
-        <a class="link-button" href="/provider.html">Connessione IBKR</a>
-        <a class="link-button active-link" href="/config.html">Configurazione</a>
-        <a class="link-button" href="/api/paper/status" target="_blank">JSON status</a>
-        <button id="refresh-button" type="button">Aggiorna</button>
-    </nav>
+    <nav class="top-actions site-nav" aria-label="Navigazione principale">
+<a class="link-button" href="/">Azioni</a>
+<details class="site-nav-group" name="site-navigation"><summary>Strategie</summary><div class="site-nav-panel"><a href="/paper-trading.html">PAPER TRADING</a><a href="/pattern-v1.html">PATTERN V1 — BACKTEST</a><a href="/pattern-v2.html">PATTERN V2 — BACKTEST</a><a href="/pattern-v3.html">PATTERN V3 — RESEARCH</a><a href="/weekly-high-tte.html">Weekly High TTE — Research</a><a href="/trend-pullback-rebound.html">Trend Pullback Rebound</a><a href="/trend-pullback-rebound-v2.html">TREND PULLBACK REBOUND V2 — RESEARCH</a><a href="/trend-pullback-rebound-v3.html">TREND PULLBACK REBOUND V3 ? RESEARCH</a></div></details>
+<details class="site-nav-group" name="site-navigation"><summary>Pattern Research</summary><div class="site-nav-panel"><a href="/research.html">Laboratorio Pattern Research</a><a href="/pattern-v1-legacy.html">Pattern V1 — Legacy</a></div></details>
+<details class="site-nav-group site-nav-current" name="site-navigation"><summary>Configurazione</summary><div class="site-nav-panel"><a href="/config.html" aria-current="page">Impostazioni applicazione</a><a href="/provider.html">Connessione IBKR</a><a href="/api/paper/status" target="_blank" rel="noopener">Stato sistema — JSON</a></div></details>
+<button id="refresh-button" type="button">Aggiorna</button>
+</nav>
 </header>
 
 <main class="shell">

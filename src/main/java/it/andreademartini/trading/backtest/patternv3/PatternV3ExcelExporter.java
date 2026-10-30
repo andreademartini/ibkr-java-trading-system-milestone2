@@ -114,7 +114,7 @@ public class PatternV3ExcelExporter {
             GapAuditExcel.append(book,info,ExecutionRunView.of(run));
             for(var warning:p.warnings())row(info,"Warning",warning);
             for(var s:book) {s.createFreezePane(0,1);if(s.getLastRowNum()>0)s.setAutoFilter(new CellRangeAddress(0,s.getLastRowNum(),0,s.getRow(0).getLastCellNum()-1));for(int c=0;c<s.getRow(0).getLastCellNum();c++)s.setColumnWidth(c,c==0?42*256:24*256);}
-            book.write(out);return out.toByteArray();
+            it.andreademartini.trading.backtest.reporting.PortfolioSummaryExcel.write(book,run);book.write(out);return out.toByteArray();
         }catch(Exception e){throw new IllegalStateException("Export PATTERN_V3 fallito",e);}
     }
     private void marketRegimeFilter(Workbook book,PatternV3Run run) throws Exception {

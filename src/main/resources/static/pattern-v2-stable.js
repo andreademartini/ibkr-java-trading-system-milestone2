@@ -17,11 +17,8 @@ $('stable-v2-coverage').textContent='Richiesto '+p.startDate+' → '+p.endDate+'
 const orderLimit=g.maxOrderValueMode==='CURRENT_EQUITY_PERCENT'?n(g.maxOrderValuePercent)+'% equity (limite dinamico)':n(g.maxOrderValue);
 const feeDescription=fees.model==='IBKR_US_FIXED'?'IBKR_US_FIXED: '+n(fees.perShare)+' USD/azione, minimo '+n(fees.minimumPerOrder)+' USD, massimo '+n(fees.maximumPercentOrderValue)+'% del valore ordine':'Importo fisso: '+n(fees.fixedPerOrder)+' USD/ordine';
 $('stable-v2-applied-limits').textContent='Parametri applicati a questo risultato: maxOrderValue = '+orderLimit+'; Risk Percent = '+n(g.riskPercent)+'%; maxQuantity = '+n(g.maxQuantity)+'; commissioni '+feeDescription+'; slippage '+n(g.slippagePercentPerSide)+'% per esecuzione. Rischio salvato nella run; gli altri parametri restano congelati.';
-const metrics=PatternV1Metrics.summary(p).map(metric=>({...metric,tooltip:metric.key==='openTrades'?'Posizioni ancora aperte alla fine dei dati disponibili.':metric.key==='timeouts'?'Trade chiusi al close della holding bar '+g.maxHoldingBars+'; la barra di ingresso conta come 1.':metric.key==='skippedPositionOpen'?'Segnali saltati per una posizione gia aperta sullo stesso simbolo e strategia.':metric.tooltip}));
-metrics.push(...[['Commissioni',run.costs?.commissions],['Slippage',run.costs?.slippage],['Transaction Costs',run.costs?.transactionCosts]].map(([label,value])=>({label,value,tooltip:'Costo contabilizzato nella run selezionata.'})));
-const host=$('stable-v2-metrics');host.replaceChildren();
-for(const {label:caption,key,value,tooltip} of metrics){const div=document.createElement('div');div.className='v1-metric';div.title=tooltip;const label=document.createElement('span'),strong=document.createElement('strong');label.textContent=caption;strong.textContent=key==='winRate'?percent(value,true):n(value)+(caption.endsWith('%')&&value!=null?'%':'');div.append(label,strong);host.append(div);}
-table('stable-v2-directions',columns(directionColumns),Object.entries(p.directionResults||{}).map(([direction,metrics])=>({direction,metrics})));
+PortfolioSummary.render($('stable-v2-metrics'),run);
+  table('stable-v2-directions',columns(directionColumns),Object.entries(p.directionResults||{}).map(([direction,metrics])=>({direction,metrics})));
 table('stable-v2-symbols',columns(symbolColumns),p.symbolResults||run.analysis?.symbolResults||[]);
 const comparisonRows=(p.symbolResults||[]).filter(row=>row.researchBaseline!=null);
 $('stable-v2-comparison').hidden=!comparisonRows.length;

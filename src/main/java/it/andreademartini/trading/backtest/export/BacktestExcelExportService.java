@@ -48,6 +48,7 @@ public class BacktestExcelExportService {
             for (BacktestExportTrade trade : run.trades()) {
                 tradeSheetWriter.write(workbook, run, trade, styles);
             }
+            it.andreademartini.trading.backtest.reporting.PortfolioSummaryExcel.write(workbook,run);
             workbook.write(output);
             return output.toByteArray();
         } catch (IOException exception) {

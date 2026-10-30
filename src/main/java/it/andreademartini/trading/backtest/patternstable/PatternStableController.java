@@ -44,7 +44,10 @@ public class PatternStableController {
         try(var book=new XSSFWorkbook(new ByteArrayInputStream(excel.export(run.simulation())));var out=new ByteArrayOutputStream()){
             var sheet=book.createSheet("STRATEGY_VERSION");int i=0;
             for(var row:List.of(List.of("Strategy ID",run.strategyId()),List.of("Strategy Version",run.strategyVersion()),List.of("Run ID",run.runId()),List.of("Configuration Hash",run.configurationHash()),List.of("Reference Run",run.referenceRunId()),List.of("Dataset ID",run.datasetId()),List.of("Execution","HISTORICAL ONLY — orders disabled"))){var r=sheet.createRow(i++);r.createCell(0).setCellValue(row.get(0));r.createCell(1).setCellValue(row.get(1));}
-            sheet.setColumnWidth(0,6500);sheet.setColumnWidth(1,23000);book.write(out);return out.toByteArray();
+            sheet.setColumnWidth(0,6500);sheet.setColumnWidth(1,23000);
+            book.removeSheetAt(book.getSheetIndex("PORTFOLIO_SUMMARY"));
+            it.andreademartini.trading.backtest.reporting.PortfolioSummaryExcel.write(book,run);
+            book.write(out);return out.toByteArray();
         }catch(IOException e){throw new IllegalStateException("Stable Excel export failed",e);}
     }
 }

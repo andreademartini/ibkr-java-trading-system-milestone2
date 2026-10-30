@@ -5,10 +5,16 @@
   <title>PATTERN V1 LEGACY · Backtest</title>
   <link rel="stylesheet" href="/app.css?v=sticky-nav-1"><link rel="stylesheet" href="/research.css">
   <link rel="stylesheet" href="/trading-chart.css"><link rel="stylesheet" href="/pattern-v1.css">
-</head>
+<link rel="stylesheet" href="/site-navigation.css?v=20261029-1"><script src="/site-navigation.js?v=20261030-v3" defer></script><link rel="stylesheet" href="/portfolio-summary.css?v=1"><script src="/portfolio-summary.js?v=1"></script></head>
 <body>
 <header class="topbar"><div><h1>PATTERN V1 LEGACY</h1><p>Portafoglio CORE · configurazione congelata · DAILY</p></div>
-  <nav class="top-actions"><a class="link-button" href="/paper-trading.html">PAPER TRADING</a><a class="link-button" href="/pattern-v1.html">PATTERN V1 — BACKTEST</a><a class="link-button" href="/pattern-v2.html">PATTERN V2 — BACKTEST</a><a class="link-button" href="/pattern-v3.html">PATTERN V3 — RESEARCH</a><a class="link-button" href="/">Azioni</a><a class="link-button" href="/research.html">Pattern Research</a></nav>
+  <nav class="top-actions site-nav" aria-label="Navigazione principale">
+<a class="link-button" href="/">Azioni</a>
+<details class="site-nav-group" name="site-navigation"><summary>Strategie</summary><div class="site-nav-panel"><a href="/paper-trading.html">PAPER TRADING</a><a href="/pattern-v1.html">PATTERN V1 — BACKTEST</a><a href="/pattern-v2.html">PATTERN V2 — BACKTEST</a><a href="/pattern-v3.html">PATTERN V3 — RESEARCH</a><a href="/weekly-high-tte.html">Weekly High TTE — Research</a><a href="/trend-pullback-rebound.html">Trend Pullback Rebound</a><a href="/trend-pullback-rebound-v2.html">TREND PULLBACK REBOUND V2 — RESEARCH</a><a href="/trend-pullback-rebound-v3.html">TREND PULLBACK REBOUND V3 ? RESEARCH</a></div></details>
+<details class="site-nav-group site-nav-current" name="site-navigation"><summary>Pattern Research</summary><div class="site-nav-panel"><a href="/research.html">Laboratorio Pattern Research</a><a href="/pattern-v1-legacy.html" aria-current="page">Pattern V1 — Legacy</a></div></details>
+<details class="site-nav-group" name="site-navigation"><summary>Configurazione</summary><div class="site-nav-panel"><a href="/config.html">Impostazioni applicazione</a><a href="/provider.html">Connessione IBKR</a><a href="/api/paper/status" target="_blank" rel="noopener">Stato sistema — JSON</a></div></details>
+
+</nav>
 </header>
 <main class="research-shell">
   <section class="panel research-config">
@@ -32,7 +38,7 @@
     </form>
   </section>
   <section id="v1-results" class="panel" hidden>
-    <h2>Portfolio Summary</h2><p id="v1-coverage"></p><p id="v1-applied-limits" class="research-note"></p><div id="v1-summary" class="v1-metrics"></div>
+    <p id="v1-coverage" hidden></p><p id="v1-applied-limits" hidden class="research-note"></p><div id="v1-summary" class="v1-metrics"></div>
     <h3>LONG vs SHORT</h3><div id="v1-directions" class="table-scroll"></div>
     <h3>Equity Curve e Drawdown</h3><div id="v1-equity" class="v1-equity"></div><p id="v1-equity-point"></p>
     <h3>Risultati per simbolo e configurazione</h3><div id="v1-symbols" class="table-scroll"></div>
@@ -49,5 +55,5 @@
   </section>
 </main>
 <script src="/vendor/lightweight-charts.standalone.production.js"></script>
-<script src="/trading-chart.js"></script><script src="/pattern-v1-metrics.js"></script><script src="/pattern-v1.js?v=20261007-ibkr-costs"></script>
+<script src="/trading-chart.js"></script><script src="/pattern-v1-metrics.js"></script><script src="/pattern-v1.js?v=portfolio-summary-1"></script>
 </body></html>

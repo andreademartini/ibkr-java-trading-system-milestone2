@@ -67,11 +67,7 @@
         status(`${run.summary.trades} trade · ${run.backtestId}`);
         $("v1-coverage").textContent = `Richiesto ${run.startDate} → ${run.endDate}. Copertura effettiva ${run.actualStartDate ?? "—"} → ${run.actualEndDate ?? "—"}. CAGR sulla copertura effettiva.`;
         
-        const metrics = PatternV1Metrics.summary(run);
-        $("v1-summary").innerHTML = metrics.map(({label,key,value,tooltip}) => {
-            const formatted = key === "winRate" ? pct(value) : num(value) + (label.endsWith("%") && value != null ? "%" : "");
-            return `<div class="v1-metric" title="${escape(tooltip)}"><span>${escape(label)}</span><strong>${escape(formatted)}</strong></div>`;
-        }).join("");
+        PortfolioSummary.render($("v1-summary"),run);
         $("v1-directions").innerHTML = table(["Direction","Signals","Trades","Closed","Open","Wins","Losses","Breakevens","Win Rate","PF (PnL)","PF (R)","Expectancy R","Realized Net PnL","Unrealized Net PnL","Max DD"], Object.entries(run.directionResults).map(([d,m]) =>
             [d,m.signalsDetected,m.trades,m.closedTrades,m.openTrades,m.wins,m.losses,m.breakevens,pct(m.winRate),num(m.profitFactor),num(m.profitFactorR),num(m.expectancyR),num(m.realizedNetPnl),num(m.netUnrealizedPnl),num(m.maxDrawdown)]));
         $("v1-symbols").innerHTML = table(["Symbol","Direction","Pattern","Target R","Signals","Executed","Skipped Open","Skipped Capital","Closed","Open","Wins","Losses","Breakevens","Timeouts","Win Rate","PF (PnL)","PF (R)","Expectancy R","Average R","Avg Winner R","Avg Loser R","Realized Gross PnL","Realized Net PnL","Unrealized PnL","Net Unrealized PnL","Max DD","Actual Risk Avg %","Average Order Value","Executed MFE R","Executed MAE R"], run.symbolResults.map(s => {

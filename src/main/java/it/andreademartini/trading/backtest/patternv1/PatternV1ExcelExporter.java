@@ -86,7 +86,7 @@ public class PatternV1ExcelExporter {
                 if (s.getLastRowNum() > 0) s.setAutoFilter(new CellRangeAddress(0,s.getLastRowNum(),0,columns-1));
                 for (int c = 0; c < columns; c++) s.setColumnWidth(c,c == 0 ? 36*256 : 25*256);
             }
-            book.write(output); return output.toByteArray();
+            it.andreademartini.trading.backtest.reporting.PortfolioSummaryExcel.write(book,run);book.write(output); return output.toByteArray();
         } catch (Exception e) { throw new IllegalStateException("PATTERN_V1 Excel export failed",e); }
     }
     private static void writeMetrics(Sheet sheet,String prefix,PatternV1Result.Metrics metrics) {

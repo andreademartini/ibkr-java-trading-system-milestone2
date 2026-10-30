@@ -1,10 +1,16 @@
 <!doctype html>
 <html lang="it">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PATTERN V3 — Research / Experimental</title>
-<link rel="stylesheet" href="/app.css?v=sticky-nav-1"><link rel="stylesheet" href="/research.css"><link rel="stylesheet" href="/pattern-v3.css"><link rel="stylesheet" href="/market-regime-tables.css?v=1"></head>
+<link rel="stylesheet" href="/app.css?v=sticky-nav-1"><link rel="stylesheet" href="/research.css"><link rel="stylesheet" href="/pattern-v3.css"><link rel="stylesheet" href="/market-regime-tables.css?v=1"><link rel="stylesheet" href="/site-navigation.css?v=20261029-1"><script src="/site-navigation.js?v=20261030-v3" defer></script><link rel="stylesheet" href="/portfolio-summary.css?v=1"><script src="/portfolio-summary.js?v=1"></script></head>
 <body>
 <header class="topbar v3-topbar"><div><h1>PATTERN V3 <span class="v3-badge">RESEARCH</span></h1><p>RESEARCH / EXPERIMENTAL · Ricerca manuale</p></div>
-<nav class="top-actions"><a class="link-button" href="/paper-trading.html">PAPER TRADING</a><a class="link-button" href="/pattern-v1.html">PATTERN V1 — BACKTEST</a><a class="link-button" href="/pattern-v2.html">PATTERN V2 — BACKTEST</a><a class="link-button active-link" href="/pattern-v3.html">PATTERN V3 — RESEARCH</a><a class="link-button" href="/">Azioni</a><a class="link-button" href="/research.html">Pattern Research</a></nav></header>
+<nav class="top-actions site-nav" aria-label="Navigazione principale">
+<a class="link-button" href="/">Azioni</a>
+<details class="site-nav-group site-nav-current" name="site-navigation"><summary>Strategie</summary><div class="site-nav-panel"><a href="/paper-trading.html">PAPER TRADING</a><a href="/pattern-v1.html">PATTERN V1 — BACKTEST</a><a href="/pattern-v2.html">PATTERN V2 — BACKTEST</a><a href="/pattern-v3.html" aria-current="page">PATTERN V3 — RESEARCH</a><a href="/weekly-high-tte.html">Weekly High TTE — Research</a><a href="/trend-pullback-rebound.html">Trend Pullback Rebound</a><a href="/trend-pullback-rebound-v2.html">TREND PULLBACK REBOUND V2 — RESEARCH</a><a href="/trend-pullback-rebound-v3.html">TREND PULLBACK REBOUND V3 ? RESEARCH</a></div></details>
+<details class="site-nav-group" name="site-navigation"><summary>Pattern Research</summary><div class="site-nav-panel"><a href="/research.html">Laboratorio Pattern Research</a><a href="/pattern-v1-legacy.html">Pattern V1 — Legacy</a></div></details>
+<details class="site-nav-group" name="site-navigation"><summary>Configurazione</summary><div class="site-nav-panel"><a href="/config.html">Impostazioni applicazione</a><a href="/provider.html">Connessione IBKR</a><a href="/api/paper/status" target="_blank" rel="noopener">Stato sistema — JSON</a></div></details>
+
+</nav></header>
 <main class="research-shell">
 <div class="v3-frozen" role="note">PATTERN_V1 e PATTERN_V2 sono congelate e non vengono modificate dalle impostazioni di ricerca V3.</div>
 <nav class="v3-tabs" aria-label="Sezioni V2"><a href="#configuration">Configuration</a><a href="#symbols">Symbols &amp; Patterns</a><a href="#results">Results</a><a href="#symbol-results">Symbol Results</a><a href="#target-analysis">Target Analysis</a><a href="#pattern-analysis">Pattern Analysis</a><a href="#period-analysis">Period Analysis</a><a href="#equity">Equity / Drawdown</a><a href="#capital-skips">Capital Skips</a><a href="#market-regime-analysis">MARKET REGIME ANALYSIS</a><a href="#history">Run History</a></nav>
@@ -57,7 +63,7 @@
 <button class="v3-run" id="v3-run" type="submit">RUN PATTERN V3</button></section>
 </form>
 <div id="v3-run-results" hidden>
-<section id="results" class="panel v3-panel"><h2>PORTFOLIO RESULTS</h2><p id="v3-coverage"></p><p id="v3-used"></p><details><summary>Capital limits at entry</summary><div id="v3-capital-results" class="table-scroll"></div></details><div id="v3-summary" class="v3-metrics"></div>
+<section id="results" class="panel v3-panel"><h2>PORTFOLIO RESULTS</h2><p id="v3-coverage" hidden></p><p id="v3-used" hidden></p><details><summary>Capital limits at entry</summary><div id="v3-capital-results" class="table-scroll"></div></details><div id="v3-summary" class="v3-metrics"></div>
 <div class="v3-actions"><button type="button" id="v3-benchmark">COMPARE WITH V1</button><a id="v3-excel" class="link-button">EXPORT EXCEL</a></div>
 <h3>V1 vs V2</h3><p>V1 è un benchmark DAILY calcolato con i suoi parametri congelati e lo stesso capitale iniziale/periodo richiesto. Il confronto viene salvato solo nella run V2. Controlla le coperture effettive.</p><div id="v3-comparison" class="table-scroll"></div>
 <label>R HIGH FILTER<select id="v3-filter"><option value="all">Tutti i target</option><option value="min3">Show only Target &gt;= 3R</option><option value="exact4">Show only Target = 4R</option></select></label>
@@ -104,5 +110,5 @@
 </div>
 <section id="history" class="panel v3-panel"><h2>V2 RUN HISTORY</h2><div class="v3-actions"><button id="v3-history-refresh" type="button">REFRESH HISTORY</button><button type="button" id="v3-compare-capital">COMPARE CAPITAL LIMITS</button><button id="v3-compare-runs" type="button">COMPARE RUNS</button></div><div id="v3-history" class="table-scroll"></div><div id="v3-run-comparison" class="table-scroll"></div></section>
 </main>
-<script src="/vendor/lightweight-charts.standalone.production.js"></script><script src="/pattern-v3-model.js?v=research-filters-1"></script><script src="/pattern-v3-regime.js?v=table-layout-1"></script><script src="/pattern-v3-filter.js?v=table-layout-1"></script><script src="/pattern-v3.js?v=research-filters-1"></script>
+<script src="/vendor/lightweight-charts.standalone.production.js"></script><script src="/pattern-v3-model.js?v=research-filters-1"></script><script src="/pattern-v3-regime.js?v=table-layout-1"></script><script src="/pattern-v3-filter.js?v=table-layout-1"></script><script src="/pattern-v3.js?v=portfolio-summary-1"></script>
 </body></html>

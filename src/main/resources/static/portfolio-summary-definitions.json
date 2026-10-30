@@ -1,0 +1,242 @@
+[
+  {
+    "label": "Initial Capital",
+    "key": "initialCapital",
+    "source": "run",
+    "format": "money"
+  },
+  {
+    "label": "Final Cash",
+    "key": "finalCash",
+    "source": "run",
+    "format": "money"
+  },
+  {
+    "label": "Final Available Cash",
+    "key": "finalAvailableCash",
+    "source": "run",
+    "format": "money"
+  },
+  {
+    "label": "Long Market Value",
+    "key": "finalLongMarketValue",
+    "source": "run",
+    "format": "money"
+  },
+  {
+    "label": "Short Market Value (liability)",
+    "key": "finalShortMarketValue",
+    "source": "run",
+    "format": "money"
+  },
+  {
+    "label": "Open Positions Market Value (net)",
+    "key": "finalOpenPositionValue",
+    "source": "run",
+    "format": "money"
+  },
+  {
+    "label": "Final Equity",
+    "key": "finalCapital",
+    "source": "run",
+    "format": "money"
+  },
+  {
+    "label": "Realized Gross PnL",
+    "key": "realizedGrossPnl",
+    "source": "summary",
+    "format": "money"
+  },
+  {
+    "label": "Realized Net PnL",
+    "key": "realizedNetPnl",
+    "source": "summary",
+    "format": "money"
+  },
+  {
+    "label": "Unrealized PnL",
+    "key": "unrealizedPnl",
+    "source": "summary",
+    "format": "money"
+  },
+  {
+    "label": "Net Unrealized PnL",
+    "key": "netUnrealizedPnl",
+    "source": "summary",
+    "format": "money"
+  },
+  {
+    "label": "Total Gross Mark-to-Market PnL",
+    "key": "grossPnl",
+    "source": "summary",
+    "format": "money"
+  },
+  {
+    "label": "Total Net PnL",
+    "key": "netPnl",
+    "source": "summary",
+    "format": "money"
+  },
+  {
+    "label": "Return %",
+    "key": "returnPercent",
+    "source": "run",
+    "format": "percent"
+  },
+  {
+    "label": "CAGR %",
+    "key": "cagr",
+    "source": "run",
+    "format": "percent"
+  },
+  {
+    "label": "Max Drawdown",
+    "key": "maxDrawdown",
+    "source": "run",
+    "format": "money"
+  },
+  {
+    "label": "Max Drawdown %",
+    "key": "maxDrawdownPercent",
+    "source": "run",
+    "format": "percent"
+  },
+  {
+    "label": "Profit Factor (PnL)",
+    "key": "profitFactor",
+    "source": "summary",
+    "format": "ratio"
+  },
+  {
+    "label": "Profit Factor (net PnL)",
+    "key": "profitFactorNet",
+    "source": "summary",
+    "format": "ratio"
+  },
+  {
+    "label": "Profit Factor (R)",
+    "key": "profitFactorR",
+    "source": "summary",
+    "format": "ratio"
+  },
+  {
+    "label": "Win Rate",
+    "key": "winRate",
+    "source": "summary",
+    "format": "percent"
+  },
+  {
+    "label": "Expectancy R",
+    "key": "expectancyR",
+    "source": "summary",
+    "format": "ratio"
+  },
+  {
+    "label": "Average R",
+    "key": "averageR",
+    "source": "summary",
+    "format": "ratio"
+  },
+  {
+    "label": "Average Winner PnL",
+    "key": "averageWinner",
+    "source": "summary",
+    "format": "money"
+  },
+  {
+    "label": "Average Loser PnL",
+    "key": "averageLoser",
+    "source": "summary",
+    "format": "money"
+  },
+  {
+    "label": "Average Winner R",
+    "key": "averageWinnerR",
+    "source": "summary",
+    "format": "ratio"
+  },
+  {
+    "label": "Average Loser R",
+    "key": "averageLoserR",
+    "source": "summary",
+    "format": "ratio"
+  },
+  {
+    "label": "Total Signals",
+    "key": "signalsDetected",
+    "source": "summary",
+    "format": "count"
+  },
+  {
+    "label": "Executed Trades",
+    "key": "trades",
+    "source": "summary",
+    "format": "count"
+  },
+  {
+    "label": "Closed Trades",
+    "key": "closedTrades",
+    "source": "summary",
+    "format": "count"
+  },
+  {
+    "label": "Open Trades",
+    "key": "openTrades",
+    "source": "summary",
+    "format": "count"
+  },
+  {
+    "label": "Wins",
+    "key": "wins",
+    "source": "summary",
+    "format": "count"
+  },
+  {
+    "label": "Losses",
+    "key": "losses",
+    "source": "summary",
+    "format": "count"
+  },
+  {
+    "label": "Breakevens",
+    "key": "breakevens",
+    "source": "summary",
+    "format": "count"
+  },
+  {
+    "label": "Timeouts",
+    "key": "timeouts",
+    "source": "summary",
+    "format": "count"
+  },
+  {
+    "label": "Same Bar Ambiguities",
+    "key": "ambiguities",
+    "source": "summary",
+    "format": "count"
+  },
+  {
+    "label": "Signals Skipped Open Position",
+    "key": "skippedPositionOpen",
+    "source": "summary",
+    "format": "count"
+  },
+  {
+    "label": "Signals Skipped Capital",
+    "key": "skippedCapital",
+    "source": "summary",
+    "format": "count"
+  },
+  {
+    "label": "Average Gross Exposure %",
+    "key": "averageGrossExposurePercent",
+    "source": "run",
+    "format": "percent"
+  },
+  {
+    "label": "Time In Market %",
+    "key": "timeInMarketPercent",
+    "source": "run",
+    "format": "percent"
+  }
+]

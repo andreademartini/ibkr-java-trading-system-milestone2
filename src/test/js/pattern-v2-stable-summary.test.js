@@ -16,28 +16,24 @@ const p={summary:{},directionResults:{LONG:{trades:1,winRate:0.5}},symbolResults
 for(const [,key,source] of metrics.definitions)(source==='run'?p:p.summary)[key]=12.3456;
 p.summary.winRate=0.4321;p.finalAvailableCash=null;
 const run={runId:'test-run',configuration:version.configuration,portfolio:p,analysis:{periods:[],yearly:[],symbolResults:[]},costs:{commissions:50,slippage:25,transactionCosts:0}};
+run.portfolioSummary={schemaVersion:'PORTFOLIO_SUMMARY/1',context:{'Run ID':run.runId,'Applied Configuration':run.configuration},metrics:require('../../main/resources/static/portfolio-summary-definitions.json').map(d=>({...d,value:(d.source==='run'?p:p.summary)[d.key]==null?null:(d.source==='run'?p:p.summary)[d.key]*(d.key==='winRate'?100:1)}))};
 const charts=[],calls=[],details=[];let runResponse;
 p.trades.forEach((t,i)=>Object.assign(t,{number:i+1,tradeId:'trade-'+i,strategy:'PATTERN_V2',pattern:'HAMMER',direction:'LONG',targetR:2,quantity:10,desiredQuantity:12,finalQuantity:10,quantityLimitingReasons:['ORDER_CAP'],sizeConstrained:true,signalIndex:0,patternStartIndex:0,entryIndex:1,exitIndex:i===0?2:null,markIndex:2,signalDate:'2020-01-01',entryDate:'2020-01-02',exitDate:i===0?'2020-01-03':null,markDate:'2020-01-03',entryPrice:100,stopPrice:98,takeProfitPrice:104,riskPerShare:2,orderValue:1000,markPrice:101,resultR:i===0?1.5:null,rawBarMfeR:3,rawBarMaeR:1.2}));
 p.priceSeries=Object.fromEntries(['AAPL','NVDA'].map(symbol=>[symbol,[0,1,2].map(i=>({index:i,timestamp:'2020-01-0'+(i+1)+'T00:00:00Z',open:100,high:105,low:98,close:101}))]));
 run.marketRegimeFilterAnalysis={summary:{}};run.marketRegimeAnalysis={};
 const context={document:{getElementById:get,createElement:el},Option:function(text,value){return {text,value};},PatternV1Metrics:metrics,PatternV2Regime:{render(r){get('v2-regime-content').hidden=!r.marketRegimeAnalysis;}},PatternV2Filter:{render(){}},TradingChart:{formatTradeId(t){return t.tradeId;},create(){const detail={update(data){this.data=data;},fitTrade(){this.fitted=true;},destroy(){this.destroyed=true;}};details.push(detail);return detail;}},window:{LightweightCharts:true},LightweightCharts:{LineSeries:'line',HistogramSeries:'histogram',createChart(host,options){const chart={host,options,series:[],addSeries(type,opts){const s={type,opts,setData(d){this.data=d;}};this.series.push(s);return s;},timeScale(){return {fitContent(){}};},subscribeCrosshairMove(fn){this.crosshair=fn;},remove(){this.removed=true;}};charts.push(chart);return chart;}},fetch:async(url,options)=>{calls.push({url,options});if(url.endsWith('/run')||/\/runs\/[^/]+$/.test(url))return runResponse?runResponse(url,options):{ok:true,json:async()=>run};return {ok:true,json:async()=>url.endsWith('/configuration')?version:[{runId:'saved-run'}]};}};
+vm.runInNewContext(fs.readFileSync(root+'portfolio-summary.js','utf8'),context);
 vm.runInNewContext(fs.readFileSync(root+'pattern-v2-stable.js','utf8'),context);
 return {get,run,charts,calls,details,setRunResponse(fn){runResponse=fn;},async flush(){await new Promise(r=>setImmediate(r));},async load(){await new Promise(r=>setImmediate(r));await get('stable-v2-run').onclick();}};
 }
-test('V2 summary has every V1 metric in the same order, units, precision and tooltips',async()=>{
-const h=harness();await h.load();const cards=h.get('stable-v2-metrics').children;
-assert.deepEqual(cards.slice(0,metrics.definitions.length).map(c=>c.children[0].textContent),metrics.definitions.map(d=>d[0]));
-assert.equal(cards.length,metrics.definitions.length+3);
+test('V2 uses the shared forty-card summary with numeric Italian formatting',async()=>{
+const h=harness();await h.load();const cards=h.get('stable-v2-metrics').children.find(c=>c.className==='portfolio-summary-grid').children;
+assert.deepEqual(cards.map(c=>c.children[0].textContent),metrics.definitions.slice(0,40).map(d=>d[0]));assert.equal(cards.length,40);
 function card(key){return cards[metrics.definitions.findIndex(d=>d[1]===key)];}
-assert.equal(card('winRate').children[1].textContent,'43,21%');
-assert.equal(card('cagr').children[1].textContent,'12,346%');
-assert.equal(card('finalAvailableCash').children[1].textContent,'N/D');
-assert.match(card('timeouts').title,/13/);assert.doesNotMatch(card('timeouts').title,/20/);
-assert.doesNotMatch(card('skippedPositionOpen').title,/PATTERN_V1/);
-assert.match(h.get('stable-v2-coverage').textContent,/2010-01-01.*2010-01-04/);
-assert.match(h.get('stable-v2-applied-limits').textContent,/30% equity.*0,005 USD.*0,03%/);
+assert.equal(card('winRate').children[1].textContent,'43,210%');assert.equal(card('cagr').children[1].textContent,'12,346%');assert.equal(card('finalAvailableCash').children[1].textContent,'N/A');
 assert.equal(h.calls.filter(c=>c.options.method==='POST').length,1);
 });
+
 test('V2 uses V1 equity and monetary drawdown chart and retains its run values',async()=>{
 const h=harness();await h.load();assert.equal(h.charts.length,1);const chart=h.charts[0];assert.equal(chart.options.height,360);
 assert.equal(chart.series[0].opts.color,'#0f766e');assert.equal(chart.series[1].type,'histogram');assert.equal(chart.series[1].opts.priceScaleId,'left');

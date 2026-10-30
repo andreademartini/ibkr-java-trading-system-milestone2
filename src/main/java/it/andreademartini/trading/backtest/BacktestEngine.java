@@ -61,4 +61,14 @@ public class BacktestEngine {
         }
         return symbol.trim().toUpperCase(Locale.ROOT);
     }
+
+    /** Offline research extension: replays a frozen dataset without loading or transmitting broker data. */
+    public it.andreademartini.trading.backtest.rebound.TrendReboundRun run(
+            it.andreademartini.trading.backtest.rebound.TrendReboundConfiguration configuration,
+            it.andreademartini.trading.backtest.patternv2.PatternV2Dataset snapshot,
+            it.andreademartini.trading.backtest.rebound.TrendReboundEngine executionEngine) {
+        configuration.validate();
+        return executionEngine.simulate(configuration,snapshot.bars(),snapshot.id(),
+                it.andreademartini.trading.backtest.weeklytte.WeeklyTteStore.hash(configuration));
+    }
 }

@@ -102,7 +102,7 @@ class PatternV1PortfolioEngineTest {
         var store=new PatternV1RunStore(directory);store.save(result);assertEquals(result,store.find(result.backtestId()));
         assertThrows(IllegalArgumentException.class,()->store.find("../../outside"));
         try(var workbook=new XSSFWorkbook(new ByteArrayInputStream(new PatternV1ExcelExporter().export(result)))) {
-            assertEquals(5,workbook.getNumberOfSheets());
+            assertEquals(6,workbook.getNumberOfSheets());assertNotNull(workbook.getSheet("PORTFOLIO_SUMMARY"));
             for(String sheet:List.of("SUMMARY","SYMBOL_RESULTS","TRADES","EQUITY_CURVE","CONFIGURATION"))assertNotNull(workbook.getSheet(sheet));
             assertEquals(2,workbook.getSheet("EQUITY_CURVE").getDrawingPatriarch().getCharts().size());
             assertEquals("AAPL",workbook.getSheet("TRADES").getRow(1).getCell(1).getStringCellValue());

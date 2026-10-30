@@ -6,7 +6,7 @@ const elements=new Map([...page.matchAll(/id="([^"]+)"/g)].map(m=>[m[1],{value:'
 const get=id=>{assert.ok(elements.has(id),'Missing HTML element '+id);return elements.get(id);};
 const config=v===1?{strategyVersion:'2.1',configuration:JSON.parse(fs.readFileSync('src/main/resources/pattern-stable/2.1.json','utf8'))}:JSON.parse(fs.readFileSync('src/main/resources/pattern-v2-stable/1.0.json','utf8'));
 const calls=[];
-vm.runInNewContext(fs.readFileSync(root+'pattern-v'+v+'-stable.js','utf8'),{
+vm.runInNewContext("const PortfolioSummary={render(){},clear(){},load(){}};\n"+fs.readFileSync(root+'pattern-v'+v+'-stable.js','utf8'),{
 document:{getElementById:get,createElement(){return {append(){},textContent:''};}},URLSearchParams,location:{search:''},Option:function(){},
 AbortSignal:{timeout(ms){assert.equal(ms,15000);return {aborted:mode==='timeout'};}},
 async fetch(url,options){calls.push({url,options});if(mode==='timeout')throw Error('aborted');if(mode==='unavailable')throw Error('Failed to fetch');if(url.endsWith('/configuration'))return {ok:true,json:async()=>config};return new Promise(()=>{});}
