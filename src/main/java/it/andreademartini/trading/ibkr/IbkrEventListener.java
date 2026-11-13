@@ -20,6 +20,7 @@ public interface IbkrEventListener {
     default void onCommissionAndFees(CommissionAndFeesReport report) {}
     default void onContractDetails(int requestId,ContractDetails details) {}
     default void onContractDetailsEnd(int requestId) {}
+    default void onTickString(int requestId,int field,String value) {}
     default void onMarketDataType(int requestId,int type) {}
 
     default void onNextValidId(int orderId) {

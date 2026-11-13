@@ -19,6 +19,7 @@ import java.util.*;
 /** Dedicated frozen V2 orchestration. Every control and transmit decision is made server-side. */
 @Service
 public class PatternV2PaperService {
+    @org.springframework.beans.factory.annotation.Autowired(required=false) private it.andreademartini.trading.monitor.ExecutionMonitor executionMonitor;
     private final PatternV2PaperStore store;
     private final it.andreademartini.trading.backtest.patternv2stable.FrozenPatternV2Service stable;
     private final PatternPaperBroker broker;
@@ -136,6 +137,7 @@ public class PatternV2PaperService {
                 for(var signal:signals){String id=signalId(s.strategyVersion,signal);if(s.signals.stream().anyMatch(r->r.id.equals(id)))continue;
                     var record=new SignalRecord();record.id=id;record.signal=signal;record.symbol=config.symbol();record.mode=s.mode==Mode.SHADOW?"SHADOW":"PAPER";record.generatedAt=now;record.entrySession=next.date();record.status="PENDING";
                     var regime=planner.regime(signal,history,history.size()-1);if(!regime.accepted()){record.status="REJECTED";record.reason=regime.rejectionReason();store.event(s,"REGIME_REJECTED",record.symbol,null,id,PatternV2PaperStore.json(regime),false);}
+                    if(executionMonitor!=null)executionMonitor.signal(s.strategyVersion,record,history.getLast(),closed.open(),closed.close(),broker.connection());
                     s.signals.add(record);s.lastSignalAt=now;store.event(s,"SIGNAL",record.symbol,null,id,signal.detection().patternType()+" "+signal.detection().direction(),false);
                 }s.processedCloses.add(key);return null;});
         }
@@ -179,7 +181,11 @@ public class PatternV2PaperService {
                 var current=store.session();var c=broker.connection();
                 if(c.epoch()!=epoch||!c.connected()||!c.paperIdentityVerified()||!c.writesVerified()||!c.account().equals(cmd.order().account()))throw new IllegalStateException("Sessione PAPER cambiata/non verificata prima dell'invio");
                 if(!protective&&(entriesInhibited.get()||current.generation!=generation||current.mode!=Mode.PAPER_AUTO||current.killSwitch||globalKill.isActive()))throw new IllegalStateException("Nuovi ingressi bloccati prima della trasmissione");
-                broker.place(cmd);
+                if(executionMonitor!=null){
+                      if(!protective && "1.2".equals(current.strategyVersion) && executionMonitor.settings().blockNewPaperOrdersOnUnreliableMarketData() && executionMonitor.unreliable(candidate.symbol))throw new IllegalStateException("Monitor: unreliable market data");
+                      executionMonitor.intent(candidate.id,cmd);
+                  }
+                  broker.place(cmd);
                 store.update(s->{var o=s.orders.stream().filter(r->r.orderId==cmd.orderId()).findFirst().orElseThrow();o.status="TRANSMITTED";o.updatedAt=Instant.now();store.event(s,"ORDER_SENT",o.symbol,o.orderId,o.signalId,o.role.name(),false);return null;});
             }
             store.update(s->{if(!protective)s.signals.stream().filter(r->r.id.equals(candidate.id)).findFirst().orElseThrow().status="SUBMITTED";return null;});

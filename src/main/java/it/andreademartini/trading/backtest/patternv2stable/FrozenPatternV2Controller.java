@@ -10,6 +10,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/backtest/pattern-v2-stable")
 public class FrozenPatternV2Controller {
+    @org.springframework.beans.factory.annotation.Autowired(required=false) private it.andreademartini.trading.monitor.ExecutionMonitor monitor;
     private final FrozenPatternV2Service service;private final PatternV2ExcelExporter excel;
     public FrozenPatternV2Controller(FrozenPatternV2Service service,PatternV2ExcelExporter excel){this.service=service;this.excel=excel;}
     @GetMapping("/configuration") public Object configuration(){return service.version();}
@@ -27,7 +28,7 @@ public class FrozenPatternV2Controller {
         try(var book=new org.apache.poi.xssf.usermodel.XSSFWorkbook(new java.io.ByteArrayInputStream(excel.export(run.simulation())));var out=new java.io.ByteArrayOutputStream()){
             var trades=book.getSheet("TRADES");int offset=trades.getRow(0).getLastCellNum();var labels=List.of("RunId","StrategyId","StrategyVersion","ConfigurationHash");var values=List.of(run.runId(),run.strategyId(),run.strategyVersion(),run.configurationHash());for(int c=0;c<labels.size();c++){trades.getRow(0).createCell(offset+c).setCellValue(labels.get(c));for(int r=1;r<=trades.getLastRowNum();r++)trades.getRow(r).createCell(offset+c).setCellValue(values.get(c));}
             var sheet=book.createSheet("STRATEGY_VERSION");int n=0;
-            for(var pair:List.of(List.of("strategyId",run.strategyId()),List.of("strategyVersion",run.strategyVersion()),List.of("configurationHash",run.configurationHash()),List.of("referenceRunId",run.referenceRunId()),List.of("runId",run.runId()),List.of("datasetId",run.datasetId()))){var row=sheet.createRow(n++);row.createCell(0).setCellValue(pair.get(0));row.createCell(1).setCellValue(pair.get(1));}sheet.setColumnWidth(0,6500);sheet.setColumnWidth(1,24000);book.write(out);
+            for(var pair:List.of(List.of("strategyId",run.strategyId()),List.of("strategyVersion",run.strategyVersion()),List.of("configurationHash",run.configurationHash()),List.of("referenceRunId",run.referenceRunId()),List.of("runId",run.runId()),List.of("datasetId",run.datasetId()))){var row=sheet.createRow(n++);row.createCell(0).setCellValue(pair.get(0));row.createCell(1).setCellValue(pair.get(1));}sheet.setColumnWidth(0,6500);sheet.setColumnWidth(1,24000);if(monitor!=null)it.andreademartini.trading.monitor.ExecutionMonitorController.sheet(book,monitor.rows());book.write(out);
             return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=PATTERN_V2_STABLE_"+id+".xlsx").contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")).body(out.toByteArray());
         }catch(java.io.IOException e){throw new IllegalStateException("Stable V2 export failed",e);}
     }

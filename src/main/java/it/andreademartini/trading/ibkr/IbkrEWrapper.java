@@ -92,6 +92,7 @@ public class IbkrEWrapper implements InvocationHandler {
                 case "managedAccounts" -> handleManagedAccounts(safeArgs);
                 case "currentTime" -> handleCurrentTime(safeArgs);
                 case "tickPrice" -> handleTickPrice(safeArgs);
+                case "tickString" -> { if(safeArgs.length>=3)notifyListeners(l->l.onTickString(numberAsInt(safeArgs[0]),numberAsInt(safeArgs[1]),String.valueOf(safeArgs[2]))); }
                 case "tickSize" -> handleTickSize(safeArgs);
                 case "historicalData" -> handleHistoricalData(safeArgs);
                 case "historicalDataEnd" -> handleHistoricalDataEnd(safeArgs);

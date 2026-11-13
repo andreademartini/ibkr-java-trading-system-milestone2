@@ -101,7 +101,7 @@ public class PatternPaperIbkrBroker implements PatternPaperBroker,IbkrEventListe
             executionQueue.add(fill);var p=pending;if(p!=null&&requestId==p.executionId)p.executions.add(fill);
         }catch(RuntimeException failure){errors.add(failure.getMessage());}
     }
-    static Instant parseExecutionTime(String value){
+    public static Instant parseExecutionTime(String value){
         if(value==null)throw new IllegalArgumentException("Execution timestamp missing");
         String normalized=value.trim().replaceAll(" +"," ");String[] fields=normalized.split(" ");
         if(fields.length!=3)throw new IllegalArgumentException("Execution timezone missing; configure Operator Time Zone in TWS API");

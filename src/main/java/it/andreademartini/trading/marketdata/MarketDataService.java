@@ -42,6 +42,7 @@ public class MarketDataService implements IbkrEventListener {
     private final Map<String, TradingSystemProperties.InstrumentProperties> instruments =
             new ConcurrentHashMap<>();
     private MarketDataProvider activeProvider;
+    @org.springframework.beans.factory.annotation.Autowired private it.andreademartini.trading.monitor.ExecutionMonitor executionMonitor;
 
     public MarketDataService(
             TradingSystemProperties properties,
@@ -105,6 +106,7 @@ public class MarketDataService implements IbkrEventListener {
         symbolByRequestId.put(requestId, symbol);
         requestIdBySymbol.put(symbol, requestId);
 
+        if(executionMonitor!=null)executionMonitor.register(requestId,contract);
         apiClient.requestMarketData(requestId, contract);
         log.info("Sottoscrizione market data richiesta: {} reqId={} mode={}",
                 symbol, requestId, properties.getMarketData().getMode());
