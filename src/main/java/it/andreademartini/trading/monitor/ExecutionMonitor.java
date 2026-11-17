@@ -39,7 +39,7 @@ public class ExecutionMonitor implements IbkrEventListener {
     @Override public void onTickPrice(int id,int field,double price){if(!Double.isFinite(price)||price<=0)return;
         if(!Set.of(1,2,4,66,67,68).contains(field))return;
         feeds.computeIfPresent(id,(k,f)->{var q=new Feed(f.symbol,f.conId,f.exchange,f.currency,f.type,
-                field==4||field==68?price:f.last,field==1||field==66?price:f.bid,field==2||field==67?price:f.ask,
+                field==4||field==68?Double.valueOf(price):f.last,field==1||field==66?Double.valueOf(price):f.bid,field==2||field==67?Double.valueOf(price):f.ask,
                 null,Instant.now());store.event("QUOTE",q);return q;});
     }
     // IB lastTimestamp applies to Last only. It never qualifies Bid/Ask as contemporaneous.

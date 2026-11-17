@@ -26,6 +26,21 @@ class ExecutionMonitorTest {
     }
     @Test void missingSignalIsExplicit(){var row=monitor.row(new ExecutionMonitor.Fill("e",1,0,"SPY",0,"BOT",BigDecimal.ONE,100,"",null,Instant.EPOCH));assertNull(row.deviation());assertTrue(row.states().contains("SIGNAL_NOT_ASSOCIATED"));}
     @Test void missingPrice(){assertNull(ExecutionMonitor.deviation(100,null));assertNull(ExecutionMonitor.deviation(100,BigDecimal.ZERO));}
+    @ParameterizedTest @CsvSource({"1,1","2,2","4,4","66,1","67,2","68,4"})
+    void firstQuotePreservesMissingPricesAndSubsequentTicks(int field,int slot){
+        var contract=new com.ib.client.Contract();contract.symbol("SPY");monitor.register(7,contract);
+        assertDoesNotThrow(()->monitor.onTickPrice(7,field,100));
+        var quotes=(List<?>)monitor.dashboard().get("quotes");
+        var quote=(ExecutionMonitor.Feed)quotes.getFirst();
+        assertEquals(slot==4?Double.valueOf(100):null,quote.last());
+        assertEquals(slot==1?Double.valueOf(100):null,quote.bid());
+        assertEquals(slot==2?Double.valueOf(100):null,quote.ask());
+        monitor.onTickPrice(7,4,101);monitor.onTickPrice(7,1,99);monitor.onTickPrice(7,2,102);
+        quote=(ExecutionMonitor.Feed)((List<?>)monitor.dashboard().get("quotes")).getFirst();
+        assertEquals(Double.valueOf(101),quote.last());assertEquals(Double.valueOf(99),quote.bid());assertEquals(Double.valueOf(102),quote.ask());
+        monitor.onConnectionClosed();
+        assertDoesNotThrow(()->monitor.onTickPrice(7,field,103));
+    }
     @Test void disconnectRequiresFreshData(){monitor.onNextValidId(1);monitor.onError(new IbkrError(-1,1100,"lost",null));assertEquals(false,monitor.dashboard().get("connected"));monitor.onError(new IbkrError(-1,1101,"restored",null));assertEquals(true,monitor.dashboard().get("connected"));assertTrue(monitor.unreliable("SPY"));}
     @Test void exportRetainsOtherSheets()throws Exception{try(var book=new org.apache.poi.xssf.usermodel.XSSFWorkbook()){book.createSheet("TRADES").createRow(0).createCell(0).setCellValue("original");ExecutionMonitorController.sheet(book,List.of());assertEquals("original",book.getSheet("TRADES").getRow(0).getCell(0).getStringCellValue());assertNotNull(book.getSheet("PATTERN_V2_EXECUTION_MONITOR"));}}
     @Test void observationDefaultAndInvalidSettings(){assertFalse(monitor.settings().blockNewPaperOrdersOnUnreliableMarketData());assertThrows(IllegalArgumentException.class,()->new ExecutionMonitor.Settings(Double.NaN,1,false));}
