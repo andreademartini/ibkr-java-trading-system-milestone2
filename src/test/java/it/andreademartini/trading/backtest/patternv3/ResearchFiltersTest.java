@@ -61,7 +61,13 @@ class ResearchFiltersTest {
  @Test void validationAndCopiesPreserveExplicitBoundsAndLegacyConfigurationHashes()throws Exception{
   var c=config().withResearchFilters(true,bd(".906"),true,bd("1.38"),null,false,20,bd("1.20"),null);assertEquals(bd(".906"),c.withName("copy").withSignalTimeframe(SignalTimeframe.WEEKLY).withMarketRegimeFilter(false,14,25).closeStrengthMin());assertNull(c.patternRangeMaxPct());c.validate(detectors());
   for(var invalid:List.of(c.withResearchFilters(true,bd("1.01"),true,bd("1"),null,false,20,bd("1.2"),null),c.withResearchFilters(false,null,true,bd("4"),bd("3"),false,20,bd("1.2"),null),c.withResearchFilters(false,null,false,bd("1"),null,true,0,bd("1.2"),null),c.withResearchFilters(false,null,false,bd("1"),null,true,20,bd("2"),bd("1"))))assertThrows(IllegalArgumentException.class,()->invalid.validate(detectors()));
-  var old=PatternStableStore.JSON.readValue(Path.of("data/pattern-v3/current.json").toFile(),PatternV3Configuration.class);assertNull(old.closeStrengthMin());var hash=PatternStableStore.hash(old);assertEquals(hash,PatternStableStore.hash(PatternStableStore.JSON.readValue(PatternStableStore.JSON.writeValueAsBytes(old),PatternV3Configuration.class)));assertNotEquals(hash,PatternStableStore.hash(c));
+  // Keep legacy compatibility checks independent of the application's mutable saved configuration.
+  PatternV3Configuration old;
+  try(var fixture=ResearchFiltersTest.class.getResourceAsStream("/pattern-v3/legacy-configuration.json")){
+   assertNotNull(fixture,"Missing legacy configuration fixture");
+   old=PatternStableStore.JSON.readValue(fixture,PatternV3Configuration.class);
+  }
+  assertNull(old.closeStrengthMin());var hash=PatternStableStore.hash(old);assertEquals(hash,PatternStableStore.hash(PatternStableStore.JSON.readValue(PatternStableStore.JSON.writeValueAsBytes(old),PatternV3Configuration.class)));assertNotEquals(hash,PatternStableStore.hash(c));
   var invalidPeriod=(com.fasterxml.jackson.databind.node.ObjectNode)PatternStableStore.JSON.valueToTree(c);invalidPeriod.put("relativeVolumePeriod",1.5);assertThrows(Exception.class,()->PatternStableStore.JSON.treeToValue(invalidPeriod,PatternV3Configuration.class));
  }
  @Test void persistedAuditsAndExcelAgreeAndOldRunsDoNotReceiveInventedAudits()throws Exception{
