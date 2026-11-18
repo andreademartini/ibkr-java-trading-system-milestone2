@@ -26,6 +26,7 @@ public class PatternV2PaperStore {
             var result=action.apply(session);entity.payload=json(session);repository.saveAndFlush(entity);return result;});
     }
     public Session session(){return repository.findById("V2_SESSION").map(e->read(e.payload,Session.class)).orElseGet(Session::new);}
+    public void archive(Session session){repository.saveAndFlush(new PatternPaperEntity("V2_ARCHIVE:"+Instant.now()+":"+UUID.randomUUID(),"V2_ARCHIVE",json(session)));}
     public void event(Session session,String type,String symbol,Integer orderId,String signalId,String message,boolean critical){
         var event=new Event(Instant.now(),type,"PATTERN_V2",session.strategyVersion,symbol,orderId,signalId,message,critical);
         repository.save(new PatternPaperEntity("V2_EVENT:"+event.time()+":"+UUID.randomUUID(),"V2_EVENT",json(event)));

@@ -79,7 +79,7 @@ public final class MultiStrategyPaperRouter {
         var other=state(id.equals(V1)?V2:V1);
         if(other.trades.stream().anyMatch(t->t.symbol.equals(symbol)&&t.remaining().signum()>0&&t.direction.equals("LONG")!=isLong)||other.orders.stream().anyMatch(o->o.symbol.equals(symbol)&&o.role==Role.ENTRY&&!o.terminal()&&o.action.equals("BUY")!=isLong))throw new IllegalStateException("MULTI_STRATEGY_POSITION_CONFLICT");
         if(!simultaneousCertified&&engaged(other))throw new IllegalStateException("MULTI_STRATEGY_VALIDATION_REQUIRED: simultaneous PAPER_AUTO is disabled");
-        if(!simultaneousCertified)throw new IllegalStateException("ACCOUNT_CASH_BUDGET_UNVERIFIED: AvailableFunds alone does not prove unlevered account cash capacity");
+        if(!simultaneousCertified&&(!id.equals(V2)||!"1.2".equals(state(V2).strategyVersion)))throw new IllegalStateException("ACCOUNT_CASH_BUDGET_UNVERIFIED: solo la sessione V2 1.2 approvata puo usare il budget USD verificato");
     }
     private synchronized void place(String id,IbkrOrderCommand command){
         var c=raw.connection();if(!c.connected()||!c.paperIdentityVerified()||!c.writesVerified()||!c.account().equals(command.order().account()))throw new IllegalStateException("Verified PAPER account/write capability required");
@@ -90,8 +90,15 @@ public final class MultiStrategyPaperRouter {
             assertEntry(id,command.symbol(),command.side().name().equals("BUY"));
             if(pendingNotional(state(V1)).add(pendingNotional(state(V2))).compareTo(last.availableFunds())>0)throw new IllegalStateException("AGGREGATE_ACCOUNT_FUNDS_EXCEEDED");
         }else{
-            var order=s.orders.stream().filter(o->o.orderId==command.orderId()).findFirst().orElseThrow();var trade=s.trades.stream().filter(t->t.signalId.equals(order.signalId)).findFirst().orElseThrow();
-            if(command.quantity()<1||BigDecimal.valueOf(command.quantity()).compareTo(trade.remaining())>0||command.side().name().equals(trade.direction.equals("LONG")?"BUY":"SELL"))throw new IllegalStateException("Exit exceeds owned strategy quantity or has wrong side");
+            var order=s.orders.stream().filter(o->o.orderId==command.orderId()).findFirst().orElseThrow();
+            if(order.parentId!=0){
+                var parent=s.orders.stream().filter(o->o.orderId==order.parentId&&o.role==Role.ENTRY&&o.signalId.equals(order.signalId)).findFirst().orElseThrow();
+                if(command.quantity()<1||command.quantity()!=parent.quantity||command.side().name().equals(parent.action)||!Objects.equals(command.parentOrderId(),parent.orderId)||!Objects.equals(command.order().ocaGroup(),"PV2:"+order.signalId)||!(order.role==Role.STOP_LOSS||order.role==Role.TAKE_PROFIT))throw new IllegalStateException("Invalid attached bracket protection");
+                assertEntry(id,command.symbol(),parent.action.equals("BUY"));
+            }else{
+                var trade=s.trades.stream().filter(t->t.signalId.equals(order.signalId)).findFirst().orElseThrow();
+                if(command.quantity()<1||BigDecimal.valueOf(command.quantity()).compareTo(trade.remaining())>0||command.side().name().equals(trade.direction.equals("LONG")?"BUY":"SELL"))throw new IllegalStateException("Exit exceeds owned strategy quantity or has wrong side");
+            }
         }
         raw.place(command);
     }
@@ -100,11 +107,13 @@ public final class MultiStrategyPaperRouter {
     private final class View implements PatternPaperBroker {
         private final String id;View(String id){this.id=id;}
         public Connection connection(){return raw.connection();}
-        public void connectReadOnly(){synchronized(MultiStrategyPaperRouter.this){raw.connectReadOnly();}}
+        public void authorizePaperSession(String account,long epoch,String confirmation){if(!id.equals(V2))throw new IllegalStateException("Approval only available for V2 1.2");raw.authorizePaperSession(account,epoch,confirmation);}
+        public void connectReadOnly(){synchronized(MultiStrategyPaperRouter.this){if(id.equals(V2))raw.connectPaperSession();else if(!raw.connection().connected())raw.connectReadOnly();}}
         public BrokerSnapshot reconcile(){return scoped(id);}
         public PatternPaperCalendar calendar(String symbol){synchronized(MultiStrategyPaperRouter.this){return raw.calendar(symbol);}}
-        public List<HistoricalBar> dailyBars(String symbol){synchronized(MultiStrategyPaperRouter.this){var bars=raw.dailyBars(symbol);if(id.equals(V1)||historical==null||state(id).frozen==null)return bars;var c=state(id).frozen.configuration();var merged=new TreeMap<LocalDate,HistoricalBar>();historical.load(symbol,c.global().startDate(),LocalDate.now(),BarInterval.DAILY).forEach(b->merged.put(b.getDateTime().toLocalDate(),b));bars.forEach(b->merged.put(b.getDateTime().toLocalDate(),b));var result=new ArrayList<HistoricalBar>();for(var b:merged.values())result.add(b.withIndex(result.size()));return List.copyOf(result);}}
+        public List<HistoricalBar> dailyBars(String symbol){synchronized(MultiStrategyPaperRouter.this){return raw.dailyBars(symbol);}}
         public Quote quote(String symbol){return raw.quote(symbol);}
+        public boolean realtime(String symbol){return raw.realtime(symbol);}
         public List<IbkrOrderCommand> bracket(SignalRecord signal,long quantity,String account){synchronized(MultiStrategyPaperRouter.this){assertEntry(id,signal.symbol,signal.signal.detection().direction().name().equals("LONG"));return tag(raw.bracket(signal,quantity,account),id);}}
         public IbkrOrderCommand timeout(Trade trade,long quantity,String account,String group){synchronized(MultiStrategyPaperRouter.this){return tag(List.of(raw.timeout(trade,quantity,account,group)),id).getFirst();}}
         public void place(IbkrOrderCommand command){MultiStrategyPaperRouter.this.place(id,command);}
@@ -114,6 +123,6 @@ public final class MultiStrategyPaperRouter {
         public List<CommissionRecord> drainCommissions(){synchronized(MultiStrategyPaperRouter.this){pump();var list=List.copyOf(fees.get(id));fees.get(id).clear();return list;}}
         public List<BrokerOrder> drainOrders(){synchronized(MultiStrategyPaperRouter.this){pump();var list=List.copyOf(orders.get(id));orders.get(id).clear();return list;}}
         public List<String> drainErrors(){synchronized(MultiStrategyPaperRouter.this){pump();var list=List.copyOf(errors.get(id));errors.get(id).clear();return list;}}
-        public List<String> limitations(){var list=new ArrayList<>(raw.limitations());if(!simultaneousCertified){list.add("ACCOUNT_CASH_BUDGET_UNVERIFIED: AvailableFunds alone does not certify account cash/net-liquidation gross exposure limits without leverage");if(engaged(state(id.equals(V1)?V2:V1)))list.add("MULTI_STRATEGY_VALIDATION_REQUIRED: simultaneous PAPER_AUTO disabled pending certified broker protection/recovery");}return List.copyOf(list);}
+        public List<String> limitations(){var list=new ArrayList<>(raw.limitations());if(!simultaneousCertified){if(!id.equals(V2)||!"1.2".equals(state(V2).strategyVersion))list.add("ACCOUNT_CASH_BUDGET_UNVERIFIED: preparare V2 1.2 per il budget USD verificato");if(engaged(state(id.equals(V1)?V2:V1)))list.add("MULTI_STRATEGY_VALIDATION_REQUIRED: simultaneous PAPER_AUTO disabled pending certified broker protection/recovery");}return List.copyOf(list);}
     }
 }

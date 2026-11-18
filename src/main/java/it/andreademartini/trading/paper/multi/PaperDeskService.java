@@ -38,6 +38,8 @@ public class PaperDeskService {
         }
         boolean first=id.equals("PATTERN_V1");
         switch(operation){
+            case "prepare-v12"->{if(first)throw new IllegalArgumentException("Operazione solo V2");v2.upgrade(commandId,confirmation);}
+            case "authorize-paper"->{if(first)throw new IllegalArgumentException("Operazione solo V2");v2.authorize(commandId,confirmation);}
             case "start"->{if(first)v1.start(commandId);else v2.start(commandId);}
             case "stop"->{if(first)v1.stop(commandId);else v2.stop(commandId);}
             case "kill"->{if(first)v1.kill(commandId,confirmation);else v2.kill(commandId,confirmation);}

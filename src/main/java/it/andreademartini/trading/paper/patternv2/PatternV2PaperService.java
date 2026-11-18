@@ -31,7 +31,7 @@ public class PatternV2PaperService {
     public PatternV2PaperService(PatternV2PaperStore store,it.andreademartini.trading.backtest.patternv2stable.FrozenPatternV2Service stable,@org.springframework.beans.factory.annotation.Qualifier("patternV2PaperBroker") PatternPaperBroker broker,TradingSystemProperties properties,KillSwitchService globalKill){this.store=store;this.stable=stable;this.broker=broker;this.properties=properties;this.globalKill=globalKill;}
     @PostConstruct public synchronized void recover(){
         store.update(s->{
-            var version=stable.version("1.0");
+            var version=stable.version();
             if(version==null){s.mode=Mode.DISABLED;s.reason="Configurazione V2 non disponibile: PAPER disabilitato";return null;}
             if(s.frozen==null){s.frozen=version;s.strategyVersion=version.strategyVersion();s.configurationHash=version.configurationHash();s.initialCapital=BigDecimal.valueOf(version.configuration().global().initialCapital());s.peakEquity=s.initialCapital;}
             if(!version.configurationHash().equals(s.configurationHash))error(s,"Versione ufficiale diversa dalla sessione PAPER persistita; migrazione esplicita necessaria");
@@ -44,6 +44,30 @@ public class PatternV2PaperService {
         calendars.forEach((symbol,calendar)->calendar.next(Instant.now()).ifPresent(session->next.put(symbol,session.open())));
         var performance=new LinkedHashMap<>(PatternPaperLedger.performance(s,point));var shadow=PatternV2PaperShadow.virtual(s);performance.put("shadow",PatternPaperLedger.performance(shadow,PatternPaperLedger.capital(shadow,Instant.now())));
         return new Dashboard(s,broker.connection(),checks(s),point,performance,store.events(),next,adminConfigured,broker.limitations());
+    }
+    public synchronized void upgrade(String commandId,String confirmation){
+        if(!"PREPARE PATTERN_V2 1.2".equals(confirmation))throw new IllegalArgumentException("Conferma PREPARE PATTERN_V2 1.2 richiesta");
+        refresh();
+        if(lastSnapshot==null||!lastSnapshot.complete())throw new IllegalStateException("Riconciliazione completa richiesta prima di preparare la sessione");
+        store.update(s->{
+            if(s.commands.contains(commandId))return null;
+            if(s.killSwitch||s.mode==Mode.PAPER_AUTO||s.resumeRequested||s.trades.stream().anyMatch(t->t.remaining().signum()>0)||s.orders.stream().anyMatch(o->!o.terminal()))throw new IllegalStateException("Fermare gli ingressi e risolvere tutte le posizioni/ordini prima di aggiornare V2");
+            claim(s,commandId);store.archive(s);
+            var fresh=new Session();fresh.frozen=stable.version();fresh.strategyVersion=fresh.frozen.strategyVersion();fresh.configurationHash=fresh.frozen.configurationHash();fresh.initialCapital=BigDecimal.valueOf(fresh.frozen.configuration().global().initialCapital());fresh.peakEquity=fresh.initialCapital;
+            fresh.account=broker.connection().account();fresh.limits=s.limits;fresh.commands.add(commandId);
+            // Replace only after archiving the complete previous session in the same transaction.
+            s.frozen=fresh.frozen;s.strategyVersion=fresh.strategyVersion;s.configurationHash=fresh.configurationHash;s.initialCapital=fresh.initialCapital;s.peakEquity=fresh.peakEquity;
+            s.maximumDrawdown=BigDecimal.ZERO;s.signals.clear();s.orders.clear();s.executions.clear();s.commissions.clear();s.pendingCommissions.clear();s.trades.clear();s.equityCurve.clear();s.processedCloses.clear();s.shadowTrades.clear();s.shadowEquity.clear();s.shadowProcessedCloses.clear();s.shadowPeak=fresh.initialCapital;s.shadowMaximumDrawdown=BigDecimal.ZERO;
+            s.account=fresh.account;s.startedAt=null;s.activationDate=null;s.lastSignalAt=null;s.lastScheduler=null;s.lastReconciliation=null;s.calendars.clear();s.mode=Mode.DISABLED;s.reason="V2 1.2 preparata; confermare il conto e configurare i limiti prima dell'avvio";s.generation++;
+            store.event(s,"VERSION_PREPARED",null,null,null,s.reason,false);return null;
+        });
+        calendars.clear();lastSnapshot=null;entriesInhibited.set(true);
+    }
+    public synchronized void authorize(String commandId,String confirmation){
+        var c=broker.connection();
+        broker.authorizePaperSession(c.account(),c.epoch(),confirmation);
+        store.update(s->{claim(s,commandId);store.event(s,"OPERATOR_PAPER_APPROVAL",null,null,null,"Conto "+c.account()+", connessione "+c.epoch()+": conferma operatore; non attestazione IBKR",false);return null;});
+        refresh();loadCalendars();
     }
     public synchronized void configure(Limits limits,String commandId){
         limits.validate();store.update(s->{if(!claim(s,commandId))return null;
@@ -181,6 +205,7 @@ public class PatternV2PaperService {
                 var current=store.session();var c=broker.connection();
                 if(c.epoch()!=epoch||!c.connected()||!c.paperIdentityVerified()||!c.writesVerified()||!c.account().equals(cmd.order().account()))throw new IllegalStateException("Sessione PAPER cambiata/non verificata prima dell'invio");
                 if(!protective&&(entriesInhibited.get()||current.generation!=generation||current.mode!=Mode.PAPER_AUTO||current.killSwitch||globalKill.isActive()))throw new IllegalStateException("Nuovi ingressi bloccati prima della trasmissione");
+                if(!protective&&Instant.now().isAfter(calendars.get(candidate.symbol).session(candidate.entrySession).orElseThrow().open().plusSeconds(60)))throw new IllegalStateException("Finestra NEXT_BAR_OPEN scaduta durante la preparazione: nessun invio tardivo");
                 if(executionMonitor!=null){
                       if(!protective && "1.2".equals(current.strategyVersion) && executionMonitor.settings().blockNewPaperOrdersOnUnreliableMarketData() && executionMonitor.unreliable(candidate.symbol))throw new IllegalStateException("Monitor: unreliable market data");
                       executionMonitor.intent(candidate.id,cmd);
@@ -245,7 +270,7 @@ public class PatternV2PaperService {
         }return true;
     }
     private void markAndCount(Instant now){
-        var quotes=new HashMap<String,Quote>();for(var c:store.session().frozen.configuration().symbols())if(c.enabled())quotes.put(c.symbol(),broker.quote(c.symbol()));
+        var quotes=new HashMap<String,Quote>();for(var symbol:store.session().trades.stream().filter(t->t.remaining().signum()>0).map(t->t.symbol).distinct().toList())quotes.put(symbol,broker.quote(symbol));
         store.update(s->{for(var t:s.trades)if(t.remaining().signum()>0){
             var q=quotes.get(t.symbol);if(q!=null&&q.last()!=null&&q.time()!=null&&!q.time().isAfter(now)&&Duration.between(q.time(),now).compareTo(Duration.ofSeconds(30))<0)t.mark=q.last();
             var calendar=calendars.get(t.symbol);var local=calendar.localDate(now);t.holdingBars=calendar.holdingBars(t.entryDate,local);t.lastCountedSession=local;
@@ -289,9 +314,11 @@ public class PatternV2PaperService {
         checks.add(new Check("HEARTBEAT",c.heartbeat()!=null&&!c.heartbeat().isAfter(now.plusSeconds(5))&&Duration.between(c.heartbeat()==null?Instant.EPOCH:c.heartbeat(),now).compareTo(Duration.ofSeconds(45))<0,"Heartbeat broker mancante/obsoleto"));
         checks.add(new Check("ACCOUNT_ALLOWLIST",!c.account().isBlank()&&c.account().equals(properties.getIbkr().getAccountId())&&c.managedAccounts().size()==1&&c.managedAccounts().contains(c.account()),"Account esatto backend non presente come unico account autorizzato"));
         checks.add(new Check("PAPER_IDENTITY",c.paperIdentityVerified(),c.identityReason()));
-        checks.add(new Check("WRITE_CAPABILITY",c.writesVerified(),"API in sola lettura o permessi non verificati"));
-        checks.add(new Check("REALTIME_DATA",c.realtimeData(),"Market data realtime richiesti per esecuzione automatica"));
-        checks.add(new Check("FROZEN_CONFIGURATION",s.frozen!=null&&stable.version("1.0").configurationHash().equals(s.configurationHash)&&PatternStableStore.hash(s.frozen.configuration()).equals(s.configurationHash)&&!s.frozen.configuration().global().useLeverage(),"Snapshot V2/hash/versione non coerenti"));
+        checks.add(new Check("WRITE_CAPABILITY",c.writesVerified(),"Confermare la sessione Paper: WhatIf deve riuscire con Read-Only API disattivato"));
+        checks.add(new Check("V2_GLOBAL_FLAGS",properties.isOrderSubmissionEnabled()&&!properties.getStrategy().isAutoExecuteSignals(),"Impostare IBKR_PAPER_ORDERS_ENABLED=true e AUTO_EXECUTE_SIGNALS=false"));
+        checks.add(new Check("USD_CASH_BUDGET",lastSnapshot!=null&&lastSnapshot.availableFunds()!=null&&lastSnapshot.availableFunds().signum()>0,"Saldo cash, NetLiquidation e GrossPositionValue USD richiesti; nessuna conversione EUR implicita"));
+        checks.add(new Check("REALTIME_DATA",c.realtimeData()&&s.frozen.configuration().symbols().stream().filter(v->v.enabled()).allMatch(v->broker.realtime(v.symbol())),"Market data realtime IBKR effettivi richiesti per tutti i simboli V2; la sola variabile LIVE non abilita il feed"));
+        checks.add(new Check("FROZEN_CONFIGURATION",s.frozen!=null&&stable.version().configurationHash().equals(s.configurationHash)&&"1.2".equals(s.strategyVersion)&&PatternStableStore.hash(s.frozen.configuration()).equals(s.configurationHash)&&!s.frozen.configuration().global().useLeverage(),"Preparare esplicitamente la sessione PATTERN_V2 1.2; storico preservato"));
         checks.add(new Check("KILL_SWITCH",!s.killSwitch&&!globalKill.isActive(),"Kill switch attivo"));
         checks.add(new Check("RECONCILIATION",lastSnapshot!=null&&lastSnapshot.complete()&&s.lastReconciliation!=null&&lastSnapshot.epoch()==c.epoch()&&Duration.between(lastSnapshot.time(),now).compareTo(Duration.ofSeconds(45))<0,"Ordini/posizioni/protezioni non riconciliati"));
         boolean limits=true;try{s.limits.validate();}catch(RuntimeException e){limits=false;}checks.add(new Check("OPERATIONAL_LIMITS",limits,"Limiti supplementari da configurare esplicitamente"));

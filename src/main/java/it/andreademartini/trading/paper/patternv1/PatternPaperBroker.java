@@ -23,4 +23,8 @@ public interface PatternPaperBroker {
     List<BrokerOrder> drainOrders();
     List<String> drainErrors();
     List<String> limitations();
+    /** Explicit operator approval, bound to the current broker connection; never inferred from a port. */
+    default void authorizePaperSession(String account,long epoch,String confirmation){throw new IllegalStateException("Session approval unsupported");}
+    default void connectPaperSession(){connectReadOnly();}
+    default boolean realtime(String symbol){return connection().realtimeData();}
 }

@@ -72,6 +72,13 @@ public class IbkrHistoricalDataClient implements IbkrEventListener {
             String timeframe,
             String outputSize,
             int maxPoints) {
+        return historical(instrument,timeframe,outputSize,maxPoints,false);
+    }
+    /** Paper callers qualify completed bars against the exchange calendar, including today's close. */
+    public List<HistoricalBar> paperDaily(TradingSystemProperties.InstrumentProperties instrument,int maxPoints){
+        return historical(instrument,"DAILY","compact",maxPoints,true);
+    }
+    private List<HistoricalBar> historical(TradingSystemProperties.InstrumentProperties instrument,String timeframe,String outputSize,int maxPoints,boolean includeToday){
         String normalizedTimeframe = normalizeTimeframe(timeframe);
         int limit = Math.max(1, Math.min(5_000, maxPoints));
         int requestId = requestIdSequence.getAndIncrement();
@@ -84,7 +91,7 @@ public class IbkrHistoricalDataClient implements IbkrEventListener {
 
         String duration = duration(normalizedTimeframe, outputSize, limit);
         String barSize = barSize(normalizedTimeframe);
-        String endDateTime = historicalEndDateTime(normalizedTimeframe);
+        String endDateTime = includeToday?"":historicalEndDateTime(normalizedTimeframe);
         Contract contract = contractFactory.create(instrument);
 
         try {

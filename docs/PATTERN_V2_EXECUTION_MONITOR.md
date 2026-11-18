@@ -10,7 +10,7 @@ Added components: `ExecutionMonitor`, `ExecutionMonitorStore`, `ExecutionMonitor
 
 ## Important operational limitation
 
-The existing Paper orchestrator explicitly loads frozen **1.0**, whereas the stable backtest page uses **1.2**. Existing sessions are deliberately not migrated or relabeled. Signal collection is gated on actual session version 1.2. Consequently the current production adapter cannot yet provide an end-to-end 1.2 observation session. It also deliberately reports Paper identity and writes as unverified. These controls remain unchanged. An explicit, separately implemented versioned Paper session lifecycle and trustworthy account attestation are needed before collecting genuine 1.2 fills. No test orders were sent.
+The Paper lifecycle now supports frozen **1.2** with an explicit preparation command that archives prior sessions. See [Paper V2 1.2 setup](PATTERN_V2_PAPER_1_2.md). Session approval is an explicit operator confirmation bound to the connected account and epoch, not an independent IBKR attestation. Write access requires a successful non-executing WhatIf response. Actual realtime subscriptions, USD cash budget and reconciliation remain mandatory. Signal collection is gated on actual session version 1.2. No broker-connected test orders were sent during development.
 
 ## Persistence
 
